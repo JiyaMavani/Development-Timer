@@ -1,0 +1,6 @@
+@DevelopmentTimer.API_HostAddress = http://localhost:5100
+
+GET {{DevelopmentTimer.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
