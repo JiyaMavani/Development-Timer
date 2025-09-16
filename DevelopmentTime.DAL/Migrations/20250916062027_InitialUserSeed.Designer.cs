@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DevelopmentTimer.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250915123645_InitialUserSeed")]
+    [Migration("20250916062027_InitialUserSeed")]
     partial class InitialUserSeed
     {
         /// <inheritdoc />
@@ -53,16 +53,11 @@ namespace DevelopmentTimer.DAL.Migrations
                     b.Property<int>("TaskItemId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("DeveloperId");
 
                     b.HasIndex("TaskItemId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("ExtensionRequests");
                 });
@@ -121,16 +116,11 @@ namespace DevelopmentTimer.DAL.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("DeveloperId");
 
                     b.HasIndex("ProjectId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("TaskItems");
                 });
@@ -199,30 +189,30 @@ namespace DevelopmentTimer.DAL.Migrations
                         new
                         {
                             Id = 1,
-                            Password = "Admin@123",
+                            Password = "Admin@1234",
                             Role = 0,
-                            Username = "Admin1"
+                            Username = "Admin"
                         },
                         new
                         {
                             Id = 2,
-                            Password = "Dev@1234",
+                            Password = "Sita@1234",
                             Role = 1,
-                            Username = "Dev1"
+                            Username = "Sita"
                         },
                         new
                         {
                             Id = 3,
-                            Password = "Dev@5678",
+                            Password = "Rita@5678",
                             Role = 1,
-                            Username = "Dev2"
+                            Username = "Rita"
                         });
                 });
 
             modelBuilder.Entity("DevelopmentTimer.DAL.Entities.ExtensionsRequest", b =>
                 {
                     b.HasOne("DevelopmentTimer.DAL.Entities.User", "Developer")
-                        .WithMany()
+                        .WithMany("ExtensionRequests")
                         .HasForeignKey("DeveloperId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -230,12 +220,8 @@ namespace DevelopmentTimer.DAL.Migrations
                     b.HasOne("DevelopmentTimer.DAL.Entities.TaskItem", "TaskItem")
                         .WithMany("ExtensionRequests")
                         .HasForeignKey("TaskItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("DevelopmentTimer.DAL.Entities.User", null)
-                        .WithMany("ExtensionRequests")
-                        .HasForeignKey("UserId");
 
                     b.Navigation("Developer");
 
@@ -245,7 +231,7 @@ namespace DevelopmentTimer.DAL.Migrations
             modelBuilder.Entity("DevelopmentTimer.DAL.Entities.TaskItem", b =>
                 {
                     b.HasOne("DevelopmentTimer.DAL.Entities.User", "Developer")
-                        .WithMany()
+                        .WithMany("Tasks")
                         .HasForeignKey("DeveloperId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -255,10 +241,6 @@ namespace DevelopmentTimer.DAL.Migrations
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("DevelopmentTimer.DAL.Entities.User", null)
-                        .WithMany("Tasks")
-                        .HasForeignKey("UserId");
 
                     b.Navigation("Developer");
 
@@ -270,7 +252,7 @@ namespace DevelopmentTimer.DAL.Migrations
                     b.HasOne("DevelopmentTimer.DAL.Entities.User", "Developer")
                         .WithMany("Timesheets")
                         .HasForeignKey("DeveloperId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("DevelopmentTimer.DAL.Entities.TaskItem", "TaskItem")

@@ -6,23 +6,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DevelopmentTimer.DAL.Entities
+namespace DevelopmentTimer.BAL.DTOs.ProjectDTO
 {
-    public class Project
+    public class ProjectCreateDto
     {
-        public int Id { get; set; }
-
         [Required(ErrorMessage = "Project Name is required")]
-        [MinLength(3, ErrorMessage = " Project Name must be at least 3 characters")]
-        [MaxLength(50, ErrorMessage = " Project Name cannot exceed 50 characters")]
+        [MinLength(3, ErrorMessage = "Project Name must be atleast 3 characters")]
+        [MaxLength(50, ErrorMessage = "Project Name must not exceed 50 characters")]
         public string Name { get; set; }
-
         [Required(ErrorMessage = "MaxHoursPerDay is required")]
         [Range(1,24,ErrorMessage = "MaxHoursPerDay must be between 1 and 24")]
         public int MaxHoursPerDay { get; set; }
-
-        public Status Status {  get; set; }
-
-        public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
+        [Required(ErrorMessage = "Project Status is required")]
+        public Status Status { get; set; }
     }
 }

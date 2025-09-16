@@ -52,8 +52,7 @@ namespace DevelopmentTimer.DAL.Migrations
                     EstimatedHours = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     ProjectId = table.Column<int>(type: "int", nullable: false),
-                    DeveloperId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: true)
+                    DeveloperId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -70,11 +69,6 @@ namespace DevelopmentTimer.DAL.Migrations
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_TaskItems_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -88,8 +82,7 @@ namespace DevelopmentTimer.DAL.Migrations
                     ExtraHours = table.Column<int>(type: "int", nullable: false),
                     Justification = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    RequestDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: true)
+                    RequestDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -99,18 +92,13 @@ namespace DevelopmentTimer.DAL.Migrations
                         column: x => x.TaskItemId,
                         principalTable: "TaskItems",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ExtensionRequests_Users_DeveloperId",
                         column: x => x.DeveloperId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ExtensionRequests_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -140,7 +128,7 @@ namespace DevelopmentTimer.DAL.Migrations
                         column: x => x.DeveloperId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -154,11 +142,6 @@ namespace DevelopmentTimer.DAL.Migrations
                 column: "TaskItemId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ExtensionRequests_UserId",
-                table: "ExtensionRequests",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_TaskItems_DeveloperId",
                 table: "TaskItems",
                 column: "DeveloperId");
@@ -167,11 +150,6 @@ namespace DevelopmentTimer.DAL.Migrations
                 name: "IX_TaskItems_ProjectId",
                 table: "TaskItems",
                 column: "ProjectId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TaskItems_UserId",
-                table: "TaskItems",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Timesheets_DeveloperId",

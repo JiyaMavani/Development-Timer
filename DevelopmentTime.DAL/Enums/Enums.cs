@@ -6,12 +6,21 @@ using System.Threading.Tasks;
 
 namespace DevelopmentTimer.DAL.Enums
 {
-    public enum TaskItemStatus
+    public enum Role
     {
-        NotStarted,
-        Pending,
-        Completed,
+        Admin,
+        Developer
+    }
+    public enum Status
+    {
+        Active,
         InProgress,
+        Completed,
+        Pending,
+        Approved,
+        Rejected,
+        NotStarted,
+        OnHold,
         PendingExtension
     }
 }

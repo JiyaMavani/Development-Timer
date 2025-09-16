@@ -1,10 +1,11 @@
-﻿using DevelopmentTimer.DAL.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DevelopmentTimer.DAL.Entities;
+using DevelopmentTimer.DAL.Enums;
 
 namespace DevelopmentTimer.DAL.Entities
 {
@@ -23,10 +24,10 @@ namespace DevelopmentTimer.DAL.Entities
         public string Password { get; set; }
 
         [Required(ErrorMessage = "Role is required")]
-        public UserRole Role { get; set; }
+        public Role Role { get; set; }
 
-        public ICollection<TaskItem> Tasks { get; set; }
-        public ICollection<TimeSheet> Timesheets { get; set; }
-        public ICollection<ExtensionsRequest> ExtensionRequests { get; set; }
+        public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
+        public ICollection<TimeSheet> Timesheets { get; set; } = new List<TimeSheet>();
+        public ICollection<ExtensionsRequest> ExtensionRequests { get; set; } = new List<ExtensionsRequest>();
     }
 }

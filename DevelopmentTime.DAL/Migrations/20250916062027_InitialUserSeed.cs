@@ -17,9 +17,9 @@ namespace DevelopmentTimer.DAL.Migrations
                 columns: new[] { "Id", "Password", "Role", "Username" },
                 values: new object[,]
                 {
-                    { 1, "Admin@123", 0, "Admin1" },
-                    { 2, "Dev@1234", 1, "Dev1" },
-                    { 3, "Dev@5678", 1, "Dev2" }
+                    { 1, "Admin@1234", 0, "Admin" },
+                    { 2, "Sita@1234", 1, "Sita" },
+                    { 3, "Rita@5678", 1, "Rita" }
                 });
         }
 

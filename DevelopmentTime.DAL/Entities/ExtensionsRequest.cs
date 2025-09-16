@@ -30,7 +30,7 @@ namespace DevelopmentTimer.DAL.Entities
         public string Justification { get; set; }
 
         [Required]
-        public ExtensionStatus Status { get; set; } = ExtensionStatus.Pending;
+        public Status Status { get; set; } = Status.Pending;
 
         public DateTime RequestDate { get; set; } = DateTime.Now;
     }

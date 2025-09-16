@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace DevelopmentTimer.DAL.Entities
 {
     public class TaskItem
@@ -26,7 +27,7 @@ namespace DevelopmentTimer.DAL.Entities
         public int EstimatedHours { get; set; }
 
         [Required(ErrorMessage = "Please enter the task status")]
-        public TaskItemStatus Status { get; set; }
+        public Status Status { get; set; }
 
         [Required(ErrorMessage = "Project is required")]
         public int ProjectId { get; set; }

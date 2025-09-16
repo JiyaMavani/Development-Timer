@@ -29,7 +29,7 @@ namespace DevelopmentTimer.DAL.Entities
         public bool Submitted { get; set; } = false;
 
         [Required]
-        public ApprovalStatus ApprovalStatus { get; set; }
+        public Status ApprovalStatus { get; set; }
 
         public DateTime? SubmissionDate { get; set; }
     }

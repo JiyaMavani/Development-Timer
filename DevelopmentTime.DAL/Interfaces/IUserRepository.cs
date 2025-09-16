@@ -1,0 +1,19 @@
+﻿using DevelopmentTimer.DAL.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DevelopmentTimer.DAL.Interfaces
+{
+    public interface IUserRepository
+    {
+        Task<List<User>> GetAllAsync();
+        Task<User> GetByIdAsync(int id);
+        Task<User> GetByNameAsync(string name);
+        Task AddAsync(User user);
+        Task UpdateAsync(User user);
+        Task DeleteAsync(int id);
+    }
+}

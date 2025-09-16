@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DevelopmentTimer.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250915124331_InitialSeedAllData")]
+    [Migration("20250916064207_InitialSeedAllData")]
     partial class InitialSeedAllData
     {
         /// <inheritdoc />
@@ -53,16 +53,11 @@ namespace DevelopmentTimer.DAL.Migrations
                     b.Property<int>("TaskItemId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("DeveloperId");
 
                     b.HasIndex("TaskItemId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("ExtensionRequests");
 
@@ -71,21 +66,21 @@ namespace DevelopmentTimer.DAL.Migrations
                         {
                             Id = 1,
                             DeveloperId = 2,
-                            ExtraHours = 2,
-                            Justification = "Need more time to finalize design",
-                            RequestDate = new DateTime(2025, 9, 15, 18, 13, 31, 108, DateTimeKind.Local).AddTicks(9465),
-                            Status = 0,
+                            ExtraHours = 1,
+                            Justification = "To create responsive design",
+                            RequestDate = new DateTime(2025, 9, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
                             TaskItemId = 1
                         },
                         new
                         {
                             Id = 2,
                             DeveloperId = 3,
-                            ExtraHours = 1,
-                            Justification = "API dependencies delay",
-                            RequestDate = new DateTime(2025, 9, 15, 18, 13, 31, 108, DateTimeKind.Local).AddTicks(9477),
-                            Status = 0,
-                            TaskItemId = 2
+                            ExtraHours = 2,
+                            Justification = "To create responsive design",
+                            RequestDate = new DateTime(2025, 9, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
+                            TaskItemId = 3
                         });
                 });
 
@@ -116,16 +111,23 @@ namespace DevelopmentTimer.DAL.Migrations
                         new
                         {
                             Id = 1,
-                            MaxHoursPerDay = 8,
-                            Name = "Project A",
-                            Status = 0
+                            MaxHoursPerDay = 7,
+                            Name = "Project1",
+                            Status = 1
                         },
                         new
                         {
                             Id = 2,
                             MaxHoursPerDay = 6,
-                            Name = "Project B",
-                            Status = 0
+                            Name = "Project2",
+                            Status = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            MaxHoursPerDay = 8,
+                            Name = "Project3",
+                            Status = 7
                         });
                 });
 
@@ -159,16 +161,11 @@ namespace DevelopmentTimer.DAL.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("DeveloperId");
 
                     b.HasIndex("ProjectId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("TaskItems");
 
@@ -176,22 +173,42 @@ namespace DevelopmentTimer.DAL.Migrations
                         new
                         {
                             Id = 1,
-                            Description = "Design database schema",
+                            Description = "Login Page Creation",
                             DeveloperId = 2,
-                            EstimatedHours = 4,
+                            EstimatedHours = 2,
                             ProjectId = 1,
-                            Status = 3,
-                            Title = "Design DB"
+                            Status = 1,
+                            Title = "Login Page"
                         },
                         new
                         {
                             Id = 2,
-                            Description = "Setup backend API",
-                            DeveloperId = 3,
-                            EstimatedHours = 6,
+                            Description = "Register Page Creation",
+                            DeveloperId = 2,
+                            EstimatedHours = 3,
                             ProjectId = 1,
+                            Status = 2,
+                            Title = "Register Page"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Login Page Creation",
+                            DeveloperId = 3,
+                            EstimatedHours = 2,
+                            ProjectId = 2,
                             Status = 1,
-                            Title = "API Setup"
+                            Title = "Login Page"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Register Page Creation",
+                            DeveloperId = 3,
+                            EstimatedHours = 3,
+                            ProjectId = 2,
+                            Status = 2,
+                            Title = "Register Page"
                         });
                 });
 
@@ -234,18 +251,20 @@ namespace DevelopmentTimer.DAL.Migrations
                         new
                         {
                             Id = 1,
-                            ApprovalStatus = 0,
+                            ApprovalStatus = 3,
                             DeveloperId = 2,
-                            HoursWorked = 2m,
-                            Submitted = false,
+                            HoursWorked = 5m,
+                            SubmissionDate = new DateTime(2025, 9, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Submitted = true,
                             TaskItemId = 1
                         },
                         new
                         {
                             Id = 2,
-                            ApprovalStatus = 0,
-                            DeveloperId = 3,
-                            HoursWorked = 3m,
+                            ApprovalStatus = 7,
+                            DeveloperId = 2,
+                            HoursWorked = 4m,
+                            SubmissionDate = new DateTime(2025, 9, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Submitted = false,
                             TaskItemId = 2
                         });
@@ -279,30 +298,30 @@ namespace DevelopmentTimer.DAL.Migrations
                         new
                         {
                             Id = 1,
-                            Password = "Admin@123",
+                            Password = "Admin@1234",
                             Role = 0,
-                            Username = "Admin1"
+                            Username = "Admin"
                         },
                         new
                         {
                             Id = 2,
-                            Password = "Dev@1234",
+                            Password = "Sita@1234",
                             Role = 1,
-                            Username = "Dev1"
+                            Username = "Sita"
                         },
                         new
                         {
                             Id = 3,
-                            Password = "Dev@5678",
+                            Password = "Rita@5678",
                             Role = 1,
-                            Username = "Dev2"
+                            Username = "Rita"
                         });
                 });
 
             modelBuilder.Entity("DevelopmentTimer.DAL.Entities.ExtensionsRequest", b =>
                 {
                     b.HasOne("DevelopmentTimer.DAL.Entities.User", "Developer")
-                        .WithMany()
+                        .WithMany("ExtensionRequests")
                         .HasForeignKey("DeveloperId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -310,12 +329,8 @@ namespace DevelopmentTimer.DAL.Migrations
                     b.HasOne("DevelopmentTimer.DAL.Entities.TaskItem", "TaskItem")
                         .WithMany("ExtensionRequests")
                         .HasForeignKey("TaskItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("DevelopmentTimer.DAL.Entities.User", null)
-                        .WithMany("ExtensionRequests")
-                        .HasForeignKey("UserId");
 
                     b.Navigation("Developer");
 
@@ -325,7 +340,7 @@ namespace DevelopmentTimer.DAL.Migrations
             modelBuilder.Entity("DevelopmentTimer.DAL.Entities.TaskItem", b =>
                 {
                     b.HasOne("DevelopmentTimer.DAL.Entities.User", "Developer")
-                        .WithMany()
+                        .WithMany("Tasks")
                         .HasForeignKey("DeveloperId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -335,10 +350,6 @@ namespace DevelopmentTimer.DAL.Migrations
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("DevelopmentTimer.DAL.Entities.User", null)
-                        .WithMany("Tasks")
-                        .HasForeignKey("UserId");
 
                     b.Navigation("Developer");
 
@@ -350,7 +361,7 @@ namespace DevelopmentTimer.DAL.Migrations
                     b.HasOne("DevelopmentTimer.DAL.Entities.User", "Developer")
                         .WithMany("Timesheets")
                         .HasForeignKey("DeveloperId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("DevelopmentTimer.DAL.Entities.TaskItem", "TaskItem")

@@ -22,54 +22,54 @@ namespace DevelopmentTimer.DAL.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<TaskItem>()
-                .HasOne(t => t.Developer)
-                .WithMany()
-                .HasForeignKey(t => t.DeveloperId)
+            modelBuilder.Entity<TimeSheet>()
+                .HasOne(ts => ts.Developer)
+                .WithMany(u => u.Timesheets)
+                .HasForeignKey(ts => ts.DeveloperId)
                 .OnDelete(DeleteBehavior.Restrict); 
 
             modelBuilder.Entity<ExtensionsRequest>()
-                .HasOne(er => er.TaskItem)
-                .WithMany(t => t.ExtensionRequests)
-                .HasForeignKey(er => er.TaskItemId)
-                .OnDelete(DeleteBehavior.Cascade); 
+                .HasOne(e => e.Developer)
+                .WithMany(u => u.ExtensionRequests)
+                .HasForeignKey(e => e.DeveloperId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ExtensionsRequest>()
-                .HasOne(er => er.Developer)
-                .WithMany()
-                .HasForeignKey(er => er.DeveloperId)
+                .HasOne(e => e.TaskItem)
+                .WithMany(t => t.ExtensionRequests)
+                .HasForeignKey(e => e.TaskItemId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TaskItem>()
+                .HasOne(t => t.Developer)
+                .WithMany(u => u.Tasks)
+                .HasForeignKey(t => t.DeveloperId)
                 .OnDelete(DeleteBehavior.Restrict);
 
 
-            //seeding data for user entity
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Username = "Admin1", Password = "Admin@123", Role = UserRole.Admin },
-                new User { Id = 2, Username = "Dev1", Password = "Dev@1234", Role = UserRole.Developer },
-                new User { Id = 3, Username = "Dev2", Password = "Dev@5678", Role = UserRole.Developer }
+                new User { Id = 1,Username = "Admin",Password = "Admin@1234",Role = Role.Admin},
+                new User { Id = 2,Username = "Sita",Password = "Sita@1234",Role = Role.Developer},
+                new User { Id = 3,Username = "Rita",Password = "Rita@5678",Role = Role.Developer}
             );
-
-            //seeding data for project entity
             modelBuilder.Entity<Project>().HasData(
-               new Project { Id = 1, Name = "Project A", MaxHoursPerDay = 8 },
-               new Project { Id = 2, Name = "Project B", MaxHoursPerDay = 6 }
+               new Project { Id = 1, Name = "Project1", MaxHoursPerDay = 7, Status = Status.InProgress},
+               new Project { Id = 2, Name = "Project2", MaxHoursPerDay = 6, Status = Status.Completed },
+               new Project { Id = 3, Name = "Project3", MaxHoursPerDay = 8, Status = Status.OnHold }
             );
-
-            //seeding data for taskitem entity
             modelBuilder.Entity<TaskItem>().HasData(
-                new TaskItem { Id = 1, Title = "Design DB", Description = "Design database schema", EstimatedHours = 4, Status = TaskItemStatus.InProgress, ProjectId = 1, DeveloperId = 2 },
-                new TaskItem { Id = 2, Title = "API Setup", Description = "Setup backend API", EstimatedHours = 6, Status = TaskItemStatus.Pending, ProjectId = 1, DeveloperId = 3 }
+                new TaskItem { Id = 1,Title = "Login Page",Description = "Login Page Creation",EstimatedHours = 2,Status = Status.InProgress,ProjectId = 1,DeveloperId = 2},
+                new TaskItem { Id = 2,Title = "Register Page",Description = "Register Page Creation",EstimatedHours = 3,Status = Status.Completed,ProjectId = 1,DeveloperId = 2},
+                 new TaskItem { Id = 3, Title = "Login Page", Description = "Login Page Creation", EstimatedHours = 2, Status = Status.InProgress, ProjectId = 2, DeveloperId = 3 },
+                new TaskItem { Id = 4, Title = "Register Page", Description = "Register Page Creation", EstimatedHours = 3, Status = Status.Completed, ProjectId = 2, DeveloperId = 3 }
             );
-
-            //seeding data for timesheet entity
             modelBuilder.Entity<TimeSheet>().HasData(
-                new TimeSheet { Id = 1, DeveloperId = 2, TaskItemId = 1, HoursWorked = 2, Submitted = false, ApprovalStatus = ApprovalStatus.Pending },
-                new TimeSheet { Id = 2, DeveloperId = 3, TaskItemId = 2, HoursWorked = 3, Submitted = false, ApprovalStatus = ApprovalStatus.Pending }
+                new TimeSheet { Id = 1,DeveloperId = 2,TaskItemId = 1,HoursWorked = 5,Submitted = true,ApprovalStatus = Status.Pending,SubmissionDate = new DateTime(2025,09,15)},
+                new TimeSheet { Id = 2, DeveloperId = 2, TaskItemId = 2, HoursWorked = 4, Submitted = false, ApprovalStatus = Status.OnHold, SubmissionDate = new DateTime(2025, 09, 25)}
             );
-            
-            //seeding data for extension request entity
             modelBuilder.Entity<ExtensionsRequest>().HasData(
-                new ExtensionsRequest { Id = 1, TaskItemId = 1, DeveloperId = 2, ExtraHours = 2, Justification = "Need more time to finalize design", Status = ExtensionStatus.Pending },
-                new ExtensionsRequest { Id = 2, TaskItemId = 2, DeveloperId = 3, ExtraHours = 1, Justification = "API dependencies delay", Status = ExtensionStatus.Pending }
+                new ExtensionsRequest { Id = 1,TaskItemId = 1,DeveloperId = 2,ExtraHours = 1,Justification = "To create responsive design",Status = Status.InProgress,RequestDate = new DateTime(2025,09,16)},
+                new ExtensionsRequest { Id = 2,TaskItemId = 3,DeveloperId = 3,ExtraHours = 2,Justification = "To create responsive design",Status = Status.InProgress,RequestDate = new DateTime(2025,09,16)}
             );
         }
     }
