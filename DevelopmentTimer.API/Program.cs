@@ -1,6 +1,10 @@
 
 using Microsoft.EntityFrameworkCore;
 using DevelopmentTimer.DAL.Data;
+using DevelopmentTimer.DAL.Repository;
+using DevelopmentTimer.DAL.Interfaces;
+using DevelopmentTimer.BAL.Interfaces;
+using DevelopmentTimer.BAL.Managers;
 
 namespace DevelopmentTimer.API
 {
@@ -14,6 +18,20 @@ namespace DevelopmentTimer.API
             options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString")));
 
             // Add services to the container.
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+            builder.Services.AddScoped<ITaskItemRepository, TaskItemRepository>();
+            builder.Services.AddScoped<ITimeSheetRepository, TimeSheetRepository>();
+            builder.Services.AddScoped<IExtensionsRequestRepository, ExtensionsRequestRepository>();
+            
+
+            builder.Services.AddScoped<IUserManager, UserManager>();
+            builder.Services.AddScoped<IProjectManager, ProjectManager>();
+            builder.Services.AddScoped<ITaskItemManager, TaskItemManager>();
+            builder.Services.AddScoped<ITimeSheetManager, TimeSheetManager>();
+            builder.Services.AddScoped<IExtensionsRequestManager, ExtensionsRequestManager>();
+
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

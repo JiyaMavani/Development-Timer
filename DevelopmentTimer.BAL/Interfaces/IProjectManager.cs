@@ -1,5 +1,6 @@
 ﻿using DevelopmentTimer.BAL.DTOs.ProjectDTO;
 using DevelopmentTimer.DAL.Entities;
+using DevelopmentTimer.DAL.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace DevelopmentTimer.BAL.Interfaces
         Task<ProjectReadDto> GetByProjectId(int id);
         Task<ProjectReadDto> GetByProjectNameAsync(string name);
         Task<List<ProjectReadDto>> GetByProjectMaxHours(int maxHours);
+        Task<List<ProjectReadDto>> GetByProjectStatus(Status status);
         Task<ProjectReadDto> CreateProjectAsync(ProjectCreateDto projectCreateDto);
         Task<ProjectReadDto> UpdateProjectAsync(ProjectUpdateDto projectUpdateDto);
         Task<bool> DeleteProjectAsync(int id);

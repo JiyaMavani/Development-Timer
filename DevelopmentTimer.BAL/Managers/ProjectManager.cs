@@ -2,6 +2,7 @@
 using DevelopmentTimer.BAL.DTOs.ProjectDTO;
 using DevelopmentTimer.BAL.Interfaces;
 using DevelopmentTimer.DAL.Entities;
+using DevelopmentTimer.DAL.Enums;
 using DevelopmentTimer.DAL.Interfaces;
 using DevelopmentTimer.DAL.Repository;
 using System;
@@ -37,7 +38,7 @@ namespace DevelopmentTimer.BAL.Managers
                     Id = project.Id,
                     Name = project.Name,
                     MaxHoursPerDay = project.MaxHoursPerDay,
-                    Status = project.Status,
+                    Status = project.Status.ToString(),
                 };
             }
             else
@@ -68,7 +69,7 @@ namespace DevelopmentTimer.BAL.Managers
                 Id = project.Id,
                 Name = project.Name,
                 MaxHoursPerDay = project.MaxHoursPerDay,
-                Status = project.Status,
+                Status = project.Status.ToString(),
             }).ToList();
         }
 
@@ -83,7 +84,7 @@ namespace DevelopmentTimer.BAL.Managers
                     Id = project.Id,
                     Name = project.Name,
                     MaxHoursPerDay = project.MaxHoursPerDay,
-                    Status = project.Status,
+                    Status = project.Status.ToString(),
                 };
             };
         }
@@ -96,7 +97,7 @@ namespace DevelopmentTimer.BAL.Managers
                 Id = project.Id,
                 Name = project.Name,
                 MaxHoursPerDay = project.MaxHoursPerDay,
-                Status = project.Status,
+                Status = project.Status.ToString(),
             }).ToList();
         }
 
@@ -111,10 +112,21 @@ namespace DevelopmentTimer.BAL.Managers
                     Id = project.Id,
                     Name = project.Name,
                     MaxHoursPerDay = project.MaxHoursPerDay,
-                    Status = project.Status,
+                    Status = project.Status.ToString(),
                 };
-            }
-            ;
+            };
+        }
+
+        public async Task<List<ProjectReadDto>> GetByProjectStatus(Status status)
+        {
+            var projectStatus = await projectRepository.GetByStatus(status);
+            return projectStatus.Select(project => new ProjectReadDto
+            {
+                    Id = project.Id,
+                    Name = project.Name,
+                    MaxHoursPerDay = project.MaxHoursPerDay,
+                    Status = project.Status.ToString(),
+            }).ToList();
         }
 
         public async Task<ProjectReadDto> UpdateProjectAsync(ProjectUpdateDto projectUpdateDto)
@@ -128,10 +140,10 @@ namespace DevelopmentTimer.BAL.Managers
                 await projectRepository.UpdateAsync(existingproject);
                 return new ProjectReadDto
                 {
-                    Id = project.Id,
-                    Name = project.Name,
-                    MaxHoursPerDay = project.MaxHoursPerDay,
-                    Status = project.Status,
+                    Id = existingproject.Id,
+                    Name = existingproject.Name,
+                    MaxHoursPerDay = existingproject.MaxHoursPerDay,
+                    Status = existingproject.Status.ToString(),
                 };
             }
             else

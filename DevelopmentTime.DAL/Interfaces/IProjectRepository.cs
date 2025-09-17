@@ -1,4 +1,5 @@
 ﻿using DevelopmentTimer.DAL.Entities;
+using DevelopmentTimer.DAL.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,8 @@ namespace DevelopmentTimer.DAL.Interfaces
         Task<Project> GetByIdAsync(int id);
         Task<Project> GetByNameAsync(string name);
         Task<List<Project>> GetByMaxHours(int maxHours);
+        Task<List<Project>> GetByStatus(Status status);
+
         Task AddAsync(Project project);
         Task UpdateAsync(Project project);
         Task DeleteAsync(int id);

@@ -1,5 +1,6 @@
 ﻿using DevelopmentTimer.DAL.Data;
 using DevelopmentTimer.DAL.Entities;
+using DevelopmentTimer.DAL.Enums;
 using DevelopmentTimer.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -57,6 +58,12 @@ namespace DevelopmentTimer.DAL.Repository
         {
             return await appDbContext.Projects
                             .Where(p => p.MaxHoursPerDay == maxHours)
+                            .ToListAsync();
+        }
+        public async Task<List<Project>> GetByStatus(Status status)
+        {
+            return await appDbContext.Projects
+                            .Where(p => p.Status == status)
                             .ToListAsync();
         }
 
