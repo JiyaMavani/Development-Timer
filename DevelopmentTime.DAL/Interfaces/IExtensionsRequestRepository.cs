@@ -11,7 +11,7 @@ namespace DevelopmentTimer.DAL.Interfaces
     public interface IExtensionsRequestRepository
     {
         Task<List<ExtensionsRequest>> GetAllAsync();
-        Task<ExtensionsRequest> GetByIdAsync(int id);
+        Task<ExtensionsRequest?> GetByIdAsync(int id);
         Task<List<ExtensionsRequest>> GetByTaskItemIdAsync(int taskItemId);
         Task<List<ExtensionsRequest>> GetByDeveloperIdAsync(int developerId);
         Task<List<ExtensionsRequest>> GetByExtraHoursAsync(int extraHours);

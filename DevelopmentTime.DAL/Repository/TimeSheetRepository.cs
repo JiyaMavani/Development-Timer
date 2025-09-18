@@ -38,27 +38,27 @@ namespace DevelopmentTimer.DAL.Repository
 
         public async Task<List<TimeSheet>> GetAllAsync()
         {
-            return await appDbContext.Timesheets.ToListAsync();
+            return await appDbContext.Timesheets.FromSqlInterpolated($"EXEC GetTimeSheet").ToListAsync();
         }
 
         public async Task<List<TimeSheet>> GetByApprovalStatusAsync(Status approvalStatus)
         {
-            return await appDbContext.Timesheets.Where(p => p.ApprovalStatus == approvalStatus).ToListAsync();
+            return await appDbContext.Timesheets.FromSqlInterpolated($"EXEC GetTimeSheet @ApprovalStatus = {approvalStatus}").ToListAsync();
         }
 
         public async Task<List<TimeSheet>> GetByDeveloperIdAsync(int developerId)
         {
-            return await appDbContext.Timesheets.Where(d => d.DeveloperId == developerId).ToListAsync();
+            return await appDbContext.Timesheets.FromSqlInterpolated($"EXEC GetTimeSheet @DeveloperId = {developerId}").ToListAsync();
         }
 
         public async Task<List<TimeSheet>> GetByHoursWorkedAsync(decimal hoursWorked)
         {
-            return await appDbContext.Timesheets.Where(h => h.HoursWorked == hoursWorked).ToListAsync();
+            return await appDbContext.Timesheets.FromSqlInterpolated($"EXEC GetTimeSheet @HoursWorked = {hoursWorked}").ToListAsync();
         }
 
-        public async Task<TimeSheet> GetByIdAsync(int id)
+        public async Task<TimeSheet?> GetByIdAsync(int id)
         {
-            return await appDbContext.Timesheets.FindAsync(id);
+            return await appDbContext.Timesheets.FromSqlInterpolated($"EXEC GetTimeSheet @Id = {id}").FirstOrDefaultAsync();
         }
 
         public async Task<List<TimeSheet>> GetBySubmissionDateAsync(DateTime? submissionDate)

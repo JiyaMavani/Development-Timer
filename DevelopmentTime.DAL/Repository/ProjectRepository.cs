@@ -24,47 +24,51 @@ namespace DevelopmentTimer.DAL.Repository
             var existingProject = await appDbContext.Projects.FirstOrDefaultAsync(p => p.Name.ToLower() == project.Name.ToLower());
             if (existingProject == null)
             {
-                await appDbContext.AddAsync(project);
+                await appDbContext.Projects.AddAsync(project);
                 await appDbContext.SaveChangesAsync();
             }
         }
 
         public async Task DeleteAsync(int id)
         {
-            var existingProject = await appDbContext.Projects.FindAsync(id);
-            if (existingProject != null)
+            var project = await appDbContext.Projects.FindAsync(id);
+            if (project != null)
             {
-                appDbContext.Projects.Remove(existingProject);
+                appDbContext.Projects.Remove(project);
                 await appDbContext.SaveChangesAsync();
             }
         }
 
         public async Task<List<Project>> GetAllAsync()
         {
-            return await appDbContext.Projects.ToListAsync();
+           return await appDbContext.Projects.FromSqlRaw("EXEC sp_GetAllProjects").ToListAsync();
         }
 
-        public async Task<Project> GetByIdAsync(int id)
+        public async Task<Project?> GetByIdAsync(int id)
         {
-            return await appDbContext.Projects.FindAsync(id);
+            var project = await appDbContext.Projects
+                .FromSqlInterpolated($"EXEC sp_GetProjectById @Id={id}")
+                .ToListAsync();
+
+            return project.FirstOrDefault();
         }
 
-        public Task<Project> GetByNameAsync(string name)
+        public async Task<Project?> GetByNameAsync(string name)
         {
-            return appDbContext.Projects.FirstOrDefaultAsync(p => p.Name.ToLower() == name.ToLower());
+            var project = await appDbContext.Projects
+            .FromSqlInterpolated($"EXEC sp_GetProjectByName @Name={name}").ToListAsync();
+            return project.FirstOrDefault();
+
         }
 
         public async Task<List<Project>> GetByMaxHours(int maxHours)
         {
-            return await appDbContext.Projects
-                            .Where(p => p.MaxHoursPerDay == maxHours)
-                            .ToListAsync();
+            return await appDbContext.Projects.FromSqlInterpolated($"EXEC sp_GetProjectsByMaxHours @MaxHoursPerDay={maxHours}").ToListAsync();
         }
         public async Task<List<Project>> GetByStatus(Status status)
         {
-            return await appDbContext.Projects
-                            .Where(p => p.Status == status)
-                            .ToListAsync();
+            return await appDbContext.Projects.FromSqlInterpolated($"EXEC sp_GetProjectsByStatus @Status={(int)status}").ToListAsync();
+
         }
 
         public async Task UpdateAsync(Project project)

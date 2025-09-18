@@ -11,7 +11,7 @@ namespace DevelopmentTimer.DAL.Interfaces
     public interface ITimeSheetRepository
     {
         Task<List<TimeSheet>> GetAllAsync();
-        Task<TimeSheet> GetByIdAsync(int id);
+        Task<TimeSheet?> GetByIdAsync(int id);
         Task<List<TimeSheet>> GetByDeveloperIdAsync(int developerId);
         Task<List<TimeSheet>> GetByTaskItemIdAsync(int taskItemId);
         Task<List<TimeSheet>> GetByHoursWorkedAsync(decimal hoursWorked);

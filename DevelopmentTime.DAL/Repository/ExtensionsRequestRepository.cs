@@ -38,46 +38,45 @@ namespace DevelopmentTimer.DAL.Repository
 
         public async Task<List<ExtensionsRequest>> GetAllAsync()
         {
-            return await appDbContext.ExtensionRequests.ToListAsync();
+            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC GetExtensionsRequest").ToListAsync();
         }
 
         public async Task<List<ExtensionsRequest>> GetByDeveloperIdAsync(int developerId)
         {
-            return await appDbContext.ExtensionRequests.Where(d => d.DeveloperId == developerId).ToListAsync();
+            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC GetExtensionsRequest @DeveloperId = {developerId}").ToListAsync();
         }
 
         public async Task<List<ExtensionsRequest>> GetByExtraHoursAsync(int extraHours)
         {
-            return await appDbContext.ExtensionRequests.Where(h=>h.ExtraHours == extraHours).ToListAsync();
+            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC GetExtensionsRequest @ExtraHours = {extraHours}").ToListAsync();
         }
 
-        public async Task<ExtensionsRequest> GetByIdAsync(int id)
+        public async Task<ExtensionsRequest?> GetByIdAsync(int id)
         {
-            return await appDbContext.ExtensionRequests.FindAsync(id);
-
+            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC GetExtensionsRequest @Id = {id}").FirstOrDefaultAsync(); 
         }
 
         public async Task<List<ExtensionsRequest>> GetByJustificationAsync(string justification)
         {
-            return await appDbContext.ExtensionRequests.Where(j => j.Justification == justification).ToListAsync();
+            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC GetExtensionsRequest @Justification = {justification}").ToListAsync();
         }
 
         public async Task<List<ExtensionsRequest>> GetByRequestDateAsync(DateTime requestDate)
         {
-            var nextDay = requestDate.Date.AddDays(1);
+            var dateOnly = requestDate.Date;
             return await appDbContext.ExtensionRequests
-                .Where(d => d.RequestDate >= requestDate.Date && d.RequestDate < nextDay).ToListAsync();
-
+                .FromSqlInterpolated($"EXEC GetExtensionsRequest @RequestDate = {dateOnly}")
+                .ToListAsync();
         }
 
         public async Task<List<ExtensionsRequest>> GetByStatusAsync(Status status)
         {
-            return await appDbContext.ExtensionRequests.Where(s=>s.Status==status).ToListAsync();
+            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC GetExtensionsRequest @Status = {status}").ToListAsync();
         }
 
         public async Task<List<ExtensionsRequest>> GetByTaskItemIdAsync(int taskItemId)
         {
-            return await appDbContext.ExtensionRequests.Where(t => t.TaskItemId==taskItemId).ToListAsync();
+            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC GetExtensionsRequest @TaskItemId = {taskItemId}").ToListAsync();
         }
 
         public async Task UpdateAsync(ExtensionsRequest extensionsRequest)

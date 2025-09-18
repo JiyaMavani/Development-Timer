@@ -42,42 +42,48 @@ namespace DevelopmentTimer.DAL.Repository
 
         public async Task<List<TaskItem>> GetAllAsync()
         {
-            return await appDbContext.TaskItems.ToListAsync();
+            return await appDbContext.TaskItems.FromSqlInterpolated($"EXEC sp_GetAllTaskItems").ToListAsync();
         }
 
         public async Task<List<TaskItem>> GetByDescriptionAsync(string Description)
         {
-            return await appDbContext.TaskItems.Where(p => p.Description.ToLower() == Description.ToLower()).ToListAsync();
+            return await appDbContext.TaskItems.FromSqlInterpolated($"EXEC sp_GetTaskItemsByDescription @Description = {Description}").ToListAsync();
         }
 
         public async Task<List<TaskItem>> GetByDeveloperIdAsync(int DeveloperId)
         {
-           return await appDbContext.TaskItems.Where(p => p.DeveloperId ==  DeveloperId).ToListAsync();
+            return await appDbContext.TaskItems
+            .FromSqlInterpolated($"EXEC sp_GetTaskItemsByDeveloperId @DeveloperId={DeveloperId}").ToListAsync();
         }
 
         public async Task<List<TaskItem>> GetByEstimatedHoursAsync(int EstimatedHours)
         {
-            return await appDbContext.TaskItems.Where(p => p.EstimatedHours == EstimatedHours).ToListAsync();
+            return await appDbContext.TaskItems.FromSqlInterpolated($"EXEC sp_GetTaskItemsByEstimatedHours @EstimatedHours = {EstimatedHours}").ToListAsync();
         }
 
-        public async Task<TaskItem> GetByIdAsync(int id)
+        public async Task<TaskItem?> GetByIdAsync(int id)
         {
-            return await appDbContext.TaskItems.FindAsync(id);
+            var taskItems = await appDbContext.TaskItems
+                .FromSqlInterpolated($"EXEC sp_GetTaskItemById @Id={id}")
+                .ToListAsync();
+
+            return taskItems.FirstOrDefault();
         }
 
         public async Task<List<TaskItem>> GetByProjectIdAsync(int ProjectId)
         {
-            return await appDbContext.TaskItems.Where(p => p.ProjectId == ProjectId).ToListAsync();
+            return await appDbContext.TaskItems
+            .FromSqlInterpolated($"EXEC sp_GetTaskItemsByProjectId @ProjectId {ProjectId}").ToListAsync();
         }
 
         public async Task<List<TaskItem>> GetByStatusAsync(Status status)
         {
-            return await appDbContext.TaskItems.Where(p => p.Status == status).ToListAsync();
+            return await appDbContext.TaskItems.FromSqlInterpolated($"EXEC sp_GetTaskItemsByStatus @Status = {status}").ToListAsync();
         }
 
         public async Task<List<TaskItem>> GetByTitleAsync(string Title)
         {
-            return await appDbContext.TaskItems.Where(p => p.Title.ToLower() == Title.ToLower()).ToListAsync();
+            return await appDbContext.TaskItems.FromSqlInterpolated($"EXEC sp_GetTaskItemsByTitle @Title = {Title}").ToListAsync();
         }
 
         public async Task UpdateAsync(TaskItem taskItem)

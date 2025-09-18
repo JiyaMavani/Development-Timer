@@ -11,8 +11,8 @@ namespace DevelopmentTimer.DAL.Interfaces
     public interface IProjectRepository
     {
         Task<List<Project>> GetAllAsync();
-        Task<Project> GetByIdAsync(int id);
-        Task<Project> GetByNameAsync(string name);
+        Task<Project?> GetByIdAsync(int id);
+        Task<Project?> GetByNameAsync(string name);
         Task<List<Project>> GetByMaxHours(int maxHours);
         Task<List<Project>> GetByStatus(Status status);
 

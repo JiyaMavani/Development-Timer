@@ -11,7 +11,7 @@ namespace DevelopmentTimer.DAL.Interfaces
     public interface ITaskItemRepository
     { 
         Task<List<TaskItem>> GetAllAsync();
-        Task<TaskItem> GetByIdAsync(int id);
+        Task<TaskItem?> GetByIdAsync(int id);
         Task<List<TaskItem>> GetByTitleAsync(string Title);
         Task<List<TaskItem>> GetByDescriptionAsync(string Description);
         Task<List<TaskItem>> GetByEstimatedHoursAsync(int EstimatedHours);

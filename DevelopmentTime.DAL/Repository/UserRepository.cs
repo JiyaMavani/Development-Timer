@@ -1,11 +1,10 @@
 ﻿using DevelopmentTimer.DAL.Data;
 using DevelopmentTimer.DAL.Entities;
+using DevelopmentTimer.DAL.Enums;
 using DevelopmentTimer.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DevelopmentTimer.DAL.Repository
@@ -13,19 +12,15 @@ namespace DevelopmentTimer.DAL.Repository
     public class UserRepository : IUserRepository
     {
         private readonly AppDbContext appDbContext;
-        public UserRepository(AppDbContext appDbContext) 
+        public UserRepository(AppDbContext context)
         {
-            this.appDbContext = appDbContext;
+            this.appDbContext = context;
         }
 
         public async Task AddAsync(User user)
         {
-            var existinguser = await appDbContext.Users.FirstOrDefaultAsync(u => u.Username.ToLower() == user.Username.ToLower());
-            if (existinguser == null)
-            {
-                await appDbContext.Users.AddAsync(user);
-                await appDbContext.SaveChangesAsync();
-            }
+            await appDbContext.Users.AddAsync(user);
+            await appDbContext.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
@@ -38,19 +33,36 @@ namespace DevelopmentTimer.DAL.Repository
             }
         }
 
-        public async Task<User> GetByIdAsync(int id)
+        public async Task<User?> GetByIdAsync(int id)
         {
-            return await appDbContext.Users.FindAsync(id);
+            var users = await appDbContext.Users
+                .FromSqlInterpolated($"EXEC sp_GetUserById @Id={id}")
+                .ToListAsync();
+
+            return users.FirstOrDefault();
         }
 
-        public async Task<User> GetByNameAsync(string name)
+        public async Task<User?> GetByNameAsync(string name)
         {
-            return await appDbContext.Users.FirstOrDefaultAsync(user => user.Username.ToLower() == name.ToLower());
+            var users = await appDbContext.Users
+                .FromSqlInterpolated($"EXEC sp_GetUserByName @Name={name}")
+                .ToListAsync();
+
+            return users.FirstOrDefault();
         }
 
-        public Task<List<User>> GetAllAsync()
+        public async Task<List<User>> GetAllAsync()
         {
-            return appDbContext.Users.ToListAsync();
+            return await appDbContext.Users
+                .FromSqlRaw("EXEC sp_GetAllUsers")
+                .ToListAsync();
+        }
+
+        public async Task<List<User>> GetByRoleAsync(Role role)
+        {
+            return await appDbContext.Users
+                .FromSqlInterpolated($"EXEC sp_GetUsersByRole @Role={(int)role}")
+                .ToListAsync();
         }
 
         public async Task UpdateAsync(User user)

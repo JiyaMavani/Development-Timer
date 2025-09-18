@@ -22,7 +22,7 @@ namespace DevelopmentTimer.BAL.Managers
             this.taskItemRepository = taskItemRepository;
         }
 
-        public async Task<TaskItemReadDto> CreateTaskItemAsync(TaskItemCreateDto taskItemCreateDto)
+        public async Task<TaskItemReadDto?> CreateTaskItemAsync(TaskItemCreateDto taskItemCreateDto)
         {
             var existingtaskitem = await taskItemRepository.GetByTitleAsync(taskItemCreateDto.Title);
             if (!existingtaskitem.Any(t => t.ProjectId == taskItemCreateDto.ProjectId && t.DeveloperId == taskItemCreateDto.DeveloperId))
@@ -129,7 +129,7 @@ namespace DevelopmentTimer.BAL.Managers
             }).ToList();
         }
 
-        public async Task<TaskItemReadDto> GetByTaskItemId(int id)
+        public async Task<TaskItemReadDto?> GetByTaskItemId(int id)
         {
             var taskitem = await taskItemRepository.GetByIdAsync(id);
             if (taskitem == null) return null;
@@ -193,7 +193,7 @@ namespace DevelopmentTimer.BAL.Managers
             }).ToList();
         }
 
-        public async Task<TaskItemReadDto> UpdateTaskItemAsync(TaskItemUpdateDto taskItemUpdateDto)
+        public async Task<TaskItemReadDto?> UpdateTaskItemAsync(TaskItemUpdateDto taskItemUpdateDto)
         {
             var existingtaskitem = await taskItemRepository.GetByIdAsync(taskItemUpdateDto.Id);
             if (existingtaskitem != null)

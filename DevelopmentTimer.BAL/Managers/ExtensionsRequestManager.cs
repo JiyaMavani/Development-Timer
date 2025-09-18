@@ -22,11 +22,12 @@ namespace DevelopmentTimer.BAL.Managers
             this.extensionsRequestRepository = extensionsRequestRepository;
         }
 
-        public async Task<ExtensionsRequestReadDto> CreateExtensionsRequestAsync(ExtensionsRequestCreateDto extensionsRequestCreateDto)
+        public async Task<ExtensionsRequestReadDto?> CreateExtensionsRequestAsync(ExtensionsRequestCreateDto extensionsRequestCreateDto)
         {
-            var existingextensionRequest = (await extensionsRequestRepository.GetAllAsync())
-            .Any(t => t.TaskItemId == extensionsRequestCreateDto.TaskItemId && t.DeveloperId == extensionsRequestCreateDto.DeveloperId);
-            if (existingextensionRequest == false)
+            var existingExtensionRequest = await extensionsRequestRepository
+            .GetByDeveloperIdAsync(extensionsRequestCreateDto.DeveloperId);
+
+            if (!existingExtensionRequest.Any(t => t.TaskItemId == extensionsRequestCreateDto.TaskItemId))
             {
                 var extensionsRequest = new ExtensionsRequest
                 {
@@ -114,10 +115,10 @@ namespace DevelopmentTimer.BAL.Managers
             }).ToList();
         }
 
-        public async Task<ExtensionsRequestReadDto> GetByExtensionsRequestId(int id)
+        public async Task<ExtensionsRequestReadDto?> GetByExtensionsRequestId(int id)
         {
             var extensionsRequest = await extensionsRequestRepository.GetByIdAsync(id);
-            if (extensionsRequest == null) return null;
+            if(extensionsRequest == null) return null;
             return new ExtensionsRequestReadDto
             {
                 Id = extensionsRequest.Id,
@@ -190,7 +191,7 @@ namespace DevelopmentTimer.BAL.Managers
             }).ToList();
         }
 
-        public async Task<ExtensionsRequestReadDto> UpdateExtensionsRequestAsync(ExtensionsRequestUpdateDto extensionsRequestUpdateDto)
+        public async Task<ExtensionsRequestReadDto?> UpdateExtensionsRequestAsync(ExtensionsRequestUpdateDto extensionsRequestUpdateDto)
         {
             var existingextensionrequest = await extensionsRequestRepository.GetByIdAsync(extensionsRequestUpdateDto.Id);
             if (existingextensionrequest != null)

@@ -16,12 +16,15 @@ namespace DevelopmentTimer.BAL.Managers
     public class ProjectManager : IProjectManager
     {
         private readonly IProjectRepository projectRepository;
-        public ProjectManager(IProjectRepository projectRepository) 
+        private readonly ITaskItemRepository taskItemRepository;
+
+        public ProjectManager(IProjectRepository projectRepository,ITaskItemRepository taskItemRepository) 
         {
             this.projectRepository = projectRepository;
+            this.taskItemRepository = taskItemRepository;
         }
 
-        public async Task<ProjectReadDto> CreateProjectAsync(ProjectCreateDto projectCreateDto)
+        public async Task<ProjectReadDto?> CreateProjectAsync(ProjectCreateDto projectCreateDto)
         {
             var existingproject = await projectRepository.GetByNameAsync(projectCreateDto.Name);
             if (existingproject == null)
@@ -50,15 +53,15 @@ namespace DevelopmentTimer.BAL.Managers
         public async Task<bool> DeleteProjectAsync(int id)
         {
             var project = await projectRepository.GetByIdAsync(id);
-            if (project != null)
-            {
-                await projectRepository.DeleteAsync(id);
-                return true;
-            }
-            else
-            {
+            if (project == null)
                 return false;
-            }
+            var tasks = await taskItemRepository.GetByProjectIdAsync(id);
+            if (tasks.Any())
+                throw new InvalidOperationException($"Cannot delete Project with Id = {id} because it has assigned tasks.");
+
+            await projectRepository.DeleteAsync(id);
+            return true;
+
         }
 
         public async Task<List<ProjectReadDto>> GetAllProjectAsync()
@@ -73,7 +76,7 @@ namespace DevelopmentTimer.BAL.Managers
             }).ToList();
         }
 
-        public async Task<ProjectReadDto> GetByProjectId(int id)
+        public async Task<ProjectReadDto?> GetByProjectId(int id)
         {
             var project = await projectRepository.GetByIdAsync(id);
             if (project == null) return null;
@@ -101,7 +104,7 @@ namespace DevelopmentTimer.BAL.Managers
             }).ToList();
         }
 
-        public async Task<ProjectReadDto> GetByProjectNameAsync(string name)
+        public async Task<ProjectReadDto?> GetByProjectNameAsync(string name)
         {
             var project = await projectRepository.GetByNameAsync(name);
             if (project == null) return null;
@@ -129,7 +132,7 @@ namespace DevelopmentTimer.BAL.Managers
             }).ToList();
         }
 
-        public async Task<ProjectReadDto> UpdateProjectAsync(ProjectUpdateDto projectUpdateDto)
+        public async Task<ProjectReadDto?> UpdateProjectAsync(ProjectUpdateDto projectUpdateDto)
         {
             var existingproject = await projectRepository.GetByIdAsync(projectUpdateDto.Id);
             if (existingproject != null)

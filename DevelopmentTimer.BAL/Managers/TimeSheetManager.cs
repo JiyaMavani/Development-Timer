@@ -22,7 +22,7 @@ namespace DevelopmentTimer.BAL.Managers
             this.timeSheetRepository = timeSheetRepository;
         }
 
-        public async Task<TimeSheetReadDto> CreateTimeSheetAsync(TimeSheetCreateDto timeSheetCreateDto)
+        public async Task<TimeSheetReadDto?> CreateTimeSheetAsync(TimeSheetCreateDto timeSheetCreateDto)
         {
             var existingtimesheet = (await timeSheetRepository.GetAllAsync())
             .Any(t => t.TaskItemId == timeSheetCreateDto.TaskItemId && t.DeveloperId == timeSheetCreateDto.DeveloperId);
@@ -159,7 +159,7 @@ namespace DevelopmentTimer.BAL.Managers
             }).ToList();
         }
 
-        public async Task<TimeSheetReadDto> GetByTimeSheetId(int id)
+        public async Task<TimeSheetReadDto?> GetByTimeSheetId(int id)
         {
             var timesheet = await timeSheetRepository.GetByIdAsync(id);
             if (timesheet == null) return null;
@@ -193,7 +193,7 @@ namespace DevelopmentTimer.BAL.Managers
             }).ToList();
         }
 
-        public async Task<TimeSheetReadDto> UpdateTimeSheetAsync(TimeSheetUpdateDto timeSheetUpdateDto)
+        public async Task<TimeSheetReadDto?> UpdateTimeSheetAsync(TimeSheetUpdateDto timeSheetUpdateDto)
         {
             var existingtimesheet = await timeSheetRepository.GetByIdAsync(timeSheetUpdateDto.Id);
             if (existingtimesheet != null)
