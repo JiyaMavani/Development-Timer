@@ -1,6 +1,7 @@
 ﻿using DevelopmentTimer.API.DTOs.UserDTO;
 using DevelopmentTimer.BAL.DTOs.ProjectDTO;
 using DevelopmentTimer.BAL.Interfaces;
+using DevelopmentTimer.DAL.Entities;
 using DevelopmentTimer.DAL.Enums;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,14 +43,14 @@ namespace DevelopmentTimer.API.Controllers
         public async Task<ActionResult<List<ProjectReadDto>>> GetProjectByMaxHours(int maxHours)
         {
             var projects = await projectManager.GetByProjectMaxHours(maxHours);
-            if (projects == null) return NotFound($"Projects with maxHours = {maxHours} can not be found");
+            if (projects == null || !projects.Any()) return NotFound($"Projects with maxHours = {maxHours} can not be found");
             return Ok(projects);
         }
         [HttpGet("status/{status}")]
         public async Task<ActionResult<List<ProjectReadDto>>> GetProjectByStatus(Status status)
         {
             var projects = await projectManager.GetByProjectStatus(status);
-            if (projects == null) return NotFound($"Projects with status = {status} can not be found");
+            if (projects == null || !projects.Any()) return NotFound($"Projects with status = {status} can not be found");
             return Ok(projects);
         }
         [HttpPost]

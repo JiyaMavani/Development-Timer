@@ -14,7 +14,5 @@ namespace DevelopmentTimer.BAL.DTOs.ExtensionsRequestDTO
         public int DeveloperId {  get; set; }
         public int ExtraHours {  get; set; }
         public string Justification {  get; set; }
-        public Status Status { get; set; }
-        public DateTime RequestDate {  get; set; }
     }
 }

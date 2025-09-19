@@ -13,7 +13,7 @@ namespace DevelopmentTimer.BAL.Interfaces
     {
         Task<List<ProjectReadDto>> GetAllProjectAsync();
         Task<ProjectReadDto?> GetByProjectId(int id);
-        Task<ProjectReadDto?> GetByProjectNameAsync(string name);
+        Task<List<ProjectReadDto?>> GetByProjectNameAsync(string name);
         Task<List<ProjectReadDto>> GetByProjectMaxHours(int maxHours);
         Task<List<ProjectReadDto>> GetByProjectStatus(Status status);
         Task<ProjectReadDto?> CreateProjectAsync(ProjectCreateDto projectCreateDto);

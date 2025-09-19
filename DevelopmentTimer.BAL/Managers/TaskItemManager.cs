@@ -25,47 +25,45 @@ namespace DevelopmentTimer.BAL.Managers
         public async Task<TaskItemReadDto?> CreateTaskItemAsync(TaskItemCreateDto taskItemCreateDto)
         {
             var existingtaskitem = await taskItemRepository.GetByTitleAsync(taskItemCreateDto.Title);
-            if (!existingtaskitem.Any(t => t.ProjectId == taskItemCreateDto.ProjectId && t.DeveloperId == taskItemCreateDto.DeveloperId))
+            bool existingtask = existingtaskitem.Any(t => t.ProjectId == taskItemCreateDto.ProjectId && t.DeveloperId == taskItemCreateDto.DeveloperId);
+            if (existingtask)
             {
-                var taskitem = new TaskItem
-                {
-                    Title = taskItemCreateDto.Title,
-                    Description = taskItemCreateDto.Description,
-                    EstimatedHours = taskItemCreateDto.EstimatedHours,
-                    Status = taskItemCreateDto.Status,
-                    ProjectId = taskItemCreateDto.ProjectId,
-                    DeveloperId = taskItemCreateDto.DeveloperId,
-                };
-                await taskItemRepository.AddAsync(taskitem);
-                return new TaskItemReadDto
-                {
-                    Id = taskitem.Id,
-                    Title = taskitem.Title,
-                    Description = taskitem.Description,
-                    EstimatedHours = taskitem.EstimatedHours,
-                    Status = taskitem.Status.ToString(),
-                    ProjectId = taskitem.ProjectId,
-                    DeveloperId = taskitem.DeveloperId,
-                };
+                throw new InvalidOperationException($"Tasks with {taskItemCreateDto.Title} is already assigned to Developer Id = {taskItemCreateDto.DeveloperId} under Project Id = {taskItemCreateDto.ProjectId}");
             }
-            else
+            var taskitem = new TaskItem
             {
-                return null;
-            }
+                Title = taskItemCreateDto.Title,
+                Description = taskItemCreateDto.Description,
+                EstimatedHours = taskItemCreateDto.EstimatedHours,
+                Status = taskItemCreateDto.Status,
+                ProjectId = taskItemCreateDto.ProjectId,
+                DeveloperId = taskItemCreateDto.DeveloperId,
+            };
+            await taskItemRepository.AddAsync(taskitem);
+            return new TaskItemReadDto
+            {
+                Id = taskitem.Id,
+                Title = taskitem.Title,
+                Description = taskitem.Description,
+                EstimatedHours = taskitem.EstimatedHours,
+                Status = taskitem.Status.ToString(),
+                ProjectId = taskitem.ProjectId,
+                DeveloperId = taskitem.DeveloperId,
+            };
         }
 
         public async Task<bool> DeleteTaskItemAsync(int id)
         {
             var taskitem = await taskItemRepository.GetByIdAsync(id);
-            if (taskitem != null)
-            {
-                await taskItemRepository.DeleteAsync(id);
-                return true;
-            }
-            else
-            {
+            if (taskitem == null)
                 return false;
+            if (taskitem.ProjectId != null && taskitem.DeveloperId != null && taskitem.Status != Status.Completed && taskitem.Status != Status.Approved)
+            { 
+                throw new InvalidOperationException($"TaskItem with Id = {id} can not be deleted because it is assigned to a Project with Id = {taskitem.ProjectId} and Developer with Id = {taskitem.DeveloperId} and is not Completed and Approved."); 
             }
+
+            await taskItemRepository.DeleteAsync(taskitem.Id);
+            return true;
         }
 
         public async Task<List<TaskItemReadDto>> GetAllTaskItemAsync()

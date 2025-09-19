@@ -78,17 +78,17 @@ namespace DevelopmentTimer.BAL.Managers
             };
         }
 
-        public async Task<UserReadDto?> GetUserByNameAsync(string username)
+        public async Task<List<UserReadDto>> GetUserByNameAsync(string username)
         {
-            var user = await userRepository.GetByNameAsync(username);
-            if (user == null) return null;
+            var users = await userRepository.GetByNameAsync(username);
+            if (users == null || !users.Any()) return new List<UserReadDto>();
 
-            return new UserReadDto
+            return users.Select(user => new UserReadDto
             {
                 Id = user.Id,
                 Username = user.Username,
                 Role = user.Role.ToString()
-            };
+            }).ToList();
         }
 
         public async Task<List<UserReadDto>> GetUsersByRoleAsync(Role role)

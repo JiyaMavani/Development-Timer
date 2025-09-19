@@ -1,5 +1,4 @@
 ﻿using DevelopmentTimer.BAL.DTOs.ExtensionsRequestDTO;
-using DevelopmentTimer.BAL.DTOs.TimeSheetDTO;
 using DevelopmentTimer.BAL.Interfaces;
 using DevelopmentTimer.DAL.Entities;
 using DevelopmentTimer.DAL.Enums;
@@ -27,33 +26,27 @@ namespace DevelopmentTimer.BAL.Managers
             var existingExtensionRequest = await extensionsRequestRepository
             .GetByDeveloperIdAsync(extensionsRequestCreateDto.DeveloperId);
 
-            if (!existingExtensionRequest.Any(t => t.TaskItemId == extensionsRequestCreateDto.TaskItemId))
+            if (existingExtensionRequest.Any(t => t.TaskItemId == extensionsRequestCreateDto.TaskItemId))
             {
-                var extensionsRequest = new ExtensionsRequest
-                {
-                    TaskItemId = extensionsRequestCreateDto.TaskItemId,
-                    DeveloperId = extensionsRequestCreateDto.DeveloperId,
-                    ExtraHours = extensionsRequestCreateDto.ExtraHours,
-                    Justification = extensionsRequestCreateDto.Justification,
-                    Status = extensionsRequestCreateDto.Status,
-                    RequestDate = extensionsRequestCreateDto.RequestDate,
-                };
-                await extensionsRequestRepository.AddAsync(extensionsRequest);
-                return new ExtensionsRequestReadDto
-                {
-                    Id = extensionsRequest.Id,
-                    TaskItemId = extensionsRequest.TaskItemId,
-                    DeveloperId = extensionsRequest.DeveloperId,
-                    ExtraHours = extensionsRequest.ExtraHours,
-                    Justification = extensionsRequest.Justification,
-                    Status = extensionsRequest.Status,
-                    RequestDate = extensionsRequest.RequestDate,
-                };
+                throw new InvalidOperationException(
+                    $"Developer with Id = {extensionsRequestCreateDto.DeveloperId} already submitted an Extension Request for TaskItem Id = {extensionsRequestCreateDto.TaskItemId}");
             }
-            else
+            var extensionsRequest = new ExtensionsRequest
             {
-                return null;
-            }
+                TaskItemId = extensionsRequestCreateDto.TaskItemId,
+                DeveloperId = extensionsRequestCreateDto.DeveloperId,
+                ExtraHours = extensionsRequestCreateDto.ExtraHours,
+                Justification = extensionsRequestCreateDto.Justification,
+            };
+            await extensionsRequestRepository.AddAsync(extensionsRequest);
+            return new ExtensionsRequestReadDto
+            {
+                Id = extensionsRequest.Id,
+                TaskItemId = extensionsRequest.TaskItemId,
+                DeveloperId = extensionsRequest.DeveloperId,
+                ExtraHours = extensionsRequest.ExtraHours,
+                Justification = extensionsRequest.Justification,
+            };
         }
 
         public async Task<bool> DeleteExtensionsRequestAsync(int id)
@@ -80,8 +73,6 @@ namespace DevelopmentTimer.BAL.Managers
                 DeveloperId = extensionsRequest.DeveloperId,
                 ExtraHours = extensionsRequest.ExtraHours,
                 Justification = extensionsRequest.Justification,
-                Status = extensionsRequest.Status,
-                RequestDate = extensionsRequest.RequestDate,
             }).ToList();
         }
 
@@ -95,8 +86,6 @@ namespace DevelopmentTimer.BAL.Managers
                 DeveloperId = extensionsRequest.DeveloperId,
                 ExtraHours = extensionsRequest.ExtraHours,
                 Justification = extensionsRequest.Justification,
-                Status = extensionsRequest.Status,
-                RequestDate = extensionsRequest.RequestDate,
             }).ToList();
         }
 
@@ -110,12 +99,10 @@ namespace DevelopmentTimer.BAL.Managers
                 DeveloperId = extensionsRequest.DeveloperId,
                 ExtraHours = extensionsRequest.ExtraHours,
                 Justification = extensionsRequest.Justification,
-                Status = extensionsRequest.Status,
-                RequestDate = extensionsRequest.RequestDate,
             }).ToList();
         }
 
-        public async Task<ExtensionsRequestReadDto?> GetByExtensionsRequestId(int id)
+        public async Task<ExtensionsRequestReadDto?> GetByExtensionsRequestIdAsync(int id)
         {
             var extensionsRequest = await extensionsRequestRepository.GetByIdAsync(id);
             if(extensionsRequest == null) return null;
@@ -126,8 +113,6 @@ namespace DevelopmentTimer.BAL.Managers
                 DeveloperId = extensionsRequest.DeveloperId,
                 ExtraHours = extensionsRequest.ExtraHours,
                 Justification = extensionsRequest.Justification,
-                Status = extensionsRequest.Status,
-                RequestDate = extensionsRequest.RequestDate,
             };
         }
 
@@ -141,12 +126,10 @@ namespace DevelopmentTimer.BAL.Managers
                 DeveloperId = extensionsRequest.DeveloperId,
                 ExtraHours = extensionsRequest.ExtraHours,
                 Justification = extensionsRequest.Justification,
-                Status = extensionsRequest.Status,
-                RequestDate = extensionsRequest.RequestDate,
             }).ToList();
         }
 
-        public async Task<List<ExtensionsRequestReadDto>> GetByExtensionsRequestRequestDateAsync(DateTime requestDate)
+        public async Task<List<ExtensionsRequestReadDto>> GetByExtensionsRequestDateAsync(DateTime requestDate)
         {
             var extensionRequest = await extensionsRequestRepository.GetByRequestDateAsync(requestDate);
             return extensionRequest.Select(extensionsRequest => new ExtensionsRequestReadDto
@@ -156,8 +139,6 @@ namespace DevelopmentTimer.BAL.Managers
                 DeveloperId = extensionsRequest.DeveloperId,
                 ExtraHours = extensionsRequest.ExtraHours,
                 Justification = extensionsRequest.Justification,
-                Status = extensionsRequest.Status,
-                RequestDate = extensionsRequest.RequestDate,
             }).ToList();
         }
 
@@ -171,8 +152,6 @@ namespace DevelopmentTimer.BAL.Managers
                 DeveloperId = extensionsRequest.DeveloperId,
                 ExtraHours = extensionsRequest.ExtraHours,
                 Justification = extensionsRequest.Justification,
-                Status = extensionsRequest.Status,
-                RequestDate = extensionsRequest.RequestDate,
             }).ToList();
         }
 
@@ -186,8 +165,6 @@ namespace DevelopmentTimer.BAL.Managers
                 DeveloperId = extensionsRequest.DeveloperId,
                 ExtraHours = extensionsRequest.ExtraHours,
                 Justification = extensionsRequest.Justification,
-                Status = extensionsRequest.Status,
-                RequestDate = extensionsRequest.RequestDate,
             }).ToList();
         }
 
@@ -198,8 +175,6 @@ namespace DevelopmentTimer.BAL.Managers
             {
                 existingextensionrequest.ExtraHours = extensionsRequestUpdateDto.ExtraHours;
                 existingextensionrequest.Justification = extensionsRequestUpdateDto.Justification;
-                existingextensionrequest.Status = extensionsRequestUpdateDto.Status;
-                existingextensionrequest.RequestDate = extensionsRequestUpdateDto.RequestDate;
                 
                 await extensionsRequestRepository.UpdateAsync(existingextensionrequest);
 
@@ -210,8 +185,6 @@ namespace DevelopmentTimer.BAL.Managers
                     DeveloperId = existingextensionrequest.DeveloperId,
                     ExtraHours = existingextensionrequest.ExtraHours,
                     Justification = existingextensionrequest.Justification,
-                    Status = existingextensionrequest.Status,
-                    RequestDate = existingextensionrequest.RequestDate,
                 };
             }
             else

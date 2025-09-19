@@ -36,8 +36,10 @@ namespace DevelopmentTimer.DAL.Entities
         [Required(ErrorMessage = "Developer is required")]
         public int DeveloperId { get; set; }
         public User Developer { get; set; }
-
-        public ICollection<TimeSheet> Timesheets { get; set; } = new List<TimeSheet>();
+        public int TotalHours {  get; set; }
+        public bool isApproved { get; set; }
+        public DateOnly Date {  get; set; }
+        public TimeOnly NotificationThresholdMinutes { get; set; }
         public ICollection<ExtensionsRequest> ExtensionRequests { get; set; } = new List<ExtensionsRequest>();
     }
 }

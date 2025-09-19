@@ -16,7 +16,7 @@ namespace DevelopmentTimer.BAL.DTOs.TaskItemDTO
         public string Title { get; set; }
 
         [Required(ErrorMessage = "Description is required")]
-        [MinLength(20, ErrorMessage = "Description must be atleast 20 characters")]
+        [MinLength(10, ErrorMessage = "Description must be atleast 10 characters")]
         [MaxLength(200, ErrorMessage = "Description must not exceed 200 characters")]
         public string Description { get; set; }
 

@@ -38,45 +38,45 @@ namespace DevelopmentTimer.DAL.Repository
 
         public async Task<List<ExtensionsRequest>> GetAllAsync()
         {
-            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC GetExtensionsRequest").ToListAsync();
+            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC sp_GetAllExtensionRequests").ToListAsync();
         }
 
         public async Task<List<ExtensionsRequest>> GetByDeveloperIdAsync(int developerId)
         {
-            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC GetExtensionsRequest @DeveloperId = {developerId}").ToListAsync();
+            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC sp_GetExtensionRequestByDeveloperId @DeveloperId = {developerId}").ToListAsync();
         }
 
         public async Task<List<ExtensionsRequest>> GetByExtraHoursAsync(int extraHours)
         {
-            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC GetExtensionsRequest @ExtraHours = {extraHours}").ToListAsync();
+            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC sp_GetExtensionRequestByExtraHours @ExtraHours = {extraHours}").ToListAsync();
         }
 
-        public async Task<ExtensionsRequest?> GetByIdAsync(int id)
+        public async Task<ExtensionsRequest> GetByIdAsync(int id)
         {
-            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC GetExtensionsRequest @Id = {id}").FirstOrDefaultAsync(); 
+            var extensionRequest = await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC sp_GetExtensionRequestById @Id = {id}").ToListAsync();
+            return extensionRequest.FirstOrDefault();
         }
 
         public async Task<List<ExtensionsRequest>> GetByJustificationAsync(string justification)
         {
-            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC GetExtensionsRequest @Justification = {justification}").ToListAsync();
+            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC sp_GetExtensionRequestByJustification @Justification = {justification}").ToListAsync();
         }
 
         public async Task<List<ExtensionsRequest>> GetByRequestDateAsync(DateTime requestDate)
         {
-            var dateOnly = requestDate.Date;
             return await appDbContext.ExtensionRequests
-                .FromSqlInterpolated($"EXEC GetExtensionsRequest @RequestDate = {dateOnly}")
+                .FromSqlInterpolated($"EXEC sp_GetExtensionRequestByRequestDate @RequestDate = {requestDate:yyyy-MM-dd}")
                 .ToListAsync();
         }
 
         public async Task<List<ExtensionsRequest>> GetByStatusAsync(Status status)
         {
-            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC GetExtensionsRequest @Status = {status}").ToListAsync();
+            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC sp_GetExtensionRequestByStatus @Status = {status}").ToListAsync();
         }
 
         public async Task<List<ExtensionsRequest>> GetByTaskItemIdAsync(int taskItemId)
         {
-            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC GetExtensionsRequest @TaskItemId = {taskItemId}").ToListAsync();
+            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC sp_GetExtensionRequestByTaskItemId @TaskItemId = {taskItemId}").ToListAsync();
         }
 
         public async Task UpdateAsync(ExtensionsRequest extensionsRequest)

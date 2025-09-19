@@ -10,7 +10,7 @@ CREATE PROCEDURE sp_GetTaskItemsByTitle
     @Title NVARCHAR(200)
 AS
 BEGIN
-    SELECT * FROM TaskItems WHERE Title = @Title;
+    SELECT * FROM TaskItems WHERE Title LIKE @Title + '%';
 END
 GO
 
@@ -18,7 +18,7 @@ CREATE PROCEDURE sp_GetTaskItemsByDescription
     @Description NVARCHAR(MAX)
 AS
 BEGIN
-    SELECT * FROM TaskItems WHERE Description = @Description;
+    SELECT * FROM TaskItems WHERE Description LIKE @Description + '%'
 END
 GO
 

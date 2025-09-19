@@ -41,7 +41,7 @@ namespace DevelopmentTimer.DAL.Repository
 
         public async Task<List<Project>> GetAllAsync()
         {
-           return await appDbContext.Projects.FromSqlRaw("EXEC sp_GetAllProjects").ToListAsync();
+            return await appDbContext.Projects.FromSqlRaw("EXEC sp_GetAllProjects").ToListAsync();
         }
 
         public async Task<Project?> GetByIdAsync(int id)
@@ -53,12 +53,10 @@ namespace DevelopmentTimer.DAL.Repository
             return project.FirstOrDefault();
         }
 
-        public async Task<Project?> GetByNameAsync(string name)
+        public async Task<List<Project?>> GetByNameAsync(string name)
         {
-            var project = await appDbContext.Projects
+            return await appDbContext.Projects
             .FromSqlInterpolated($"EXEC sp_GetProjectByName @Name={name}").ToListAsync();
-            return project.FirstOrDefault();
-
         }
 
         public async Task<List<Project>> GetByMaxHours(int maxHours)

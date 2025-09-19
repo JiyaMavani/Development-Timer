@@ -29,9 +29,9 @@ namespace DevelopmentTimer.DAL.Entities
         [MaxLength(250, ErrorMessage = "Justification cannot exceed 250 characters")]
         public string Justification { get; set; }
 
-        [Required]
-        public Status Status { get; set; } = Status.Pending;
+        //[Required]
+        //public Status Status { get; set; } = Status.Pending;
 
-        public DateTime RequestDate { get; set; } = DateTime.Now;
+        //public DateTime RequestDate { get; set; } = DateTime.Now;
     }
 }

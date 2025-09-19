@@ -42,13 +42,11 @@ namespace DevelopmentTimer.DAL.Repository
             return users.FirstOrDefault();
         }
 
-        public async Task<User?> GetByNameAsync(string name)
+        public async Task<List<User>> GetByNameAsync(string name)
         {
-            var users = await appDbContext.Users
+            return await appDbContext.Users
                 .FromSqlInterpolated($"EXEC sp_GetUserByName @Name={name}")
                 .ToListAsync();
-
-            return users.FirstOrDefault();
         }
 
         public async Task<List<User>> GetAllAsync()

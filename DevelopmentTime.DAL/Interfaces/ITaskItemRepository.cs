@@ -18,7 +18,10 @@ namespace DevelopmentTimer.DAL.Interfaces
         Task<List<TaskItem>> GetByStatusAsync(Status status);
         Task<List<TaskItem>> GetByProjectIdAsync(int ProjectId);
         Task<List<TaskItem>> GetByDeveloperIdAsync(int DeveloperId);
-        Task AddAsync(TaskItem taskItem);
+        Task<List<TaskItem>> GetByDateAsync(DateOnly date);
+        Task<List<TaskItem>> GetByTotalHours(int totalHours);
+        Task<List<TaskItem>> GetByStatusAsync(bool isApproved);
+        Task<bool> AddAsync(TaskItem taskItem);
         Task UpdateAsync(TaskItem taskItem);
         Task DeleteAsync(int id);
     }

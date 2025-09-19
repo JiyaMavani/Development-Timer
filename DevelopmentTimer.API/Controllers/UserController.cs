@@ -36,7 +36,7 @@ namespace DevelopmentTimer.API.Controllers
         }
 
         [HttpGet("name/{username}")]
-        public async Task<ActionResult<UserReadDto>> GetUserByName(string username)
+        public async Task<ActionResult<List<UserReadDto>>> GetUserByName(string username)
         {
             var user = await userManager.GetUserByNameAsync(username);
             if (user == null) return NotFound($"User with username = {username} can not be found");

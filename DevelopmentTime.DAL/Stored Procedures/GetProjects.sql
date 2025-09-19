@@ -10,7 +10,7 @@ CREATE PROCEDURE sp_GetProjectByName
     @Name NVARCHAR(50)  
 AS
 BEGIN
-    SELECT * FROM Projects WHERE Name = @Name;
+    SELECT * FROM Projects WHERE Name LIKE @Name + '%'
 END
 GO
 

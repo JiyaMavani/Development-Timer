@@ -22,14 +22,14 @@ namespace DevelopmentTimer.API
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
             builder.Services.AddScoped<ITaskItemRepository, TaskItemRepository>();
-            builder.Services.AddScoped<ITimeSheetRepository, TimeSheetRepository>();
+            //builder.Services.AddScoped<ITimeSheetRepository, TimeSheetRepository>();
             builder.Services.AddScoped<IExtensionsRequestRepository, ExtensionsRequestRepository>();
             
 
             builder.Services.AddScoped<IUserManager, UserManager>();
             builder.Services.AddScoped<IProjectManager, ProjectManager>();
             builder.Services.AddScoped<ITaskItemManager, TaskItemManager>();
-            builder.Services.AddScoped<ITimeSheetManager, TimeSheetManager>();
+            //builder.Services.AddScoped<ITimeSheetManager, TimeSheetManager>();
             builder.Services.AddScoped<IExtensionsRequestManager, ExtensionsRequestManager>();
 
 

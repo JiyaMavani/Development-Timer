@@ -27,7 +27,6 @@ namespace DevelopmentTimer.DAL.Entities
         public Role Role { get; set; }
 
         public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
-        public ICollection<TimeSheet> Timesheets { get; set; } = new List<TimeSheet>();
         public ICollection<ExtensionsRequest> ExtensionRequests { get; set; } = new List<ExtensionsRequest>();
     }
 }

@@ -12,7 +12,7 @@ namespace DevelopmentTimer.BAL.Interfaces
     {
         Task<List<UserReadDto>> GetAllUsersAsync();
         Task<UserReadDto?> GetUserByIdAsync(int id);
-        Task<UserReadDto?> GetUserByNameAsync(string username);
+        Task<List<UserReadDto>> GetUserByNameAsync(string username);
         Task<List<UserReadDto>> GetUsersByRoleAsync(Role role);
         Task<UserReadDto?> CreateUserAsync(UserCreateDto userCreateDto);
         Task<UserReadDto?> UpdateUserAsync(UserUpdateDto userUpdateDto);

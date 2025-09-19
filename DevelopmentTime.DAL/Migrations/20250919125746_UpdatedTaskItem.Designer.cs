@@ -4,6 +4,7 @@ using DevelopmentTimer.DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DevelopmentTimer.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250919125746_UpdatedTaskItem")]
+    partial class UpdatedTaskItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,6 +44,12 @@ namespace DevelopmentTimer.DAL.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
+                    b.Property<DateTime>("RequestDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<int>("TaskItemId")
                         .HasColumnType("int");
 
@@ -59,6 +68,8 @@ namespace DevelopmentTimer.DAL.Migrations
                             DeveloperId = 2,
                             ExtraHours = 1,
                             Justification = "To create responsive design",
+                            RequestDate = new DateTime(2025, 9, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
                             TaskItemId = 1
                         },
                         new
@@ -67,6 +78,8 @@ namespace DevelopmentTimer.DAL.Migrations
                             DeveloperId = 3,
                             ExtraHours = 2,
                             Justification = "To create responsive design",
+                            RequestDate = new DateTime(2025, 9, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 1,
                             TaskItemId = 3
                         });
                 });
@@ -172,58 +185,58 @@ namespace DevelopmentTimer.DAL.Migrations
                         new
                         {
                             Id = 1,
-                            Date = new DateOnly(2025, 9, 17),
-                            Description = "Creating the login page with username, password fields, and validation for user authentication.",
+                            Date = new DateOnly(1, 1, 1),
+                            Description = "Login Page Creation",
                             DeveloperId = 2,
                             EstimatedHours = 2,
-                            NotificationThresholdMinutes = new TimeOnly(1, 30, 0),
+                            NotificationThresholdMinutes = new TimeOnly(0, 0, 0),
                             ProjectId = 1,
                             Status = 1,
                             Title = "Login Page",
-                            TotalHours = 1,
+                            TotalHours = 0,
                             isApproved = false
                         },
                         new
                         {
                             Id = 2,
-                            Date = new DateOnly(2025, 9, 14),
-                            Description = "Creating the registration page with user input validations, email verification, and password rules.",
+                            Date = new DateOnly(1, 1, 1),
+                            Description = "Register Page Creation",
                             DeveloperId = 2,
                             EstimatedHours = 3,
-                            NotificationThresholdMinutes = new TimeOnly(0, 45, 0),
+                            NotificationThresholdMinutes = new TimeOnly(0, 0, 0),
                             ProjectId = 1,
                             Status = 2,
                             Title = "Register Page",
-                            TotalHours = 3,
-                            isApproved = true
+                            TotalHours = 0,
+                            isApproved = false
                         },
                         new
                         {
                             Id = 3,
-                            Date = new DateOnly(2025, 9, 16),
-                            Description = "Implement login functionality including API integration and proper error handling for Project Beta.",
+                            Date = new DateOnly(1, 1, 1),
+                            Description = "Login Page Creation",
                             DeveloperId = 3,
                             EstimatedHours = 2,
-                            NotificationThresholdMinutes = new TimeOnly(2, 0, 0),
+                            NotificationThresholdMinutes = new TimeOnly(0, 0, 0),
                             ProjectId = 2,
                             Status = 1,
                             Title = "Login Page",
-                            TotalHours = 2,
+                            TotalHours = 0,
                             isApproved = false
                         },
                         new
                         {
                             Id = 4,
-                            Date = new DateOnly(2025, 9, 12),
-                            Description = "Implement registration functionality including validations, email service, and security checks for Project Beta.",
+                            Date = new DateOnly(1, 1, 1),
+                            Description = "Register Page Creation",
                             DeveloperId = 3,
                             EstimatedHours = 3,
-                            NotificationThresholdMinutes = new TimeOnly(1, 0, 0),
+                            NotificationThresholdMinutes = new TimeOnly(0, 0, 0),
                             ProjectId = 2,
                             Status = 2,
                             Title = "Register Page",
-                            TotalHours = 3,
-                            isApproved = true
+                            TotalHours = 0,
+                            isApproved = false
                         });
                 });
 

@@ -12,7 +12,7 @@ namespace DevelopmentTimer.DAL.Interfaces
     {
         Task<List<User>> GetAllAsync();
         Task<User?> GetByIdAsync(int id);
-        Task<User?> GetByNameAsync(string name);
+        Task<List<User>> GetByNameAsync(string name);
         Task<List<User>> GetByRoleAsync(Role role);
         Task AddAsync(User user);
         Task UpdateAsync(User user);

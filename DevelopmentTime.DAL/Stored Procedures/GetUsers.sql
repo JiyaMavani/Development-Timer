@@ -10,7 +10,7 @@ CREATE PROCEDURE sp_GetUserByName
     @Name NVARCHAR(100)
 AS
 BEGIN
-    SELECT * FROM Users WHERE Username = @Name;
+    SELECT * FROM Users WHERE Username LIKE @Name + '%';
 END
 GO
 

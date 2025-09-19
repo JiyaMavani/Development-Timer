@@ -18,7 +18,7 @@ namespace DevelopmentTimer.BAL.Managers
         private readonly IProjectRepository projectRepository;
         private readonly ITaskItemRepository taskItemRepository;
 
-        public ProjectManager(IProjectRepository projectRepository,ITaskItemRepository taskItemRepository) 
+        public ProjectManager(IProjectRepository projectRepository, ITaskItemRepository taskItemRepository)
         {
             this.projectRepository = projectRepository;
             this.taskItemRepository = taskItemRepository;
@@ -50,19 +50,17 @@ namespace DevelopmentTimer.BAL.Managers
             }
         }
 
-        public async Task<bool> DeleteProjectAsync(int id)
-        {
+       public async Task<bool> DeleteProjectAsync(int id)
+       {
             var project = await projectRepository.GetByIdAsync(id);
             if (project == null)
                 return false;
             var tasks = await taskItemRepository.GetByProjectIdAsync(id);
-            if (tasks.Any())
+            if (tasks != null && tasks.Any())
                 throw new InvalidOperationException($"Cannot delete Project with Id = {id} because it has assigned tasks.");
-
             await projectRepository.DeleteAsync(id);
             return true;
-
-        }
+       }
 
         public async Task<List<ProjectReadDto>> GetAllProjectAsync()
         {
@@ -104,20 +102,21 @@ namespace DevelopmentTimer.BAL.Managers
             }).ToList();
         }
 
-        public async Task<ProjectReadDto?> GetByProjectNameAsync(string name)
+        public async Task<List<ProjectReadDto?>> GetByProjectNameAsync(string name)
         {
             var project = await projectRepository.GetByNameAsync(name);
             if (project == null) return null;
             else
             {
-                return new ProjectReadDto
+                return project.Select(project => new ProjectReadDto
                 {
                     Id = project.Id,
                     Name = project.Name,
                     MaxHoursPerDay = project.MaxHoursPerDay,
                     Status = project.Status.ToString(),
-                };
-            };
+                }).ToList();
+            }
+            ;
         }
 
         public async Task<List<ProjectReadDto>> GetByProjectStatus(Status status)

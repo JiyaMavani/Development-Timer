@@ -20,14 +20,16 @@ namespace DevelopmentTimer.DAL.Repository
             this.appDbContext = appDbContext;
         }
 
-        public async Task AddAsync(TaskItem taskItem)
+        public async Task<bool> AddAsync(TaskItem taskItem)
         {
-            var existingtaskitem = await appDbContext.TaskItems.FirstOrDefaultAsync(t => t.ProjectId == taskItem.ProjectId && t.Title.ToLower() == taskItem.Title.ToLower() && t.DeveloperId == taskItem.DeveloperId);
-            if (existingtaskitem == null)
+            var existingtaskitem = await appDbContext.TaskItems.AnyAsync(t => t.ProjectId == taskItem.ProjectId && t.Title.ToLower() == taskItem.Title.ToLower() && t.DeveloperId == taskItem.DeveloperId);
+            if (existingtaskitem)
             {
-                await appDbContext.TaskItems.AddAsync(taskItem);
-                await appDbContext.SaveChangesAsync();
+                return false;
             }
+            await appDbContext.TaskItems.AddAsync(taskItem);
+            await appDbContext.SaveChangesAsync();
+            return true;
         }
 
         public async Task DeleteAsync(int id)
@@ -43,6 +45,11 @@ namespace DevelopmentTimer.DAL.Repository
         public async Task<List<TaskItem>> GetAllAsync()
         {
             return await appDbContext.TaskItems.FromSqlInterpolated($"EXEC sp_GetAllTaskItems").ToListAsync();
+        }
+
+        public Task<List<TaskItem>> GetByDateAsync(DateOnly date)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<List<TaskItem>> GetByDescriptionAsync(string Description)
@@ -73,7 +80,7 @@ namespace DevelopmentTimer.DAL.Repository
         public async Task<List<TaskItem>> GetByProjectIdAsync(int ProjectId)
         {
             return await appDbContext.TaskItems
-            .FromSqlInterpolated($"EXEC sp_GetTaskItemsByProjectId @ProjectId {ProjectId}").ToListAsync();
+            .FromSqlInterpolated($"EXEC sp_GetTaskItemsByProjectId @ProjectId = {ProjectId}").ToListAsync();
         }
 
         public async Task<List<TaskItem>> GetByStatusAsync(Status status)
@@ -81,9 +88,19 @@ namespace DevelopmentTimer.DAL.Repository
             return await appDbContext.TaskItems.FromSqlInterpolated($"EXEC sp_GetTaskItemsByStatus @Status = {status}").ToListAsync();
         }
 
+        public Task<List<TaskItem>> GetByStatusAsync(bool isApproved)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<List<TaskItem>> GetByTitleAsync(string Title)
         {
             return await appDbContext.TaskItems.FromSqlInterpolated($"EXEC sp_GetTaskItemsByTitle @Title = {Title}").ToListAsync();
+        }
+
+        public Task<List<TaskItem>> GetByTotalHours(int totalHours)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task UpdateAsync(TaskItem taskItem)
