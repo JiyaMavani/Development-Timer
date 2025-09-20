@@ -16,7 +16,7 @@ namespace DevelopmentTimer.BAL.Managers
     {
         private readonly IExtensionsRequestRepository extensionsRequestRepository;
 
-        public ExtensionsRequestManager(IExtensionsRequestRepository extensionsRequestRepository) 
+        public ExtensionsRequestManager(IExtensionsRequestRepository extensionsRequestRepository)
         {
             this.extensionsRequestRepository = extensionsRequestRepository;
         }
@@ -105,7 +105,7 @@ namespace DevelopmentTimer.BAL.Managers
         public async Task<ExtensionsRequestReadDto?> GetByExtensionsRequestIdAsync(int id)
         {
             var extensionsRequest = await extensionsRequestRepository.GetByIdAsync(id);
-            if(extensionsRequest == null) return null;
+            if (extensionsRequest == null) return null;
             return new ExtensionsRequestReadDto
             {
                 Id = extensionsRequest.Id,
@@ -119,32 +119,6 @@ namespace DevelopmentTimer.BAL.Managers
         public async Task<List<ExtensionsRequestReadDto>> GetByExtensionsRequestJustificationAsync(string justification)
         {
             var extensionRequest = await extensionsRequestRepository.GetByJustificationAsync(justification);
-            return extensionRequest.Select(extensionsRequest => new ExtensionsRequestReadDto
-            {
-                Id = extensionsRequest.Id,
-                TaskItemId = extensionsRequest.TaskItemId,
-                DeveloperId = extensionsRequest.DeveloperId,
-                ExtraHours = extensionsRequest.ExtraHours,
-                Justification = extensionsRequest.Justification,
-            }).ToList();
-        }
-
-        public async Task<List<ExtensionsRequestReadDto>> GetByExtensionsRequestDateAsync(DateTime requestDate)
-        {
-            var extensionRequest = await extensionsRequestRepository.GetByRequestDateAsync(requestDate);
-            return extensionRequest.Select(extensionsRequest => new ExtensionsRequestReadDto
-            {
-                Id = extensionsRequest.Id,
-                TaskItemId = extensionsRequest.TaskItemId,
-                DeveloperId = extensionsRequest.DeveloperId,
-                ExtraHours = extensionsRequest.ExtraHours,
-                Justification = extensionsRequest.Justification,
-            }).ToList();
-        }
-
-        public async Task<List<ExtensionsRequestReadDto>> GetByExtensionsRequestStatusAsync(Status status)
-        {
-            var extensionRequest = await extensionsRequestRepository.GetByStatusAsync(status);
             return extensionRequest.Select(extensionsRequest => new ExtensionsRequestReadDto
             {
                 Id = extensionsRequest.Id,
@@ -175,7 +149,7 @@ namespace DevelopmentTimer.BAL.Managers
             {
                 existingextensionrequest.ExtraHours = extensionsRequestUpdateDto.ExtraHours;
                 existingextensionrequest.Justification = extensionsRequestUpdateDto.Justification;
-                
+
                 await extensionsRequestRepository.UpdateAsync(existingextensionrequest);
 
                 return new ExtensionsRequestReadDto

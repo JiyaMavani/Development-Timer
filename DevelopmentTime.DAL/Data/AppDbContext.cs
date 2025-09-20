@@ -15,18 +15,11 @@ namespace DevelopmentTimer.DAL.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<TaskItem> TaskItems { get; set; }
-        //public DbSet<TimeSheet> Timesheets { get; set; }
         public DbSet<ExtensionsRequest> ExtensionRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            //modelBuilder.Entity<TimeSheet>()
-            //    .HasOne(ts => ts.Developer)
-            //    .WithMany(u => u.Timesheets)
-            //    .HasForeignKey(ts => ts.DeveloperId)
-            //    .OnDelete(DeleteBehavior.Restrict); 
 
             modelBuilder.Entity<ExtensionsRequest>()
                 .HasOne(e => e.Developer)
@@ -46,11 +39,28 @@ namespace DevelopmentTimer.DAL.Data
                 .HasForeignKey(t => t.DeveloperId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<User>()
+                .Property(u => u.Role)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (Role)Enum.Parse(typeof(Role), v));
+
+            modelBuilder.Entity<Project>()
+              .Property(t => t.Status)
+              .HasConversion(
+                  v => v.ToString(),
+                  v => (Status)Enum.Parse(typeof(Status), v));
+
+            modelBuilder.Entity<TaskItem>()
+                .Property(t => t.Status)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (Status)Enum.Parse(typeof(Status), v));
 
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1,Username = "Admin",Password = "Admin@1234",Role = Role.Admin},
-                new User { Id = 2,Username = "Sita",Password = "Sita@1234",Role = Role.Developer},
-                new User { Id = 3,Username = "Rita",Password = "Rita@5678",Role = Role.Developer}
+                new User { Id = 1,Username = "Admin",Password = "Admin@1234",Role = Role.Admin,AssignedProjectIds = "0"},
+                new User { Id = 2,Username = "Sita",Password = "Sita@1234",Role = Role.Developer,AssignedProjectIds = "1,2"},
+                new User { Id = 3,Username = "Rita",Password = "Rita@5678",Role = Role.Developer,AssignedProjectIds = "2,3"}
             );
             modelBuilder.Entity<Project>().HasData(
                new Project { Id = 1, Name = "Project1", MaxHoursPerDay = 7, Status = Status.InProgress },
@@ -63,67 +73,63 @@ namespace DevelopmentTimer.DAL.Data
                 {
                     Id = 1,
                     Title = "Login Page",
-                    Description = "Creating the login page with username, password fields, and validation for user authentication.",
+                    Description = "This is the login page creation task with detailed description",
                     EstimatedHours = 2,
+                    TotalHours = 2,
                     Status = Status.InProgress,
                     ProjectId = 1,
                     DeveloperId = 2,
-                    TotalHours = 1,
                     isApproved = false,
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-2)),
-                    NotificationThresholdMinutes = new TimeOnly(1, 30)
+                    Date = new DateOnly(2025, 9, 19),
+                    NotificationThresholdMinutes = new TimeOnly(0, 10)
                 },
                 new TaskItem
                 {
                     Id = 2,
                     Title = "Register Page",
-                    Description = "Creating the registration page with user input validations, email verification, and password rules.",
+                    Description = "Develop the register page including email verification, password rules validation, and linking it with the database for new users.",
                     EstimatedHours = 3,
+                    TotalHours = 3,
                     Status = Status.Completed,
                     ProjectId = 1,
                     DeveloperId = 2,
-                    TotalHours = 3,
                     isApproved = true,
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-5)),
+                    Date = new DateOnly(2025, 9, 18),
                     NotificationThresholdMinutes = new TimeOnly(0, 45)
                 },
                 new TaskItem
                 {
                     Id = 3,
-                    Title = "Login Page",
-                    Description = "Implement login functionality including API integration and proper error handling for Project Beta.",
-                    EstimatedHours = 2,
-                    Status = Status.InProgress,
+                    Title = "Dashboard",
+                    Description = "Implement dashboard UI to display project status, active tasks, and progress reports using charts and grids for better user insights.",
+                    EstimatedHours = 3,
+                    TotalHours = 3,
+                    Status = Status.Pending,
                     ProjectId = 2,
                     DeveloperId = 3,
-                    TotalHours = 2,
                     isApproved = false,
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-3)),
-                    NotificationThresholdMinutes = new TimeOnly(2, 0)
+                    Date = new DateOnly(2025, 9, 20),
+                    NotificationThresholdMinutes = new TimeOnly(0, 30) 
                 },
                 new TaskItem
                 {
                     Id = 4,
-                    Title = "Register Page",
-                    Description = "Implement registration functionality including validations, email service, and security checks for Project Beta.",
-                    EstimatedHours = 3,
-                    Status = Status.Completed,
+                    Title = "Profile Page",
+                    Description = "Design and build profile page where users can update details, change password, and manage their personal settings securely.",
+                    EstimatedHours = 4,
+                    TotalHours = 4,
+                    Status = Status.InProgress,
                     ProjectId = 2,
                     DeveloperId = 3,
-                    TotalHours = 3,
-                    isApproved = true,
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-7)),
-                    NotificationThresholdMinutes = new TimeOnly(1, 0)
+                    isApproved = false,
+                    Date = new DateOnly(2025, 9, 21),
+                    NotificationThresholdMinutes = new TimeOnly(0, 15) 
                 }
             );
 
-            //modelBuilder.Entity<TimeSheet>().HasData(
-            //    new TimeSheet { Id = 1,DeveloperId = 2,TaskItemId = 1,HoursWorked = 5,Submitted = true,ApprovalStatus = Status.Pending,SubmissionDate = new DateTime(2025,09,15)},
-            //    new TimeSheet { Id = 2, DeveloperId = 2, TaskItemId = 2, HoursWorked = 4, Submitted = false, ApprovalStatus = Status.OnHold, SubmissionDate = new DateTime(2025, 09, 25)}
-            //);
             modelBuilder.Entity<ExtensionsRequest>().HasData(
-                new ExtensionsRequest { Id = 1,TaskItemId = 1,DeveloperId = 2,ExtraHours = 1,Justification = "To create responsive design"},
-                new ExtensionsRequest { Id = 2,TaskItemId = 3,DeveloperId = 3,ExtraHours = 2,Justification = "To create responsive design"}
+                new ExtensionsRequest { Id = 1,TaskItemId = 1,DeveloperId = 2,ExtraHours = 2,Justification = "To create responsive design"},
+                new ExtensionsRequest { Id = 2,TaskItemId = 3,DeveloperId = 3,ExtraHours = 3,Justification = "To create responsive design"}
             );
         }
     }

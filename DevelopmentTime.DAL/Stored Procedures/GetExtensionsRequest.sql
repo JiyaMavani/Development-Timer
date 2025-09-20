@@ -38,22 +38,6 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE sp_GetExtensionRequestByStatus
-    @Status INT
-AS
-BEGIN
-    SELECT * FROM ExtensionRequests WHERE Status = @Status;
-END
-GO
-
-CREATE PROCEDURE sp_GetExtensionRequestByRequestDate
-    @RequestDate DATE
-AS
-BEGIN
-    SELECT * FROM ExtensionRequests WHERE RequestDate = @RequestDate;
-END
-GO
-
 CREATE PROCEDURE sp_GetAllExtensionRequests
 AS
 BEGIN

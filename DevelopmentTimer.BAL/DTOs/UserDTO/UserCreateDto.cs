@@ -6,7 +6,7 @@ namespace DevelopmentTimer.API.DTOs.UserDTO
     public class UserCreateDto
     {
         [Required(ErrorMessage = "Username is required")]
-        [MinLength(3, ErrorMessage = "UserName must be atleast 3 characters")]
+        [MinLength(3, ErrorMessage = "UserName must be at least 3 characters")]
         [MaxLength(50, ErrorMessage = "UserName must not exceed 50 characters")]
         public string Username { get; set; }
 
@@ -18,5 +18,7 @@ namespace DevelopmentTimer.API.DTOs.UserDTO
 
         [Required(ErrorMessage = "Role is required")]
         public Role Role { get; set; }
+
+        public string AssignedProjectIds { get; set; } = "0";
     }
 }

@@ -59,10 +59,15 @@ namespace DevelopmentTimer.DAL.Repository
         public async Task<List<User>> GetByRoleAsync(Role role)
         {
             return await appDbContext.Users
-                .FromSqlInterpolated($"EXEC sp_GetUsersByRole @Role={(int)role}")
+                .FromSqlInterpolated($"EXEC sp_GetUsersByRole @Role={role.ToString()}")
                 .ToListAsync();
         }
-
+        public async Task<List<User>> GetByAssignedProjectAsync(int projectId)
+        {
+            return await appDbContext.Users
+                .FromSqlInterpolated($"EXEC sp_GetUsersByAssignedProject @ProjectId={projectId}")
+                .ToListAsync();
+        }
         public async Task UpdateAsync(User user)
         {
             appDbContext.Users.Update(user);

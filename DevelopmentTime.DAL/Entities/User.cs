@@ -25,7 +25,7 @@ namespace DevelopmentTimer.DAL.Entities
 
         [Required(ErrorMessage = "Role is required")]
         public Role Role { get; set; }
-
+        public string AssignedProjectIds { get; set; } = "0";
         public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
         public ICollection<ExtensionsRequest> ExtensionRequests { get; set; } = new List<ExtensionsRequest>();
     }

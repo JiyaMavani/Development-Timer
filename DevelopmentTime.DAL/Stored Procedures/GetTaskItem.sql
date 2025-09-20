@@ -22,6 +22,30 @@ BEGIN
 END
 GO
 
+CREATE PROCEDURE sp_GetTaskItemsByEstimatedHours
+    @EstimatedHours INT
+AS
+BEGIN
+    SELECT * FROM TaskItems WHERE EstimatedHours = @EstimatedHours;
+END
+GO
+
+CREATE PROCEDURE sp_GetTaskItemsByTotalHours
+    @TotalHours INT
+AS
+BEGIN
+    SELECT * FROM TaskItems WHERE TotalHours = @TotalHours;
+END
+GO
+
+CREATE PROCEDURE sp_GetTaskItemsByStatus
+    @Status INT
+AS
+BEGIN
+    SELECT * FROM TaskItems WHERE Status = @Status;
+END
+GO
+
 CREATE PROCEDURE sp_GetTaskItemsByDeveloperId
     @DeveloperId INT
 AS
@@ -38,19 +62,27 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE sp_GetTaskItemsByEstimatedHours
-    @EstimatedHours INT
+CREATE PROCEDURE sp_GetTaskItemsByisApprovedStatus
+    @isApproved BIT
 AS
 BEGIN
-    SELECT * FROM TaskItems WHERE EstimatedHours = @EstimatedHours;
+    SELECT * FROM TaskItems WHERE isApproved = @isApproved;
 END
 GO
 
-CREATE PROCEDURE sp_GetTaskItemsByStatus
-    @Status INT
+CREATE PROCEDURE sp_GetTaskItemsByDate
+    @Date DATE
 AS
 BEGIN
-    SELECT * FROM TaskItems WHERE Status = @Status;
+    SELECT * FROM TaskItems WHERE Date = @Date;
+END
+GO
+
+CREATE PROCEDURE sp_GetTaskItemsByNotificationThresholdMinutes
+    @NotificationThresholdMinutes TIME
+AS
+BEGIN
+    SELECT * FROM TaskItems WHERE NotificationThresholdMinutes = @NotificationThresholdMinutes;
 END
 GO
 

@@ -26,7 +26,7 @@ namespace DevelopmentTimer.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ProjectReadDto>> GetProjectById(int id)
         {
-            var project = await projectManager.GetByProjectId(id);
+            var project = await projectManager.GetByProjectIdAsync(id);
             if (project == null) return NotFound($"Project with Id = {id} can not be found");
             return Ok(project);
         }
@@ -42,14 +42,14 @@ namespace DevelopmentTimer.API.Controllers
         [HttpGet("maxHours/{maxHours}")]
         public async Task<ActionResult<List<ProjectReadDto>>> GetProjectByMaxHours(int maxHours)
         {
-            var projects = await projectManager.GetByProjectMaxHours(maxHours);
+            var projects = await projectManager.GetByProjectMaxHoursAsync(maxHours);
             if (projects == null || !projects.Any()) return NotFound($"Projects with maxHours = {maxHours} can not be found");
             return Ok(projects);
         }
         [HttpGet("status/{status}")]
         public async Task<ActionResult<List<ProjectReadDto>>> GetProjectByStatus(Status status)
         {
-            var projects = await projectManager.GetByProjectStatus(status);
+            var projects = await projectManager.GetByProjectStatusAsync(status);
             if (projects == null || !projects.Any()) return NotFound($"Projects with status = {status} can not be found");
             return Ok(projects);
         }
@@ -57,7 +57,7 @@ namespace DevelopmentTimer.API.Controllers
         public async Task<ActionResult<ProjectReadDto>> CreateProject([FromBody] ProjectCreateDto projectCreateDto)
         {
             if (!ModelState.IsValid)
-                return BadRequest("Invalid data.");
+                return BadRequest("Invalid data");
             var project = await projectManager.CreateProjectAsync(projectCreateDto);
             if (project == null)
                 return BadRequest("Project with the same name already exists");
@@ -68,7 +68,7 @@ namespace DevelopmentTimer.API.Controllers
         public async Task<ActionResult<ProjectReadDto>> UpdateProject(int id, [FromBody] ProjectUpdateDto projectUpdateDto)
         {
             if (id != projectUpdateDto.Id)
-                return BadRequest("Id mismatch.");
+                return BadRequest("Id mismatch");
             var project = await projectManager.UpdateProjectAsync(projectUpdateDto);
             if (project == null)
                 return BadRequest($"Update not possible. Project with Id = {id} does not exist");
@@ -82,8 +82,8 @@ namespace DevelopmentTimer.API.Controllers
             {
                 var project = await projectManager.DeleteProjectAsync(id);
                 if (!project)
-                    return NotFound($"Project with Id = {id} does not exist.");
-                return Ok($"Project with Id = {id} deleted successfully.");
+                    return NotFound($"Project with Id = {id} does not exist");
+                return Ok($"Project with Id = {id} deleted successfully");
             }
             catch (Exception ex)
             {

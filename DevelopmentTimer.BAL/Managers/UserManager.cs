@@ -14,7 +14,7 @@ namespace DevelopmentTimer.BAL.Managers
         private readonly IUserRepository userRepository;
         private readonly ITaskItemRepository taskItemRepository;
 
-        public UserManager(IUserRepository userRepository,ITaskItemRepository taskItemRepository)
+        public UserManager(IUserRepository userRepository, ITaskItemRepository taskItemRepository)
         {
             this.userRepository = userRepository;
             this.taskItemRepository = taskItemRepository;
@@ -23,13 +23,14 @@ namespace DevelopmentTimer.BAL.Managers
         public async Task<UserReadDto?> CreateUserAsync(UserCreateDto userCreateDto)
         {
             var existingUser = await userRepository.GetByNameAsync(userCreateDto.Username);
-            if (existingUser != null) return null;
+            if (existingUser.Any()) return null;
 
             var user = new User
             {
                 Username = userCreateDto.Username,
                 Password = userCreateDto.Password,
-                Role = userCreateDto.Role
+                Role = userCreateDto.Role,
+                AssignedProjectIds = string.IsNullOrEmpty(userCreateDto.AssignedProjectIds) ? "0" : userCreateDto.AssignedProjectIds
             };
 
             await userRepository.AddAsync(user);
@@ -38,7 +39,8 @@ namespace DevelopmentTimer.BAL.Managers
             {
                 Id = user.Id,
                 Username = user.Username,
-                Role = user.Role.ToString()
+                Role = user.Role.ToString(),
+                AssignedProjectIds = user.AssignedProjectIds
             };
         }
 
@@ -47,9 +49,11 @@ namespace DevelopmentTimer.BAL.Managers
             var user = await userRepository.GetByIdAsync(id);
             if (user == null)
                 return false;
+
             var tasks = await taskItemRepository.GetByDeveloperIdAsync(id);
             if (tasks.Any())
                 throw new InvalidOperationException($"Cannot delete User with Id = {id} because they have assigned tasks.");
+
             await userRepository.DeleteAsync(id);
             return true;
         }
@@ -61,7 +65,8 @@ namespace DevelopmentTimer.BAL.Managers
             {
                 Id = u.Id,
                 Username = u.Username,
-                Role = u.Role.ToString()
+                Role = u.Role.ToString(),
+                AssignedProjectIds = u.AssignedProjectIds
             }).ToList();
         }
 
@@ -74,20 +79,22 @@ namespace DevelopmentTimer.BAL.Managers
             {
                 Id = user.Id,
                 Username = user.Username,
-                Role = user.Role.ToString()
+                Role = user.Role.ToString(),
+                AssignedProjectIds = user.AssignedProjectIds
             };
         }
 
         public async Task<List<UserReadDto>> GetUserByNameAsync(string username)
         {
             var users = await userRepository.GetByNameAsync(username);
-            if (users == null || !users.Any()) return new List<UserReadDto>();
+            if (!users.Any()) return null;
 
-            return users.Select(user => new UserReadDto
+            return users.Select(u => new UserReadDto
             {
-                Id = user.Id,
-                Username = user.Username,
-                Role = user.Role.ToString()
+                Id = u.Id,
+                Username = u.Username,
+                Role = u.Role.ToString(),
+                AssignedProjectIds = u.AssignedProjectIds
             }).ToList();
         }
 
@@ -98,7 +105,20 @@ namespace DevelopmentTimer.BAL.Managers
             {
                 Id = u.Id,
                 Username = u.Username,
-                Role = u.Role.ToString()
+                Role = u.Role.ToString(),
+                AssignedProjectIds = u.AssignedProjectIds
+            }).ToList();
+        }
+
+        public async Task<List<UserReadDto>> GetUsersByAssignedProjectAsync(int projectId)
+        {
+            var users = await userRepository.GetByAssignedProjectAsync(projectId);
+            return users.Select(u => new UserReadDto
+            {
+                Id = u.Id,
+                Username = u.Username,
+                Role = u.Role.ToString(),
+                AssignedProjectIds = u.AssignedProjectIds
             }).ToList();
         }
 
@@ -110,16 +130,18 @@ namespace DevelopmentTimer.BAL.Managers
             existing.Username = userUpdateDto.Username;
             existing.Password = userUpdateDto.Password;
             existing.Role = userUpdateDto.Role;
+            existing.AssignedProjectIds = string.IsNullOrEmpty(userUpdateDto.AssignedProjectIds)
+                ? existing.AssignedProjectIds
+                : userUpdateDto.AssignedProjectIds;
 
             await userRepository.UpdateAsync(existing);
-
             return new UserReadDto
             {
                 Id = existing.Id,
                 Username = existing.Username,
-                Role = existing.Role.ToString()
+                Role = existing.Role.ToString(),
+                AssignedProjectIds = existing.AssignedProjectIds
             };
-        }
+        } 
     }
 }
-

@@ -1,10 +1,6 @@
 ﻿using DevelopmentTimer.BAL.DTOs.ProjectDTO;
-using DevelopmentTimer.DAL.Entities;
 using DevelopmentTimer.DAL.Enums;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DevelopmentTimer.BAL.Interfaces
@@ -12,10 +8,10 @@ namespace DevelopmentTimer.BAL.Interfaces
     public interface IProjectManager
     {
         Task<List<ProjectReadDto>> GetAllProjectAsync();
-        Task<ProjectReadDto?> GetByProjectId(int id);
-        Task<List<ProjectReadDto?>> GetByProjectNameAsync(string name);
-        Task<List<ProjectReadDto>> GetByProjectMaxHours(int maxHours);
-        Task<List<ProjectReadDto>> GetByProjectStatus(Status status);
+        Task<ProjectReadDto?> GetByProjectIdAsync(int id);
+        Task<List<ProjectReadDto>> GetByProjectNameAsync(string name);
+        Task<List<ProjectReadDto>> GetByProjectMaxHoursAsync(int maxHours);
+        Task<List<ProjectReadDto>> GetByProjectStatusAsync(Status status);
         Task<ProjectReadDto?> CreateProjectAsync(ProjectCreateDto projectCreateDto);
         Task<ProjectReadDto?> UpdateProjectAsync(ProjectUpdateDto projectUpdateDto);
         Task<bool> DeleteProjectAsync(int id);

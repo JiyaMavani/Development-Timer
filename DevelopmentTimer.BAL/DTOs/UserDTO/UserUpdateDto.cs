@@ -20,5 +20,6 @@ namespace DevelopmentTimer.API.DTOs.UserDTO
 
         [Required(ErrorMessage = "Role is required")]
         public Role Role { get; set; }
+        public string AssignedProjectIds { get; set; }
     }
 }

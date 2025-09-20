@@ -57,20 +57,7 @@ namespace DevelopmentTimer.API.Controllers
             if (extensionRequest == null || !extensionRequest.Any()) return NotFound($"No justification = {justification} has been provided for any Extension Request");
             return Ok(extensionRequest);
         }
-        [HttpGet("status/{status}")]
-        public async Task<ActionResult<ExtensionsRequestReadDto>> GetExtensionRequestByStatus(Status status)
-        {
-            var extensionRequest = await extensionsRequestManager.GetByExtensionsRequestStatusAsync(status);
-            if (extensionRequest == null || !extensionRequest.Any()) return NotFound($"Extension Request with Status = {status.ToString()} does not exist");
-            return Ok(extensionRequest);
-        }
-        [HttpGet("requestDate/{requestDate}")]
-        public async Task<ActionResult<ExtensionsRequestReadDto>> GetExtensionRequestByRequestDate(DateTime requestDate)
-        {
-            var extensionRequest = await extensionsRequestManager.GetByExtensionsRequestDateAsync(requestDate);
-            if (extensionRequest == null || !extensionRequest.Any()) return NotFound($"Extension Request for the Date = {requestDate:yyyy-MM-dd} caanot");
-            return Ok(extensionRequest);
-        }
+
         [HttpPost]
         public async Task<ActionResult<ExtensionsRequestReadDto>> CreateExtensionRequests([FromBody] ExtensionsRequestCreateDto extensionsRequestCreateDto)
         {
@@ -88,7 +75,7 @@ namespace DevelopmentTimer.API.Controllers
         public async Task<ActionResult<ExtensionsRequestReadDto>> UpdateExtensionRequest(int id, [FromBody] ExtensionsRequestUpdateDto extensionsRequestUpdateDto)
         {
             if (id != extensionsRequestUpdateDto.Id)
-                return BadRequest("Id mismatch.");
+                return BadRequest("Id mismatch");
             var extensionRequest = await extensionsRequestManager.UpdateExtensionsRequestAsync(extensionsRequestUpdateDto);
             if (extensionRequest == null)
                 return BadRequest($"Update not possible. Extension Request with Id = {id} does not exist");
@@ -101,8 +88,8 @@ namespace DevelopmentTimer.API.Controllers
             {
                 var extensionRequest = await extensionsRequestManager.DeleteExtensionsRequestAsync(id);
                 if (!extensionRequest)
-                    return NotFound($"Extension Request with Id = {id} does not exist.");
-                return Ok($"Extension Request with Id = {id} deleted successfully.");
+                    return NotFound($"Extension Request with Id = {id} does not exist");
+                return Ok($"Extension Request with Id = {id} deleted successfully");
             }
             catch (Exception ex)
             {

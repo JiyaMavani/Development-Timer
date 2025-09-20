@@ -53,7 +53,7 @@ namespace DevelopmentTimer.DAL.Repository
             return project.FirstOrDefault();
         }
 
-        public async Task<List<Project?>> GetByNameAsync(string name)
+        public async Task<List<Project>> GetByNameAsync(string name)
         {
             return await appDbContext.Projects
             .FromSqlInterpolated($"EXEC sp_GetProjectByName @Name={name}").ToListAsync();
@@ -65,8 +65,7 @@ namespace DevelopmentTimer.DAL.Repository
         }
         public async Task<List<Project>> GetByStatus(Status status)
         {
-            return await appDbContext.Projects.FromSqlInterpolated($"EXEC sp_GetProjectsByStatus @Status={(int)status}").ToListAsync();
-
+            return await appDbContext.Projects.FromSqlInterpolated($"EXEC sp_GetProjectsByStatus @Status={status.ToString()}").ToListAsync();
         }
 
         public async Task UpdateAsync(Project project)

@@ -14,6 +14,7 @@ namespace DevelopmentTimer.DAL.Interfaces
         Task<User?> GetByIdAsync(int id);
         Task<List<User>> GetByNameAsync(string name);
         Task<List<User>> GetByRoleAsync(Role role);
+        Task<List<User>> GetByAssignedProjectAsync(int projectId);
         Task AddAsync(User user);
         Task UpdateAsync(User user);
         Task DeleteAsync(int id);

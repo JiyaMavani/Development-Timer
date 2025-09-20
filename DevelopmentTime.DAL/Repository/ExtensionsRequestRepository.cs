@@ -62,18 +62,6 @@ namespace DevelopmentTimer.DAL.Repository
             return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC sp_GetExtensionRequestByJustification @Justification = {justification}").ToListAsync();
         }
 
-        public async Task<List<ExtensionsRequest>> GetByRequestDateAsync(DateTime requestDate)
-        {
-            return await appDbContext.ExtensionRequests
-                .FromSqlInterpolated($"EXEC sp_GetExtensionRequestByRequestDate @RequestDate = {requestDate:yyyy-MM-dd}")
-                .ToListAsync();
-        }
-
-        public async Task<List<ExtensionsRequest>> GetByStatusAsync(Status status)
-        {
-            return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC sp_GetExtensionRequestByStatus @Status = {status}").ToListAsync();
-        }
-
         public async Task<List<ExtensionsRequest>> GetByTaskItemIdAsync(int taskItemId)
         {
             return await appDbContext.ExtensionRequests.FromSqlInterpolated($"EXEC sp_GetExtensionRequestByTaskItemId @TaskItemId = {taskItemId}").ToListAsync();

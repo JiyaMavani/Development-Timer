@@ -16,8 +16,6 @@ namespace DevelopmentTimer.BAL.Interfaces
         Task<List<ExtensionsRequestReadDto>> GetByExtensionsRequestTaskItemIdAsync(int taskItemId);
         Task<List<ExtensionsRequestReadDto>> GetByExtensionsRequestExtraHoursAsync(int extraHours);
         Task<List<ExtensionsRequestReadDto>> GetByExtensionsRequestJustificationAsync(string justification);
-        Task<List<ExtensionsRequestReadDto>> GetByExtensionsRequestStatusAsync(Status status);
-        Task<List<ExtensionsRequestReadDto>> GetByExtensionsRequestDateAsync(DateTime requestDate);
         Task<ExtensionsRequestReadDto?> CreateExtensionsRequestAsync(ExtensionsRequestCreateDto extensionsRequestCreateDto);
         Task<ExtensionsRequestReadDto?> UpdateExtensionsRequestAsync(ExtensionsRequestUpdateDto extensionsRequestUpdateDto);
         Task<bool> DeleteExtensionsRequestAsync(int id);

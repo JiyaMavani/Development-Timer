@@ -4,6 +4,7 @@ using DevelopmentTimer.DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DevelopmentTimer.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250920055047_SeededNewData")]
+    partial class SeededNewData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,7 +68,7 @@ namespace DevelopmentTimer.DAL.Migrations
                         {
                             Id = 2,
                             DeveloperId = 3,
-                            ExtraHours = 3,
+                            ExtraHours = 2,
                             Justification = "To create responsive design",
                             TaskItemId = 3
                         });
@@ -87,9 +90,8 @@ namespace DevelopmentTimer.DAL.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -101,21 +103,21 @@ namespace DevelopmentTimer.DAL.Migrations
                             Id = 1,
                             MaxHoursPerDay = 7,
                             Name = "Project1",
-                            Status = "InProgress"
+                            Status = 1
                         },
                         new
                         {
                             Id = 2,
                             MaxHoursPerDay = 6,
                             Name = "Project2",
-                            Status = "Completed"
+                            Status = 2
                         },
                         new
                         {
                             Id = 3,
                             MaxHoursPerDay = 8,
                             Name = "Project3",
-                            Status = "OnHold"
+                            Status = 7
                         });
                 });
 
@@ -147,22 +149,15 @@ namespace DevelopmentTimer.DAL.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<int>("TotalHours")
-                        .HasColumnType("int");
-
                     b.Property<bool>("isApproved")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("isReadonly")
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
@@ -183,11 +178,9 @@ namespace DevelopmentTimer.DAL.Migrations
                             EstimatedHours = 2,
                             NotificationThresholdMinutes = new TimeOnly(0, 10, 0),
                             ProjectId = 1,
-                            Status = "InProgress",
+                            Status = 1,
                             Title = "Login Page",
-                            TotalHours = 2,
-                            isApproved = false,
-                            isReadonly = true
+                            isApproved = false
                         },
                         new
                         {
@@ -198,11 +191,9 @@ namespace DevelopmentTimer.DAL.Migrations
                             EstimatedHours = 3,
                             NotificationThresholdMinutes = new TimeOnly(0, 45, 0),
                             ProjectId = 1,
-                            Status = "Completed",
+                            Status = 2,
                             Title = "Register Page",
-                            TotalHours = 3,
-                            isApproved = true,
-                            isReadonly = true
+                            isApproved = true
                         },
                         new
                         {
@@ -213,11 +204,9 @@ namespace DevelopmentTimer.DAL.Migrations
                             EstimatedHours = 3,
                             NotificationThresholdMinutes = new TimeOnly(0, 30, 0),
                             ProjectId = 2,
-                            Status = "Pending",
+                            Status = 3,
                             Title = "Dashboard",
-                            TotalHours = 3,
-                            isApproved = false,
-                            isReadonly = true
+                            isApproved = false
                         },
                         new
                         {
@@ -228,11 +217,9 @@ namespace DevelopmentTimer.DAL.Migrations
                             EstimatedHours = 4,
                             NotificationThresholdMinutes = new TimeOnly(0, 15, 0),
                             ProjectId = 2,
-                            Status = "InProgress",
+                            Status = 1,
                             Title = "Profile Page",
-                            TotalHours = 4,
-                            isApproved = false,
-                            isReadonly = true
+                            isApproved = false
                         });
                 });
 
@@ -252,9 +239,8 @@ namespace DevelopmentTimer.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -271,7 +257,7 @@ namespace DevelopmentTimer.DAL.Migrations
                             Id = 1,
                             AssignedProjectIds = "0",
                             Password = "Admin@1234",
-                            Role = "Admin",
+                            Role = 0,
                             Username = "Admin"
                         },
                         new
@@ -279,7 +265,7 @@ namespace DevelopmentTimer.DAL.Migrations
                             Id = 2,
                             AssignedProjectIds = "1,2",
                             Password = "Sita@1234",
-                            Role = "Developer",
+                            Role = 1,
                             Username = "Sita"
                         },
                         new
@@ -287,7 +273,7 @@ namespace DevelopmentTimer.DAL.Migrations
                             Id = 3,
                             AssignedProjectIds = "2,3",
                             Password = "Rita@5678",
-                            Role = "Developer",
+                            Role = 1,
                             Username = "Rita"
                         });
                 });

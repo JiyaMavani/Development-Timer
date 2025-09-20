@@ -22,6 +22,16 @@ BEGIN
 END
 GO
 
+CREATE PROCEDURE sp_GetUsersByAssignedProject
+    @ProjectId INT
+AS
+BEGIN
+    SELECT *
+    FROM Users
+    WHERE CHARINDEX(',' + CAST(@ProjectId AS VARCHAR(10)) + ',', ',' + AssignedProjectIds + ',') > 0
+END
+GO
+
 CREATE PROCEDURE sp_GetAllUsers
 AS
 BEGIN

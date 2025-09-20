@@ -2,8 +2,6 @@
 using DevelopmentTimer.DAL.Enums;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DevelopmentTimer.BAL.Interfaces
@@ -15,11 +13,15 @@ namespace DevelopmentTimer.BAL.Interfaces
         Task<List<TaskItemReadDto>> GetByTaskItemTitleAsync(string Title);
         Task<List<TaskItemReadDto>> GetByTaskItemDescriptionAsync(string Description);
         Task<List<TaskItemReadDto>> GetByTaskItemEstimatedHoursAsync(int EstimatedHours);
+        Task<List<TaskItemReadDto>> GetByTaskItemTotalHoursAsync(int TotalHours);
         Task<List<TaskItemReadDto>> GetByTaskItemStatusAsync(Status status);
         Task<List<TaskItemReadDto>> GetByTaskItemProjectIdAsync(int ProjectId);
         Task<List<TaskItemReadDto>> GetByTaskItemDeveloperIdAsync(int DeveloperId);
+        Task<List<TaskItemReadDto>> GetByTaskItemisApprovedAsync(bool isApproved);
+        Task<List<TaskItemReadDto>> GetByTaskItemDateAsync(DateOnly date);
+        Task<List<TaskItemReadDto>> GetByTaskItemNotificationThresholdMinutesAsync(TimeOnly threshold);
+
         Task<TaskItemReadDto?> CreateTaskItemAsync(TaskItemCreateDto taskItemCreateDto);
-        Task<TaskItemReadDto?> UpdateTaskItemAsync(TaskItemUpdateDto taskItemUpdateDto);
         Task<bool> DeleteTaskItemAsync(int id);
     }
 }
