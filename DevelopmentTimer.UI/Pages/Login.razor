@@ -1,0 +1,156 @@
+﻿@page "/login"
+@using DevelopmentTimer.UI.State
+@inject NavigationManager NavManager
+@using MudBlazor
+
+<style>
+    body{
+        height:100%;
+        overflow: hidden;
+    }
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh; 
+        background-color: #ffffff;
+        font-family: Arial, sans-serif;
+        padding: 10px; 
+        box-sizing: border-box;
+    }
+
+    .login-card {
+        background-color: #ffffff;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        box-sizing: border-box;
+        border: 2px solid #1976d2;
+    }
+
+    .login-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #1976d2;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        font-size: 16px;
+        color: #555;
+    }
+
+    .form-control:hover {
+        border-color: #1976d2;
+        outline: none;
+    }
+
+    .login-input {
+        display: block;
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .login-btn {
+        width: 100%;
+        padding: 12px;
+        background-color: #1976d2;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    .required {
+        color: #d32f2f;
+    }
+    error-message {
+        color: #d32f2f;
+        font-size: 14px;
+        text-align: center;
+        margin-top: 10px;
+        min-height: 10px; 
+    }
+</style>
+
+<MudContainer class="login-container">
+    <MudCard Class="login-card">
+        <MudCardContent>
+            <MudText Typo="Typo.h2" Class="login-title">Login</MudText>
+
+            <MudForm Class="form-group">
+                <MudText Typo="Typo.subtitle1" Class="login-input">Username <span class="required">*</span></MudText>
+                <MudTextField T="string" Class="form-control" @bind-Value="username" />
+            </MudForm>
+
+            <MudForm Class="form-group">
+                <MudText Typo="Typo.subtitle1" Inline="true" Class="login-input">
+                    Password<span class="required"> *</span>
+                </MudText>
+                <MudTextField T="string" InputType="InputType.Password" Class="form-control" @bind-Value="password" />
+            </MudForm>
+
+            <MudForm Class="form-group">
+                <MudText Typo="Typo.subtitle1" Class="login-input">Select Role <span class="text-danger">*</span></MudText>
+                <select id="role" class="form-control" @bind="role">
+                    <option value="">-- Select Role --</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Developer">Developer</option>
+                </select>
+            </MudForm>
+
+            <MudButton ButtonType="ButtonType.Submit" Class="login-btn" OnClick="LoginUser">Login</MudButton>
+            <MudText Typo="Typo.subtitle2" Color="Color.Error" Align="Align.Center" Class="mt-2" MinHeight="20px">
+                @errorMessage
+            </MudText>
+
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
+
+@code {
+    private string? username;
+    private string? password;
+    private string? role;
+    private string? errorMessage;
+
+    private void LoginUser()
+    {
+        errorMessage = null;
+
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(role))
+        {
+            errorMessage = "Please fill all fields.";
+            return;
+        }
+        if (role == "Admin")
+        {
+            NavManager.NavigateTo("/admin/dashboard");
+        }
+        else if (role == "Developer")
+        {
+            NavManager.NavigateTo("/developer/dashboard");
+        }
+        else
+        {
+            errorMessage = "Invalid role selected.";
+        }
+    }
+}
+
+
+
