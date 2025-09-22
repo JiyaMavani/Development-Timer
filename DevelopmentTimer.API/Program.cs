@@ -30,6 +30,18 @@ namespace DevelopmentTimer.API
             builder.Services.AddScoped<ITaskItemManager, TaskItemManager>();
             builder.Services.AddScoped<IExtensionsRequestManager, ExtensionsRequestManager>();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowBlazorDevClient", policy =>
+                {
+                    policy.WithOrigins("https://localhost:7072", "http://localhost:5112")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
+
+
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -46,9 +58,9 @@ namespace DevelopmentTimer.API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            
             app.UseHttpsRedirection();
-
+            app.UseCors("AllowBlazorDevClient");
             app.UseAuthorization();
 
 

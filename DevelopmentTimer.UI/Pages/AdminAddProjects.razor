@@ -1,0 +1,120 @@
+﻿@page "/admin/addprojects"
+@layout AdminSidebar
+@inject HttpClient Http
+@using MudBlazor
+@using DevelopmentTimer.DAL.Entities
+@using DevelopmentTimer.DAL.Enums
+@using DevelopmentTimer.BAL.DTOs.ProjectDTO;
+
+<style>
+    .title{
+        text-align: center;
+        color: black;
+    }
+    .project-table-container {
+        margin-top: 20px;
+        border-radius: 10px;
+        background-color: #ffffff;
+        overflow-x: hidden;
+        padding: 0;
+    }
+
+    .custom-table table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: auto;
+    }
+
+    .custom-table .table-header {
+        background-color: #c7d59f;
+        color: #212121;
+        font-weight: bold;
+        text-align: center;
+        padding: 10px 6px;
+        border: 1px solid black;
+        word-wrap: break-word;
+        font-size: 1.5rem;
+    }
+
+    .custom-table .table-cell {
+        text-align: center;
+        font-size: 1rem;
+        padding: 8px 4px;
+        border: 1px solid black;
+        word-wrap: break-word;
+    }
+
+    .custom-table tbody tr:hover {
+        background-color: rgba(25, 118, 210, 0.1);
+        cursor: pointer;
+    }
+
+    .custom-table tbody tr:nth-of-type(odd) {
+        background-color: #f8f9fa;
+    }
+
+    @@media (max-width: 400px) {
+        .custom-table .table-header
+
+    {
+        font-size: 12px;
+        padding: 2px 2px;
+    }
+
+    .custom-table .table-cell {
+        font-size: 10px;
+        padding: 1px 2px;
+    }
+
+    .project-table-container {
+        margin-top: 5px;
+        padding: 2px;
+    }
+
+    }
+</style>
+
+<MudText Typo="Typo.h2" Class="title mb-4">Projects</MudText>
+
+<MudPaper Elevation="6" Class="p-2 project-table-container">
+    <MudTable T="ProjectReadDto" Items="@projects" Hover="true" Bordered="true" Striped="true" Class="custom-table">
+        <HeaderContent>
+            <MudTh Class="table-header">Project Name</MudTh>
+            <MudTh Class="table-header">Max Hours / Day</MudTh>
+            <MudTh Class="table-header">Status</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd Class="table-cell">@context.Name</MudTd>
+            <MudTd Class="table-cell">@context.MaxHoursPerDay</MudTd>
+            <MudTd Class="table-cell">@context.Status</MudTd>
+        </RowTemplate>
+    </MudTable>
+    <MudButton Class="btn btn-success">
+        Add Projects
+    </MudButton>
+</MudPaper>
+
+@code {
+    private List<ProjectReadDto> projects = new List<ProjectReadDto>();
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProjects();
+    }
+
+    private async Task LoadProjects()
+    {
+        errorMessage = null;
+        try
+        {
+            projects = await Http.GetFromJsonAsync<List<ProjectReadDto>>("https://localhost:7152/api/Project") ?? new List<ProjectReadDto>();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Exception : {ex.Message}";
+        }
+    }
+}
+
+

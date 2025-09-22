@@ -1,11 +1,15 @@
 ﻿@page "/login"
-@using DevelopmentTimer.UI.State
+@using DevelopmentTimer.UI
+@inject HttpClient Http
 @inject NavigationManager NavManager
+@using DevelopmentTimer.BAL.DTOs.UserDTO
 @using MudBlazor
 
 <style>
     body{
         height:100%;
+        padding: 0;
+        margin: 0;
         overflow: hidden;
     }
     .login-container {
@@ -28,6 +32,7 @@
         max-width: 400px;
         box-sizing: border-box;
         border: 2px solid #1976d2;
+        margin-bottom: 5em;
     }
 
     .login-title {
@@ -43,21 +48,17 @@
         width: 100%;
     }
 
-    .form-control {
-        width: 100%;
-        padding: 12px;
+    
+    .login-control{
         border: 1px solid #ccc;
         border-radius: 5px;
-        box-sizing: border-box;
         font-size: 16px;
-        color: #555;
+        padding: 12px;
     }
 
-    .form-control:hover {
+    .login-control:hover {
         border-color: #1976d2;
-        outline: none;
     }
-
     .login-input {
         display: block;
         font-size: 14px;
@@ -78,12 +79,15 @@
     .required {
         color: #d32f2f;
     }
-    error-message {
+    .error-message {
         color: #d32f2f;
         font-size: 14px;
-        text-align: center;
-        margin-top: 10px;
-        min-height: 10px; 
+        text-align: left;
+        padding-top: 0em;
+        margin-top: 0px;
+        margin-bottom: 0px;
+        display: block;
+        word-wrap: break-word;
     }
 </style>
 
@@ -94,27 +98,27 @@
 
             <MudForm Class="form-group">
                 <MudText Typo="Typo.subtitle1" Class="login-input">Username <span class="required">*</span></MudText>
-                <MudTextField T="string" Class="form-control" @bind-Value="username" />
+                <MudTextField T="string" Class="login-control" @bind-Value="username" Variant="Variant.Text"/>
             </MudForm>
 
             <MudForm Class="form-group">
                 <MudText Typo="Typo.subtitle1" Inline="true" Class="login-input">
                     Password<span class="required"> *</span>
                 </MudText>
-                <MudTextField T="string" InputType="InputType.Password" Class="form-control" @bind-Value="password" />
+                <MudTextField T="string" InputType="InputType.Password" Class="login-control" @bind-Value="password" Variant="Variant.Filled"/>
             </MudForm>
 
             <MudForm Class="form-group">
                 <MudText Typo="Typo.subtitle1" Class="login-input">Select Role <span class="text-danger">*</span></MudText>
                 <select id="role" class="form-control" @bind="role">
-                    <option value="">-- Select Role --</option>
+                    <option value="">Select Role</option>
                     <option value="Admin">Admin</option>
                     <option value="Developer">Developer</option>
                 </select>
             </MudForm>
 
             <MudButton ButtonType="ButtonType.Submit" Class="login-btn" OnClick="LoginUser">Login</MudButton>
-            <MudText Typo="Typo.subtitle2" Color="Color.Error" Align="Align.Center" Class="mt-2" MinHeight="20px">
+            <MudText Typo="Typo.subtitle2" Color="Color.Error" Align="Align.Center" Class="error-message">
                 @errorMessage
             </MudText>
 
@@ -128,29 +132,50 @@
     private string? role;
     private string? errorMessage;
 
-    private void LoginUser()
+    private async Task LoginUser()
     {
         errorMessage = null;
 
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(role))
         {
-            errorMessage = "Please fill all fields.";
+            errorMessage = "Please fill all fields";
             return;
         }
-        if (role == "Admin")
+
+        var loginDto = new UserLoginRequestDto
         {
-            NavManager.NavigateTo("/admin/dashboard");
+            Username = username,
+            Password = password,
+            Role = role
+        };
+
+        try
+        {
+            var response = await Http.PostAsJsonAsync("https://localhost:7152/api/Login", loginDto);
+            if (response.IsSuccessStatusCode)
+            {
+                var user = await response.Content.ReadFromJsonAsync<UserLoginResponseDto>();
+                if (user.Role == "Admin")
+                    NavManager.NavigateTo("/admin/dashboard");
+                else if (user.Role == "Developer")
+                    NavManager.NavigateTo("/developer/dashboard");
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                errorMessage = "Invalid username or password";
+            }
+            else
+            {
+                errorMessage = "Something went wrong.. Please try again later!";
+            }
         }
-        else if (role == "Developer")
+        catch (Exception ex)
         {
-            NavManager.NavigateTo("/developer/dashboard");
-        }
-        else
-        {
-            errorMessage = "Invalid role selected.";
+            errorMessage = $"Exception: {ex.Message}";
         }
     }
 }
+
 
 
 

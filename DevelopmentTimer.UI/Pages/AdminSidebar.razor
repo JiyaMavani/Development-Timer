@@ -1,0 +1,112 @@
+﻿
+@using MudBlazor
+@inject NavigationManager NavManager
+@inherits LayoutComponentBase
+
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 20%; 
+        height: 100vh; 
+        background-color: #263D42;
+        padding: 20px;
+        box-sizing: border-box;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    .sidebar a {
+        color: white;
+        text-decoration: none;
+        padding: 10px 0;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+    } 
+
+    .main-content {
+        margin-left: 20%; 
+        padding: 10px;
+        background: #f5f5f5;
+        font-size: 2em;
+        overflow: hidden;
+    }
+    .sidebar-link {
+        color: white;
+        font-weight: bold;
+        display: block;
+        width: 100%;
+        padding: 12px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.2s;
+        text-decoration: none;
+        font-size: 1.3em;
+    }
+
+    .sidebar-link:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .sidebar-title {
+        font-size: 30px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: grey;
+    }
+    @@media (max-width: 480px) {
+        .sidebar {
+            position: relative; 
+            width: 100%; 
+            height: auto; 
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            margin-left: 0; 
+            padding: 10px;
+            font-size: 1em;
+        }
+
+        .sidebar-link {
+            font-size: 1em;
+            padding: 8px;
+        }
+
+        .sidebar-title {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+    }
+</style>
+
+<MudCard class="sidebar">
+    <MudText Typo="Typo.h6" Class="sidebar-title">Admin Menu</MudText>
+
+    <MudDivider Class="mb-4" />
+
+    <MudCardContent>
+        <MudNavLink Href="/admin/addprojects" Class="sidebar-link">
+            Add Projects
+        </MudNavLink>
+        <MudNavLink Href="/admin/projectrules" Class="sidebar-link">
+            Project Rules
+        </MudNavLink>
+        <MudNavLink Href="/admin/viewtimesheets" Class="sidebar-link">
+            View TimeSheets
+        </MudNavLink>
+        <MudNavLink Href="/admin/approvals" Class="sidebar-link">
+            Make Approvals
+        </MudNavLink>
+    </MudCardContent>
+</MudCard>
+
+<MudCard class="main-content">
+    @Body
+</MudCard>
