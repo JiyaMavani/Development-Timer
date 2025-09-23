@@ -131,5 +131,18 @@ namespace DevelopmentTimer.DAL.Repository
                 .FromSqlInterpolated($"EXEC sp_GetTaskItemsByNotificationThresholdMinutes @NotificationThresholdMinutes={threshold}")
                 .ToListAsync();
         }
+
+        public async Task<bool> UpdateAsync(TaskItem taskItem)
+        {
+            var existingTaskItem = await appDbContext.TaskItems.FindAsync(taskItem.Id);
+            if (existingTaskItem == null)
+                return false;
+
+            existingTaskItem.isApproved = taskItem.isApproved;
+            appDbContext.TaskItems.Update(existingTaskItem);
+            await appDbContext.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

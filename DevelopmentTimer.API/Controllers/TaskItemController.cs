@@ -128,6 +128,25 @@ namespace DevelopmentTimer.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPut("{id}/approve")]
+        public async Task<ActionResult> ApproveTaskItem(int id)
+        {
+            try
+            {
+                var taskItem = await taskItemManager.GetByTaskItemId(id);
+                if (taskItem == null) return NotFound($"TaskItem with Id = {id} not found");
+
+                taskItem.isApproved = true;
+                var result = await taskItemManager.UpdateTaskItemAsync(taskItem);
+                if (!result) return BadRequest("Failed to update TaskItem");
+
+                return Ok($"TaskItem with Id = {id} approved successfully");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteTaskItems(int id)

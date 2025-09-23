@@ -31,12 +31,16 @@ namespace DevelopmentTimer.BAL.Managers
                 Title = taskItemCreateDto.Title,
                 Description = taskItemCreateDto.Description,
                 EstimatedHours = taskItemCreateDto.EstimatedHours,
+                TotalHours = taskItemCreateDto.TotalHours,
                 Status = taskItemCreateDto.Status,
                 ProjectId = taskItemCreateDto.ProjectId,
                 DeveloperId = taskItemCreateDto.DeveloperId,
-                isReadonly = true,      
-                isApproved = false      
+                isReadonly = true,
+                isApproved = taskItemCreateDto.isApproved,
+                Date = taskItemCreateDto.Date,
+                NotificationThresholdMinutes = taskItemCreateDto.NotificationThresholdMinutes
             };
+
 
             await taskItemRepository.AddAsync(taskItem);
             return new TaskItemReadDto
@@ -45,10 +49,13 @@ namespace DevelopmentTimer.BAL.Managers
                 Title = taskItem.Title,
                 Description = taskItem.Description,
                 EstimatedHours = taskItem.EstimatedHours,
+                TotalHours = taskItem.TotalHours,
                 Status = taskItem.Status.ToString(),
                 ProjectId = taskItem.ProjectId,
                 DeveloperId = taskItem.DeveloperId,
-                isReadOnly = taskItem.isReadonly
+                isReadOnly = taskItem.isReadonly,
+                Date = taskItem.Date,
+                NotificationThresholdMinutes = taskItem.NotificationThresholdMinutes
             };
         }
 
@@ -294,5 +301,17 @@ namespace DevelopmentTimer.BAL.Managers
                 NotificationThresholdMinutes = taskitem.NotificationThresholdMinutes
             }).ToList();
         }
+        public async Task<bool> UpdateTaskItemAsync(TaskItemReadDto taskItemReadDto)
+        {
+            var existingTaskItem = await taskItemRepository.GetByIdAsync(taskItemReadDto.Id);
+            if (existingTaskItem == null)
+                return false;
+
+            existingTaskItem.isApproved = taskItemReadDto.isApproved;
+            await taskItemRepository.UpdateAsync(existingTaskItem);
+
+            return true;
+        }
+
     }
 }

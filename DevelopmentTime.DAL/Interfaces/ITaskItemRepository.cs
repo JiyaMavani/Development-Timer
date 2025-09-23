@@ -22,6 +22,7 @@ namespace DevelopmentTimer.DAL.Interfaces
         Task<List<TaskItem>> GetByNotificationThresholdMinutesAsync(TimeOnly threshold);
 
         Task<bool> AddAsync(TaskItem taskItem);
+        Task<bool> UpdateAsync(TaskItem taskItem);
         Task DeleteAsync(int id);
     }
 }

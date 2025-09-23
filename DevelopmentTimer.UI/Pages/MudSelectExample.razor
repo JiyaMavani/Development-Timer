@@ -1,0 +1,28 @@
+﻿@page "/example"
+<style>
+.custom-select .mud-input-adornment {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+    }
+
+    .custom-select svg {
+        width: 28px !important;
+        height: 30px !important;
+        fill: #555 !important;
+        margin-top: 0px !important;
+    }
+
+    .mud-popover {
+        z-index: 1300 !important;
+    }
+</style>
+<MudSelect T="string" Label="Favorite Color" AnchorOrigin="Origin.BottomCenter" @bind-Value="_selectedColor" Class="custom-select">
+    <MudSelectItem Value="@("Red")">Red</MudSelectItem>
+    <MudSelectItem Value="@("Blue")">Blue</MudSelectItem>
+</MudSelect>
+
+
+@code {
+    private string _selectedColor = "Blue"; 
+}

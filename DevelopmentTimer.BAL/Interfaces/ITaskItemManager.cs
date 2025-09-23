@@ -22,6 +22,8 @@ namespace DevelopmentTimer.BAL.Interfaces
         Task<List<TaskItemReadDto>> GetByTaskItemNotificationThresholdMinutesAsync(TimeOnly threshold);
 
         Task<TaskItemReadDto?> CreateTaskItemAsync(TaskItemCreateDto taskItemCreateDto);
+        Task<bool> UpdateTaskItemAsync(TaskItemReadDto taskItemReadDto);
+
         Task<bool> DeleteTaskItemAsync(int id);
     }
 }

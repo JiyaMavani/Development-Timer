@@ -59,7 +59,7 @@ namespace DevelopmentTimer.DAL.Data
 
             modelBuilder.Entity<User>().HasData(
                 new User { Id = 1,Username = "Admin",Password = "Admin@1234",Role = Role.Admin,AssignedProjectIds = "0"},
-                new User { Id = 2,Username = "Sita",Password = "Sita@1234",Role = Role.Developer,AssignedProjectIds = "1,2"},
+                new User { Id = 2,Username = "Sita",Password = "Sita@1234",Role = Role.Developer,AssignedProjectIds = "1"},
                 new User { Id = 3,Username = "Rita",Password = "Rita@5678",Role = Role.Developer,AssignedProjectIds = "2,3"}
             );
             modelBuilder.Entity<Project>().HasData(
