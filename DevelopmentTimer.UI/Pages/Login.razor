@@ -4,61 +4,64 @@
 @inject NavigationManager NavManager
 @using DevelopmentTimer.BAL.DTOs.UserDTO
 @using MudBlazor
+@inject IJSRuntime JS
 
 <style>
-    body{
-        height:100%;
+    body {
+        height: 100%;
         padding: 0;
         margin: 0;
         overflow: hidden;
     }
+
     .login-container {
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 100vh; 
+        height: 100vh;
         background-color: #ffffff;
         font-family: Arial, sans-serif;
-        padding: 10px; 
+        padding: 10px;
         box-sizing: border-box;
+        margin: 0;
     }
 
     .login-card {
         background-color: #ffffff;
-        padding: 40px;
+        padding: 30px 30px 30px 30px;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         width: 100%;
-        max-width: 400px;
+        max-width: 380px;
         box-sizing: border-box;
         border: 2px solid #1976d2;
-        margin-bottom: 5em;
+        transform: translateY(-10%);
     }
 
     .login-title {
-        font-size: 28px;
+        font-size: 26px;
         font-weight: bold;
         color: #1976d2;
         text-align: center;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
     }
 
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         width: 100%;
     }
 
-    
-    .login-control{
+    .login-control {
         border: 1px solid #ccc;
         border-radius: 5px;
-        font-size: 16px;
-        padding: 12px;
+        font-size: 15px;
+        padding: 10px;
     }
 
     .login-control:hover {
         border-color: #1976d2;
-    }
+     }
+
     .login-input {
         display: block;
         font-size: 14px;
@@ -68,26 +71,28 @@
 
     .login-btn {
         width: 100%;
-        padding: 12px;
+        padding: 10px;
         background-color: #1976d2;
         color: #ffffff;
         border: none;
         border-radius: 5px;
-        font-size: 16px;
+        font-size: 15px;
         cursor: pointer;
     }
+
     .required {
         color: #d32f2f;
     }
+
     .error-message {
         color: #d32f2f;
         font-size: 14px;
         text-align: left;
-        padding-top: 0em;
-        margin-top: 0px;
-        margin-bottom: 0px;
-        display: block;
+        padding-top: 0.5em;
+        margin: 0;
+        min-height: 1.5em;
         word-wrap: break-word;
+        white-space: pre-wrap;
     }
 </style>
 
@@ -98,14 +103,14 @@
 
             <MudForm Class="form-group">
                 <MudText Typo="Typo.subtitle1" Class="login-input">Username <span class="required">*</span></MudText>
-                <MudTextField T="string" Class="login-control" @bind-Value="username" Variant="Variant.Text"/>
+                <MudTextField T="string" Class="login-control" @bind-Value="username" Variant="Variant.Text" />
             </MudForm>
 
             <MudForm Class="form-group">
                 <MudText Typo="Typo.subtitle1" Inline="true" Class="login-input">
                     Password<span class="required"> *</span>
                 </MudText>
-                <MudTextField T="string" InputType="InputType.Password" Class="login-control" @bind-Value="password" Variant="Variant.Filled"/>
+                <MudTextField T="string" InputType="InputType.Password" Class="login-control" @bind-Value="password" Variant="Variant.Filled" />
             </MudForm>
 
             <MudForm Class="form-group">
@@ -117,7 +122,7 @@
                 </select>
             </MudForm>
 
-            <MudButton ButtonType="ButtonType.Submit" Class="login-btn" OnClick="LoginUser">Login</MudButton>
+            <MudButton ButtonType="ButtonType.Button" Class="login-btn" OnClick="LoginUser">Login</MudButton>
             <MudText Typo="Typo.subtitle2" Color="Color.Error" Align="Align.Center" Class="error-message">
                 @errorMessage
             </MudText>
@@ -155,6 +160,9 @@
             if (response.IsSuccessStatusCode)
             {
                 var user = await response.Content.ReadFromJsonAsync<UserLoginResponseDto>();
+                Console.WriteLine($"Logged in user ID: {user.Id}");
+                await JS.InvokeVoidAsync("localStorage.removeItem", "DeveloperId");
+                await JS.InvokeVoidAsync("localStorage.setItem", "DeveloperId", user.Id.ToString());
                 if (user.Role == "Admin")
                     NavManager.NavigateTo("/admin/dashboard");
                 else if (user.Role == "Developer")

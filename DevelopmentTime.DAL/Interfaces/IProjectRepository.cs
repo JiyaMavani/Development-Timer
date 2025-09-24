@@ -15,7 +15,7 @@ namespace DevelopmentTimer.DAL.Interfaces
         Task<List<Project>> GetByNameAsync(string name);
         Task<List<Project>> GetByMaxHours(int maxHours);
         Task<List<Project>> GetByStatus(Status status);
-
+        Task<List<Project>> GetProjectsForDeveloperAsync(int developerId);
         Task AddAsync(Project project);
         Task UpdateAsync(Project project);
         Task DeleteAsync(int id);

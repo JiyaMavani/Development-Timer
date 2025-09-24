@@ -53,6 +53,15 @@ namespace DevelopmentTimer.API.Controllers
             if (projects == null || !projects.Any()) return NotFound($"Projects with status = {status} can not be found");
             return Ok(projects);
         }
+
+        [HttpGet("developer/{developerId}")]
+        public async Task<ActionResult<List<ProjectReadDto>>> GetProjectForDeveloper(int developerId)
+        {
+            var projects = await projectManager.GetProjectsForDeveloperAsync(developerId);
+            if (projects == null || !projects.Any()) return NotFound($"No Projects are assigned to the developer with Id = {developerId}");
+            return Ok(projects);
+        }
+
         [HttpPost]
         public async Task<ActionResult<ProjectReadDto>> CreateProject([FromBody] ProjectCreateDto projectCreateDto)
         {

@@ -1,4 +1,4 @@
-﻿@page "/developer/timers"
+﻿@page "/developer/timers/{DeveloperId:int?}"
 @layout DeveloperSidebar
 @inject HttpClient Http
 @inject NavigationManager NavManager
@@ -37,17 +37,10 @@
             border-color: #1976d2;
             box-shadow: 0 0 5px rgba(25, 118, 210, 0.5);
         }
-
-    .selected-project {
-        font-size: 16px;
-        font-weight: 600;
-        color: #263D42;
-        margin-top: 20px;
-    }
 </style>
 
 <MudPaper Class="project-container" Elevation="6">
-    <MudText Typo="Typo.h5" Class="project-heading mb-3">Select Project to Start Timer</MudText>
+    <MudText Typo="Typo.h5" Class="project-heading mb-3">Your Projects</MudText>
 
     @if (developerProjects != null && developerProjects.Any())
     {
@@ -61,31 +54,28 @@
     }
     else
     {
-        <MudText Class="Not-Found">No projects available. Please contact the Admin.</MudText>
-    }
-
-    @if (selectedProject != null)
-    {
-        <MudText Class="selected-project">Selected Project: @selectedProject.Name</MudText>
+        <MudText Class="Not-Found">No projects available. Please contact the Admin</MudText>
     }
 </MudPaper>
 
 @code {
-    private int? DeveloperId;
+    [Parameter]
+    public int? DeveloperId { get; set; }
+
     private List<ProjectReadDto> developerProjects = new();
     private ProjectReadDto selectedProject;
 
     protected override async Task OnInitializedAsync()
     {
-        var id = await JS.InvokeAsync<string>("localStorage.getItem", "DeveloperId");
+        // If DeveloperId not in URL, get from localStorage
         if (DeveloperId == null)
         {
+            var id = await JS.InvokeAsync<string>("localStorage.getItem", "DeveloperId");
             if (!string.IsNullOrEmpty(id) && int.TryParse(id, out int developerid))
                 DeveloperId = developerid;
             else
                 NavManager.NavigateTo("/login");
         }
-        Console.WriteLine($"DeveloperId captured: {DeveloperId}");
 
         if (DeveloperId != null)
         {
@@ -96,9 +86,12 @@
 
     private void OnProjectChanged(ChangeEventArgs e)
     {
-        if (int.TryParse(e.Value?.ToString(), out int projectId))
+        if (int.TryParse(e.Value?.ToString(), out int id))
         {
-            selectedProject = developerProjects.FirstOrDefault(p => p.Id == projectId);
+            selectedProject = developerProjects.FirstOrDefault(p => p.Id == id);
+            // You can later navigate to Timer Start page or show timer
+            // Example:
+            // NavManager.NavigateTo($"/developer/timerstart/{DeveloperId}/{selectedProject.Id}");
         }
         else
         {

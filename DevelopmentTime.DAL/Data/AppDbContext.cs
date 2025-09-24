@@ -80,7 +80,7 @@ namespace DevelopmentTimer.DAL.Data
                     ProjectId = 1,
                     DeveloperId = 2,
                     isApproved = false,
-                    Date = new DateOnly(2025, 9, 19),
+                    Date = new DateTime(2025, 9, 19),
                     NotificationThresholdMinutes = new TimeOnly(0, 10)
                 },
                 new TaskItem
@@ -94,7 +94,7 @@ namespace DevelopmentTimer.DAL.Data
                     ProjectId = 1,
                     DeveloperId = 2,
                     isApproved = true,
-                    Date = new DateOnly(2025, 9, 18),
+                    Date = new DateTime(2025, 9, 18),
                     NotificationThresholdMinutes = new TimeOnly(0, 45)
                 },
                 new TaskItem
@@ -108,7 +108,7 @@ namespace DevelopmentTimer.DAL.Data
                     ProjectId = 2,
                     DeveloperId = 3,
                     isApproved = false,
-                    Date = new DateOnly(2025, 9, 20),
+                    Date = new DateTime(2025, 9, 20),
                     NotificationThresholdMinutes = new TimeOnly(0, 30) 
                 },
                 new TaskItem
@@ -122,7 +122,7 @@ namespace DevelopmentTimer.DAL.Data
                     ProjectId = 2,
                     DeveloperId = 3,
                     isApproved = false,
-                    Date = new DateOnly(2025, 9, 21),
+                    Date = new DateTime(2025, 9, 21),
                     NotificationThresholdMinutes = new TimeOnly(0, 15) 
                 }
             );

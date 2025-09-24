@@ -57,12 +57,21 @@
     }
 
     .custom-select {
-        box-sizing: border-box;
         width: 100%;
-        font-size: 16px
+        padding: 0.5rem;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+        background-color: #fff;
+        color: #333;
     }
 
-    .custom-select .mud-input-adornment {
+    .custom-select option {
+        padding: 0.5rem;
+    }
+
+
+    /* .custom-select .mud-input-adornment {
         display: flex !important;
         align-items: center !important;
         justify-content: flex-end !important;
@@ -78,7 +87,7 @@
     .mud-popover {
         z-index: 9999 !important;
         overflow: visible !important;
-    }
+    } */
 
 </style>
 
@@ -100,13 +109,12 @@
                 <MudTextField T="int" @bind-Value="project.MaxHoursPerDay" Variant="Variant.Outlined" Size="Size.Small" FullWidth="true" Class="form-input" />
 
                 <MudText Class="form-label">Status</MudText>
-                <MudSelect T="Status" @bind-Value="project.Status" Variant="Variant.Outlined" FullWidth="true" DisableUnderline="true" Class="custom-select">
+                <select class="custom-select" @onchange="OnStatusChanged">
                     @foreach (var status in Enum.GetValues<Status>())
                     {
-                        <MudSelectItem Value="@status" Class="custom-select-options">@status</MudSelectItem>
+                        <option value="@status">@status</option>
                     }
-                </MudSelect>
-
+                </select>
                 <MudButton Class="btn btn-success" Variant="Variant.Filled" OnClick="@CreateProject">
                     Save Project
                 </MudButton>
@@ -116,7 +124,7 @@
 </MudContainer>
 
 @code {
-    private ProjectCreateDto project = new() { Status = Status.NotStarted };
+    private ProjectCreateDto project = new();
     private string? errorMessage;
     private string? statusString;
 
@@ -134,5 +142,12 @@
             errorMessage = $"Exception: {ex.Message}";
         }
     }
+    private void OnStatusChanged(ChangeEventArgs e)
+    {
+        project.Status = Enum.Parse<Status>(e.Value.ToString());
+    }
 }
+
+
+
 

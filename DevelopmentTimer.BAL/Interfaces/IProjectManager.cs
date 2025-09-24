@@ -12,6 +12,8 @@ namespace DevelopmentTimer.BAL.Interfaces
         Task<List<ProjectReadDto>> GetByProjectNameAsync(string name);
         Task<List<ProjectReadDto>> GetByProjectMaxHoursAsync(int maxHours);
         Task<List<ProjectReadDto>> GetByProjectStatusAsync(Status status);
+        Task<List<ProjectReadDto>> GetProjectsForDeveloperAsync(int developerId);
+
         Task<ProjectReadDto?> CreateProjectAsync(ProjectCreateDto projectCreateDto);
         Task<ProjectReadDto?> UpdateProjectAsync(ProjectUpdateDto projectUpdateDto);
         Task<bool> DeleteProjectAsync(int id);

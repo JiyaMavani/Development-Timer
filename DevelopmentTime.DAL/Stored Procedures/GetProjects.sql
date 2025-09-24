@@ -30,6 +30,28 @@ BEGIN
 END
 GO
 
+CREATE PROCEDURE sp_GetProjectsForDeveloper
+    @DeveloperId INT  
+AS
+BEGIN
+
+    DECLARE @AssignedProjectIds NVARCHAR(MAX);
+
+    SELECT @AssignedProjectIds = AssignedProjectIds
+    FROM [User]
+    WHERE Id = @DeveloperId;
+
+    SELECT 
+        p.Id, 
+        p.Name, 
+        p.MaxHoursPerDay, 
+        p.Status
+    FROM Project p
+    INNER JOIN STRING_SPLIT(@AssignedProjectIds, ',') AS s
+        ON p.Id = TRY_CAST(s.value AS INT)  
+END
+GO
+
 CREATE PROCEDURE sp_GetAllProjects
 AS
 BEGIN

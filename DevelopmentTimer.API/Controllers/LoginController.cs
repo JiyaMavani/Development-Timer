@@ -28,6 +28,7 @@ namespace DevelopmentTimer.API.Controllers
                 .AsEnumerable()
                 .Select(u => new UserLoginResponseDto
                 {
+                    Id = u.Id,
                     Username = u.Username,
                     Role = u.Role.ToString()
                 })

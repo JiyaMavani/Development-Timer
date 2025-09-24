@@ -11,7 +11,7 @@
         public int ProjectId { get; set; }
         public int DeveloperId { get; set; }
         public bool isApproved { get; set; } 
-        public DateOnly Date { get; set; }    
+        public DateTime? Date { get; set; }    
         public TimeOnly NotificationThresholdMinutes { get; set; } 
         public bool isReadOnly {  get; set; }
     }

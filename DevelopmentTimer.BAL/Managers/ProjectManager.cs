@@ -138,5 +138,18 @@ namespace DevelopmentTimer.BAL.Managers
                 Status = existingProject.Status.ToString()
             };
         }
+
+        public async Task<List<ProjectReadDto>> GetProjectsForDeveloperAsync(int developerId)
+        {
+            var projects = await projectRepository.GetProjectsForDeveloperAsync(developerId);
+
+            return projects.Select(p => new ProjectReadDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                MaxHoursPerDay = p.MaxHoursPerDay,
+                Status = p.Status.ToString()
+            }).ToList();
+        }
     }
 }

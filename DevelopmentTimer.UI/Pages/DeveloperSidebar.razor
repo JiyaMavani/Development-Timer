@@ -1,7 +1,7 @@
 ﻿@using MudBlazor
 @inject NavigationManager NavManager
 @inherits LayoutComponentBase
-
+@inject IJSRuntime JS
 <style>
     .sidebar {
         position: fixed;
@@ -92,7 +92,7 @@
     <MudDivider Class="mb-4" />
 
     <MudCardContent>
-        <MudNavLink Href="/developer/projects" Class="sidebar-link">
+        <MudNavLink OnClick="@GoToProjects" Class="sidebar-link">
             Projects
         </MudNavLink>
         <MudNavLink Href="/developer/timers" Class="sidebar-link">
@@ -110,5 +110,18 @@
 <MudSnackbarProvider />
 <MudPopoverProvider />
 
-
+@code {
+    private async Task GoToProjects()
+    {
+        var developerIdString = await JS.InvokeAsync<string>("localStorage.getItem", "DeveloperId");
+        if (!string.IsNullOrEmpty(developerIdString) && int.TryParse(developerIdString, out int developerId))
+        {
+            NavManager.NavigateTo($"/developer/projects/{developerId}");
+        }
+        else
+        {
+            NavManager.NavigateTo("/login");
+        }
+    }
+}
 

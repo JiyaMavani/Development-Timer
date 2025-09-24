@@ -14,13 +14,13 @@ namespace DevelopmentTimer.DAL.Entities
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Title is required")]
-        [MinLength(3, ErrorMessage = "Title must be at least 3 characters")]
-        [MaxLength(20, ErrorMessage = "Title cannot exceed 20 characters")]
+        //[MinLength(3, ErrorMessage = "Title must be at least 3 characters")]
+        //[MaxLength(20, ErrorMessage = "Title cannot exceed 20 characters")]
         public string Title { get; set; }
 
         [Required(ErrorMessage = "Description is required")]
-        [MinLength(50, ErrorMessage = " Description must be at least 50 characters")]
-        [MaxLength(200, ErrorMessage = " Description cannot exceed 200 characters")]
+        //[MinLength(50, ErrorMessage = " Description must be at least 50 characters")]
+        //[MaxLength(200, ErrorMessage = " Description cannot exceed 200 characters")]
         public string Description { get; set; }
 
         [Required(ErrorMessage = "Please enter the hours")]
@@ -40,7 +40,7 @@ namespace DevelopmentTimer.DAL.Entities
         [Required(ErrorMessage = "isApproved field is required")]
         public bool isApproved { get; set; }
         [Required(ErrorMessage = "Date field is required")]
-        public DateOnly Date {  get; set; }
+        public DateTime? Date {  get; set; }
         [Required(ErrorMessage = "Notification Threshold field is required")]
         public TimeOnly NotificationThresholdMinutes { get; set; }
         public bool isReadonly { get; set; } = true;

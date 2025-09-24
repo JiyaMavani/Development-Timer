@@ -2,6 +2,7 @@
 using DevelopmentTimer.BAL.Interfaces;
 using DevelopmentTimer.DAL.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -121,13 +122,19 @@ namespace DevelopmentTimer.API.Controllers
             try
             {
                 var taskItem = await taskItemManager.CreateTaskItemAsync(taskItemCreateDto);
-                return Ok(taskItem);
+                return CreatedAtAction(nameof(GetTaskItemsById), new { id = taskItem.Id }, taskItem);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return BadRequest($"Database error: {dbEx.InnerException?.Message ?? dbEx.Message}");
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, $"Unexpected error: {ex.Message}");
             }
         }
+
+
         [HttpPut("{id}/approve")]
         public async Task<ActionResult> ApproveTaskItem(int id)
         {

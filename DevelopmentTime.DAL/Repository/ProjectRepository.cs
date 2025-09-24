@@ -73,5 +73,12 @@ namespace DevelopmentTimer.DAL.Repository
             appDbContext.Projects.Update(project);
             await appDbContext.SaveChangesAsync();
         }
+
+        public async Task<List<Project>> GetProjectsForDeveloperAsync(int developerId)
+        {
+            return await appDbContext.Projects
+           .FromSqlInterpolated($"EXEC sp_GetProjectsForDeveloper {developerId}")
+           .ToListAsync();
+        }
     }
 }
