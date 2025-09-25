@@ -32,11 +32,11 @@
         transition: border-color 0.2s ease;
     }
 
-        .project-dropdown:focus {
-            outline: none;
-            border-color: #1976d2;
-            box-shadow: 0 0 5px rgba(25, 118, 210, 0.5);
-        }
+    .project-dropdown:focus {
+        outline: none;
+        border-color: #1976d2;
+        box-shadow: 0 0 5px rgba(25, 118, 210, 0.5);
+    }
 </style>
 
 <MudPaper Class="project-container" Elevation="6">
@@ -67,7 +67,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // If DeveloperId not in URL, get from localStorage
         if (DeveloperId == null)
         {
             var id = await JS.InvokeAsync<string>("localStorage.getItem", "DeveloperId");
@@ -89,9 +88,6 @@
         if (int.TryParse(e.Value?.ToString(), out int id))
         {
             selectedProject = developerProjects.FirstOrDefault(p => p.Id == id);
-            // You can later navigate to Timer Start page or show timer
-            // Example:
-            // NavManager.NavigateTo($"/developer/timerstart/{DeveloperId}/{selectedProject.Id}");
         }
         else
         {

@@ -1,10 +1,11 @@
-﻿@page "/developer/timers"
+﻿@page "/developer/projects/{DeveloperId:int}"
 @layout DeveloperSidebar
 @inject HttpClient Http
 @inject NavigationManager NavManager
 @inject IJSRuntime JS
 @using MudBlazor
 @using DevelopmentTimer.BAL.DTOs.ProjectDTO
+@using DevelopmentTimer.BAL.DTOs.TaskItemDTO;
 
 <style>
     .project-container {
@@ -32,23 +33,49 @@
         transition: border-color 0.2s ease;
     }
 
-        .project-dropdown:focus {
-            outline: none;
-            border-color: #1976d2;
-            box-shadow: 0 0 5px rgba(25, 118, 210, 0.5);
-        }
+    .project-dropdown:focus {
+        outline: none;
+        border-color: #1976d2;
+        box-shadow: 0 0 5px rgba(25, 118, 210, 0.5);
+    }
 
-    .selected-project {
+    .custom-table table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+    .custom-table .table-header {
+        background-color: #c7d59f;
+        color: #212121;
+        font-weight: bold;
+        text-align: center;
+        padding: 10px 6px;
+        border: 1px solid black;
+        word-wrap: break-word;
         font-size: 16px;
-        font-weight: 600;
-        color: #263D42;
-        margin-top: 20px;
+    }
+
+    .custom-table .table-cell {
+        text-align: center;
+        font-size: 1rem;
+        padding: 8px 4px;
+        border: 1px solid black;
+        word-wrap: break-word;
+    }
+
+    .custom-table tbody tr:hover {
+        background-color: rgba(25, 118, 210, 0.1);
+        cursor: pointer;
+    }
+
+    .custom-table tbody tr:nth-of-type(odd) {
+        background-color: #f8f9fa;
     }
 </style>
 
 <MudPaper Class="project-container" Elevation="6">
-    <MudText Typo="Typo.h5" Class="project-heading mb-3">Select Project to Start Timer</MudText>
-
+    <MudText Typo="Typo.h5" Class="project-heading mb-3">Your Projects</MudText>
     @if (developerProjects != null && developerProjects.Any())
     {
         <select class="project-dropdown" @onchange="OnProjectChanged">
@@ -61,32 +88,59 @@
     }
     else
     {
-        <MudText Class="Not-Found">No projects available. Please contact the Admin.</MudText>
+        <MudText Class="Not-Found">No projects available . Please contact the Admin</MudText>
     }
 
+    @if (selectedProject != null && timesheets?.Any() == true)
+    {
+        <MudTable T="TaskItemReadDto" Items="@timesheets" Hover="true" Bordered="true" Striped="true" Class="custom-table">
+            <HeaderContent>
+                <MudTh class="table-header">Title</MudTh>
+                <MudTh class="table-header">Description</MudTh>
+                <MudTh class="table-header">EstimatedHours</MudTh>
+                <MudTh class="table-header">Status</MudTh>
+                <MudTh class="table-header">Date</MudTh>
+                <MudTh class="table-header">ApprovalStatus</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd class="table-cell">@context.Title</MudTd>
+                <MudTd class="table-cell">@context.Description</MudTd>
+                <MudTd class="table-cell">@context.EstimatedHours</MudTd>
+                <MudTd class="table-cell">@context.Status</MudTd>
+                <MudTd class="table-cell">@context.Date</MudTd>
+                <MudTd class="table-cell">@context.isApproved</MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
     @if (selectedProject != null)
     {
-        <MudText Class="selected-project">Selected Project: @selectedProject.Name</MudText>
+        <MudButton Variant="Variant.Filled" class="btn btn-success"
+                   OnClick="@(() => NavManager.NavigateTo($"/developer/projects/{DeveloperId}/addtimesheet/{selectedProject.Id}"))">
+            Add Timesheet
+        </MudButton>
+
     }
 </MudPaper>
 
 @code {
-    private int? DeveloperId;
+    [Parameter]
+    public int? DeveloperId { get; set; }
+
     private List<ProjectReadDto> developerProjects = new();
+    private int? selectedProjectId;
     private ProjectReadDto selectedProject;
+    private List<TaskItemReadDto> timesheets;
 
     protected override async Task OnInitializedAsync()
     {
-        var id = await JS.InvokeAsync<string>("localStorage.getItem", "DeveloperId");
         if (DeveloperId == null)
         {
+            var id = await JS.InvokeAsync<string>("localStorage.getItem", "DeveloperId");
             if (!string.IsNullOrEmpty(id) && int.TryParse(id, out int developerid))
                 DeveloperId = developerid;
             else
                 NavManager.NavigateTo("/login");
         }
-        Console.WriteLine($"DeveloperId captured: {DeveloperId}");
-
         if (DeveloperId != null)
         {
             developerProjects = await Http.GetFromJsonAsync<List<ProjectReadDto>>(
@@ -94,15 +148,22 @@
         }
     }
 
-    private void OnProjectChanged(ChangeEventArgs e)
+    private async void OnProjectChanged(ChangeEventArgs e)
     {
-        if (int.TryParse(e.Value?.ToString(), out int projectId))
+        if (int.TryParse(e.Value?.ToString(), out int id))
         {
-            selectedProject = developerProjects.FirstOrDefault(p => p.Id == projectId);
+            selectedProject = developerProjects.FirstOrDefault(p => p.Id == id);
+            timesheets = await Http.GetFromJsonAsync<List<TaskItemReadDto>>(
+            $"https://localhost:7152/api/TaskItem/projectId/{id}");
         }
         else
         {
             selectedProject = null;
+            timesheets = null;
         }
+        StateHasChanged();
     }
 }
+
+
+
