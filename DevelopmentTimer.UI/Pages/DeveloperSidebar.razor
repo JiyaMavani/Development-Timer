@@ -95,7 +95,7 @@
         <MudNavLink OnClick="@GoToProjects" Class="sidebar-link">
             Projects
         </MudNavLink>
-        <MudNavLink Href="/developer/timers" Class="sidebar-link">
+        <MudNavLink OnClick="@GoToTimers" Class="sidebar-link">
             Timers
         </MudNavLink>
     </MudCardContent>
@@ -117,6 +117,18 @@
         if (!string.IsNullOrEmpty(developerIdString) && int.TryParse(developerIdString, out int developerId))
         {
             NavManager.NavigateTo($"/developer/projects/{developerId}");
+        }
+        else
+        {
+            NavManager.NavigateTo("/login");
+        }
+    }
+    private async Task GoToTimers()
+    {
+        var developerIdString = await JS.InvokeAsync<string>("localStorage.getItem", "DeveloperId");
+        if (!string.IsNullOrEmpty(developerIdString) && int.TryParse(developerIdString, out int developerId))
+        {
+            NavManager.NavigateTo($"/developer/timers/{developerId}");
         }
         else
         {

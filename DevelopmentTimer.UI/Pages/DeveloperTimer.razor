@@ -1,4 +1,4 @@
-﻿@page "/developer/timers/{DeveloperId:int?}"
+﻿@page "/developer/timers/{DeveloperId:int}"
 @layout DeveloperSidebar
 @inject HttpClient Http
 @inject NavigationManager NavManager
@@ -60,18 +60,21 @@
 
 @code {
     [Parameter]
-    public int? DeveloperId { get; set; }
+    public int DeveloperId { get; set; }
 
     private List<ProjectReadDto> developerProjects = new();
     private ProjectReadDto selectedProject;
 
     protected override async Task OnInitializedAsync()
     {
-        if (DeveloperId == null)
+        if (DeveloperId == 0)
         {
             var id = await JS.InvokeAsync<string>("localStorage.getItem", "DeveloperId");
             if (!string.IsNullOrEmpty(id) && int.TryParse(id, out int developerid))
+            {
                 DeveloperId = developerid;
+                NavManager.NavigateTo($"/developer/timers/{DeveloperId}", true);
+            }
             else
                 NavManager.NavigateTo("/login");
         }
