@@ -18,11 +18,12 @@ namespace DevelopmentTimer.DAL.Interfaces
         Task<List<TaskItem>> GetByProjectIdAsync(int ProjectId);
         Task<List<TaskItem>> GetByDeveloperIdAsync(int DeveloperId);
         Task<List<TaskItem>> GetByisApprovedAsync(bool isApproved);
-        Task<List<TaskItem>> GetByDateAsync(DateOnly date);
+        Task<List<TaskItem>> GetByDateAsync(DateTime date);
         Task<List<TaskItem>> GetByNotificationThresholdMinutesAsync(TimeOnly threshold);
 
         Task<bool> AddAsync(TaskItem taskItem);
         Task<bool> UpdateAsync(TaskItem taskItem);
+        Task<bool> UpdateCompletionAsync(int id, int totalHours);
         Task DeleteAsync(int id);
     }
 }

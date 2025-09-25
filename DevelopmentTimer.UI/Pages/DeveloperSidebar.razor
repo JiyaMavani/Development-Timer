@@ -92,11 +92,14 @@
     <MudDivider Class="mb-4" />
 
     <MudCardContent>
-        <MudNavLink OnClick="@GoToProjects" Class="sidebar-link">
-            Projects
+        <MudNavLink OnClick="@GoToTimeSheets" Class="sidebar-link">
+            TimeSheets
         </MudNavLink>
         <MudNavLink OnClick="@GoToTimers" Class="sidebar-link">
             Timers
+        </MudNavLink>
+        <MudNavLink Href="/login" Class="sidebar-link" OnClick="@LogoutAsync">
+            Logout
         </MudNavLink>
     </MudCardContent>
 </MudCard>
@@ -111,12 +114,12 @@
 <MudPopoverProvider />
 
 @code {
-    private async Task GoToProjects()
+    private async Task GoToTimeSheets()
     {
         var developerIdString = await JS.InvokeAsync<string>("localStorage.getItem", "DeveloperId");
         if (!string.IsNullOrEmpty(developerIdString) && int.TryParse(developerIdString, out int developerId))
         {
-            NavManager.NavigateTo($"/developer/projects/{developerId}");
+            NavManager.NavigateTo($"/developer/timesheets/{developerId}");
         }
         else
         {
@@ -135,5 +138,11 @@
             NavManager.NavigateTo("/login");
         }
     }
+    private async Task LogoutAsync()
+    {
+        await JS.InvokeVoidAsync("localStorage.removeItem", "AdminId");
+        NavManager.NavigateTo("/login", true);
+    }
 }
+
 

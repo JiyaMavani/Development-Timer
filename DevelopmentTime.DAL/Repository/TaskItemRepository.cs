@@ -118,10 +118,11 @@ namespace DevelopmentTimer.DAL.Repository
                 .ToListAsync();
         }
 
-        public async Task<List<TaskItem>> GetByDateAsync(DateOnly date)
+        public async Task<List<TaskItem>> GetByDateAsync(DateTime date)
         {
+            string dateParam = date.ToString("yyyy-MM-dd"); 
             return await appDbContext.TaskItems
-                .FromSqlInterpolated($"EXEC sp_GetTaskItemsByDate @Date={date}")
+                .FromSqlInterpolated($"EXEC sp_GetTaskItemsByDate @Date={dateParam}")
                 .ToListAsync();
         }
 
@@ -144,5 +145,18 @@ namespace DevelopmentTimer.DAL.Repository
             return true;
         }
 
+        public async Task<bool> UpdateCompletionAsync(int id, int totalHours)
+        {
+            var existingTaskItem = await appDbContext.TaskItems.FindAsync(id);
+            if (existingTaskItem == null)
+                return false;
+
+            existingTaskItem.TotalHours = totalHours;
+            existingTaskItem.Status = Status.Completed;
+
+            appDbContext.TaskItems.Update(existingTaskItem);
+            var saved = await appDbContext.SaveChangesAsync();
+            return saved > 0;
+        }
     }
 }

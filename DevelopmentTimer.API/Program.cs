@@ -5,6 +5,7 @@ using DevelopmentTimer.DAL.Repository;
 using DevelopmentTimer.DAL.Interfaces;
 using DevelopmentTimer.BAL.Interfaces;
 using DevelopmentTimer.BAL.Managers;
+using DevelopmentTimer.API.Hubs;
 
 namespace DevelopmentTimer.API
 {
@@ -36,22 +37,29 @@ namespace DevelopmentTimer.API
                 {
                     policy.WithOrigins("https://localhost:7072", "http://localhost:5112")
                           .AllowAnyHeader()
-                          .AllowAnyMethod();
-                });
-            });
-
-
-            builder.Services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(policy =>
-                {
-                    policy.AllowAnyOrigin()
                           .AllowAnyMethod()
-                          .AllowAnyHeader();
+                          .AllowCredentials();
                 });
             });
+
+
+            //builder.Services.AddCors(options =>
+            //{
+            //    options.AddDefaultPolicy(policy =>
+            //    {
+            //        policy.AllowAnyOrigin()
+            //              .AllowAnyMethod()
+            //              .AllowAnyHeader();
+            //    });
+            //});
 
             builder.Services.AddControllers();
+
+            builder.Services.AddRazorPages();
+            builder.Services.AddSignalR();
+
+            builder.Services.AddSingleton<TimerService>();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -71,8 +79,12 @@ namespace DevelopmentTimer.API
             app.UseCors("AllowBlazorDevClient");
             app.UseAuthorization();
 
-
+            
             app.MapControllers();
+
+
+            app.MapRazorPages();
+            app.MapHub<TimerHub>("/timerhub");
 
             app.Run();
         }

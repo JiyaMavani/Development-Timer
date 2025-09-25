@@ -18,12 +18,12 @@ namespace DevelopmentTimer.BAL.Interfaces
         Task<List<TaskItemReadDto>> GetByTaskItemProjectIdAsync(int ProjectId);
         Task<List<TaskItemReadDto>> GetByTaskItemDeveloperIdAsync(int DeveloperId);
         Task<List<TaskItemReadDto>> GetByTaskItemisApprovedAsync(bool isApproved);
-        Task<List<TaskItemReadDto>> GetByTaskItemDateAsync(DateOnly date);
+        Task<List<TaskItemReadDto>> GetByTaskItemDateAsync(DateTime date);
         Task<List<TaskItemReadDto>> GetByTaskItemNotificationThresholdMinutesAsync(TimeOnly threshold);
 
         Task<TaskItemReadDto?> CreateTaskItemAsync(TaskItemCreateDto taskItemCreateDto);
         Task<bool> UpdateTaskItemAsync(TaskItemReadDto taskItemReadDto);
-
+        Task<bool> CompleteTaskItemAsync(int id, int actualHours);
         Task<bool> DeleteTaskItemAsync(int id);
     }
 }

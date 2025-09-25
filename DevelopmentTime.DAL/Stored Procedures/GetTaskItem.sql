@@ -74,9 +74,10 @@ CREATE PROCEDURE sp_GetTaskItemsByDate
     @Date DATE
 AS
 BEGIN
-    SELECT * FROM TaskItems WHERE Date = @Date;
+    SELECT * FROM TaskItems WHERE CAST(Date AS DATE) = @Date;
 END
 GO
+
 
 CREATE PROCEDURE sp_GetTaskItemsByNotificationThresholdMinutes
     @NotificationThresholdMinutes TIME

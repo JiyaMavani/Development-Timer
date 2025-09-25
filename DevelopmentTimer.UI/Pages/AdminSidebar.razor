@@ -1,6 +1,7 @@
 ﻿@using MudBlazor
 @inject NavigationManager NavManager
 @inherits LayoutComponentBase
+@inject IJSRuntime JS
 
 <style>
     .sidebar {
@@ -97,6 +98,9 @@
         <MudNavLink Href="/admin/viewtimesheets" Class="sidebar-link">
             View TimeSheets
         </MudNavLink>
+        <MudNavLink Href="/login" Class="sidebar-link" OnClick="@LogoutAsync">
+            Logout
+        </MudNavLink>
     </MudCardContent>
 </MudCard>
 
@@ -109,5 +113,11 @@
 <MudSnackbarProvider />
 <MudPopoverProvider />
 
-
+@code {
+    private async Task LogoutAsync()
+    {
+        await JS.InvokeVoidAsync("localStorage.removeItem", "AdminId");
+        NavManager.NavigateTo("/login", true);
+    }
+}
 

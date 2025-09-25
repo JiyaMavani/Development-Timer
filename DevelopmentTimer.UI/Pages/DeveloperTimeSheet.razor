@@ -1,4 +1,4 @@
-﻿@page "/developer/projects/{DeveloperId:int}"
+﻿@page "/developer/timesheets/{DeveloperId:int}"
 @layout DeveloperSidebar
 @inject HttpClient Http
 @inject NavigationManager NavManager
@@ -21,17 +21,39 @@
         margin-top: -10px;
     }
 
+    .project-grid {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
     .project-dropdown {
-        width: 100%;
+        flex: 1;
+        max-width: 400px;
         padding: 10px 15px;
         border-radius: 8px;
         border: 1px solid #ccc;
         font-size: 16px;
         background-color: #ffffff;
-        margin-bottom: 20px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        transition: border-color 0.2s ease;
     }
+
+    .project-date {
+        flex: 1;
+        max-width: 400px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .project-search-button {
+        flex: 0 0 120px;
+    }
+
 
     .project-dropdown:focus {
         outline: none;
@@ -76,22 +98,34 @@
 
 <MudPaper Class="project-container" Elevation="6">
     <MudText Typo="Typo.h5" Class="project-heading mb-3">Your Projects</MudText>
+
     @if (developerProjects != null && developerProjects.Any())
     {
-        <select class="project-dropdown" @onchange="OnProjectChanged">
-            <option value="">Select Project</option>
-            @foreach (var project in developerProjects)
-            {
-                <option value="@project.Id">@project.Name</option>
-            }
-        </select>
+        <MudCard Class="project-grid">
+            <select class="project-dropdown" @bind="selectedProjectId" style="flex:1; max-width:400px;">
+                <option value="">Select Project</option>
+                @foreach (var project in developerProjects)
+                {
+                    <option value="@project.Id">@project.Name</option>
+                }
+            </select>
+
+            <MudTextField T="string" @bind-Value="selectedDateString" 
+                  Placeholder="yyyy-MM-dd" 
+                  Class="project-date" />
+
+            <MudButton Variant="Variant.Filled" Class="btn btn-success"
+                       OnClick="@SearchByDate" Style="flex:0 0 100px;">
+                Search
+            </MudButton>
+        </MudCard>
     }
     else
     {
-        <MudText Class="Not-Found">No projects available . Please contact the Admin</MudText>
+        <MudText Class="Not-Found">No projects available. Please contact the Admin</MudText>
     }
 
-    @if (selectedProject != null && timesheets?.Any() == true)
+    @if (timesheets?.Any() == true)
     {
         <MudTable T="TaskItemReadDto" Items="@timesheets" Hover="true" Bordered="true" Striped="true" Class="custom-table">
             <HeaderContent>
@@ -107,29 +141,22 @@
                 <MudTd class="table-cell">@context.Description</MudTd>
                 <MudTd class="table-cell">@context.EstimatedHours</MudTd>
                 <MudTd class="table-cell">@context.Status</MudTd>
-                <MudTd class="table-cell">@context.Date</MudTd>
+                <MudTd class="table-cell">@context.Date?.ToString("yyyy-MM-dd")</MudTd>
                 <MudTd class="table-cell">@context.isApproved</MudTd>
             </RowTemplate>
         </MudTable>
     }
-    @if (selectedProject != null)
-    {
-        <MudButton Variant="Variant.Filled" class="btn btn-success"
-                   OnClick="@(() => NavManager.NavigateTo($"/developer/projects/{DeveloperId}/addtimesheet/{selectedProject.Id}"))">
-            Add Timesheet
-        </MudButton>
-
-    }
 </MudPaper>
 
 @code {
-    [Parameter]
-    public int? DeveloperId { get; set; }
+    [Parameter] public int? DeveloperId { get; set; }
 
     private List<ProjectReadDto> developerProjects = new();
     private int? selectedProjectId;
     private ProjectReadDto selectedProject;
     private List<TaskItemReadDto> timesheets;
+
+    private string selectedDateString;
 
     protected override async Task OnInitializedAsync()
     {
@@ -141,6 +168,7 @@
             else
                 NavManager.NavigateTo("/login");
         }
+
         if (DeveloperId != null)
         {
             developerProjects = await Http.GetFromJsonAsync<List<ProjectReadDto>>(
@@ -148,22 +176,29 @@
         }
     }
 
-    private async void OnProjectChanged(ChangeEventArgs e)
+    private async Task SearchByDate()
     {
-        if (int.TryParse(e.Value?.ToString(), out int id))
+        if (selectedProjectId == null || string.IsNullOrEmpty(selectedDateString))
         {
-            selectedProject = developerProjects.FirstOrDefault(p => p.Id == id);
-            timesheets = await Http.GetFromJsonAsync<List<TaskItemReadDto>>(
-            $"https://localhost:7152/api/TaskItem/projectId/{id}");
-        }
-        else
-        {
-            selectedProject = null;
             timesheets = null;
+            return;
         }
+
+        if (!DateTime.TryParse(selectedDateString, out DateTime selectedDate))
+        {
+            timesheets = null;
+            return;
+        }
+
+        var projectTasks = await Http.GetFromJsonAsync<List<TaskItemReadDto>>(
+            $"https://localhost:7152/api/TaskItem/projectId/{selectedProjectId}");
+
+        timesheets = projectTasks
+            .Where(t => t.Date.HasValue && t.Date.Value.Date == selectedDate.Date)
+            .ToList();
+
+        selectedProject = developerProjects.FirstOrDefault(p => p.Id == selectedProjectId);
+
         StateHasChanged();
     }
 }
-
-
-

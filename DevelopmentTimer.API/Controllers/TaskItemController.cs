@@ -101,10 +101,12 @@ namespace DevelopmentTimer.API.Controllers
         }
 
         [HttpGet("date/{date}")]
-        public async Task<ActionResult<List<TaskItemReadDto>>> GetTaskItemsByDate(DateOnly date)
+        public async Task<ActionResult<List<TaskItemReadDto>>> GetTaskItemsByDate(DateTime date)
         {
             var taskItems = await taskItemManager.GetByTaskItemDateAsync(date);
-            if (taskItems == null || !taskItems.Any()) return NotFound($"No TaskItems for Date = {date} is found");
+            if (taskItems == null || !taskItems.Any())
+                return NotFound($"No TaskItems for Date = {date:yyyy-MM-dd} is found");
+
             return Ok(taskItems);
         }
 
@@ -169,5 +171,23 @@ namespace DevelopmentTimer.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("{id}/complete")]
+        public async Task<ActionResult> CompleteTaskItem(int id, [FromQuery] int actualHours)
+        {
+            try
+            {
+                var result = await taskItemManager.CompleteTaskItemAsync(id, actualHours);
+                if (!result)
+                    return NotFound($"TaskItem with Id = {id} not found or update failed");
+
+                return Ok($"TaskItem with Id = {id} marked completed with TotalHours = {actualHours}");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error completing task: {ex.Message}");
+            }
+        }
+
     }
 }

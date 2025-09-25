@@ -1,10 +1,14 @@
-﻿@page "/developer/timers/{DeveloperId:int}"
+﻿@* @page "/developer/timers/{DeveloperId:int}"
 @layout DeveloperSidebar
 @inject HttpClient Http
 @inject NavigationManager NavManager
 @inject IJSRuntime JS
-@using MudBlazor
+@using DevelopmentTimer.BAL.DTOs.ExtensionsRequestDTO
+@using DevelopmentTimer.BAL.DTOs.TaskItemDTO
 @using DevelopmentTimer.BAL.DTOs.ProjectDTO
+@using DevelopmentTimer.DAL.Enums
+@using Microsoft.AspNetCore.SignalR.Client
+@using MudBlazor
 
 <style>
     .project-container {
@@ -20,81 +24,737 @@
         margin-top: -10px;
     }
 
+    .project-grid {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
     .project-dropdown {
-        width: 100%;
+        flex: 1;
+        max-width: 400px;
         padding: 10px 15px;
         border-radius: 8px;
         border: 1px solid #ccc;
         font-size: 16px;
         background-color: #ffffff;
-        margin-bottom: 20px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        transition: border-color 0.2s ease;
     }
 
-    .project-dropdown:focus {
-        outline: none;
-        border-color: #1976d2;
-        box-shadow: 0 0 5px rgba(25, 118, 210, 0.5);
+    .container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .form-input, .custom-select {
+        width: 100%;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #263D42;
+        margin-bottom: 5px;
+        display: block;
+        font-size: 14px;
+    }
+
+    .form-input {
+        border: none;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 14px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .custom-select {
+        width: 50%;
+        padding: 0.5rem;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+        background-color: #fff;
+        color: #333;
+    }
+
+    custom-select option {
+        padding: 0.5rem;
+    }
+
+    .timer-container {
+        margin-top: 20px;
     }
 </style>
 
-<MudPaper Class="project-container" Elevation="6">
-    <MudText Typo="Typo.h5" Class="project-heading mb-3">Your Projects</MudText>
+<MudPaper Class="container" Elevation="6">
+    <MudText Typo="Typo.h5" Class="mb-3">Your Projects</MudText>
 
     @if (developerProjects != null && developerProjects.Any())
     {
-        <select class="project-dropdown" @onchange="OnProjectChanged">
-            <option value="">Select Project</option>
-            @foreach (var project in developerProjects)
-            {
-                <option value="@project.Id">@project.Name</option>
-            }
-        </select>
+        <MudCard Class="project-grid">
+            <select class="project-dropdown" @onchange="OnProjectChanged">
+                <option value="">Select Project</option>
+                @foreach (var project in developerProjects)
+                {
+                    <option value="@project.Id">@project.Name</option>
+                }
+            </select>
+        </MudCard>
     }
     else
     {
-        <MudText Class="Not-Found">No projects available. Please contact the Admin</MudText>
+        <MudText>No projects available.</MudText>
+    }
+
+    @if (selectedProject != null && taskItem != null)
+    {
+        <MudPaper Class="mt-3" Elevation="6" Style="padding:20px;">
+            <MudText Typo="Typo.h6">Add Task for @selectedProject.Name</MudText>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <MudText Color="Color.Error">@errorMessage</MudText>
+            }
+
+            <EditForm Model="@taskItem" OnValidSubmit="@AddTask">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <MudStack Spacing="2">
+
+                    <MudText Class="form-label">Title</MudText>
+                    <MudTextField T="string" @bind-Value="taskItem.Title" Variant="Variant.Outlined" FullWidth="true" Class="form-input" />
+
+                    <MudText Class="form-label">Description</MudText>
+                    <MudTextField T="string" @bind-Value="taskItem.Description" Variant="Variant.Outlined" FullWidth="true" Class="form-input" />
+
+                    <MudText Class="form-label">Estimated Hours</MudText>
+                    <MudTextField T="int" @bind-Value="taskItem.EstimatedHours" Variant="Variant.Outlined" FullWidth="true" Class="form-input" />
+
+                    <MudText Class="form-label">Status</MudText>
+                    <select class="custom-select" onchange="@OnStatusChanged">
+                        @foreach (var status in Enum.GetValues<Status>())
+                        {
+                            <option value="@status" selected="@(taskItem.Status == status)">@status</option>
+                        }
+                    </select>
+
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Class="btn btn-success" FullWidth="true">
+                        Add TimeSheet
+                    </MudButton>
+
+                </MudStack>
+            </EditForm>
+        </MudPaper>
+    }
+
+    @if (selectedTask != null)
+    {
+        <MudPaper Class="timer-container" Elevation="6" Style="padding:20px;">
+            <MudText Typo="Typo.h6">Timer</MudText>
+            <MudText Typo="Typo.h5">Time Remaining: @TimeDisplay</MudText>
+            <MudGrid Spacing="2" Class="mt-2">
+                <MudItem xs="6">
+                    <MudButton Variant="Variant.Filled" Class="btn btn-success" FullWidth="true" OnClick="@StartTimerAsync">Start Timer</MudButton>
+                    <MudButton Variant="Variant.Filled" Class="btn btn-danger" FullWidth="true" OnClick="@StopTimerAsync">Stop Timer</MudButton>
+                    <MudButton Variant="Variant.Filled" Class="btn btn-primary" FullWidth="true" OnClick="@CompleteTaskAsync">Complete</MudButton>
+                    @if (selectedTask != null && showExtensionButton && !showExtensionForm)
+                    {
+                        <MudButton Variant="Variant.Filled" Class="btn btn-success" FullWidth="true" OnClick="@(() => showExtensionForm = true)">
+                            Request for Extension
+                        </MudButton>
+                    }
+
+                </MudItem>
+            </MudGrid>
+            @if (selectedTask != null && showExtensionForm)
+            {
+                <MudPaper Class="mt-3" Elevation="4" Style="padding:20px;">
+                    <MudText Typo="Typo.h6">Request Extension for @selectedTask.Title</MudText>
+
+                    <EditForm Model="@extensionRequest" OnValidSubmit="@SubmitExtensionRequest">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <MudStack Spacing="2">
+                            <MudText Class="form-label">Justification</MudText>
+                            <MudTextField T="string" @bind-Value="extensionRequest.Justification" Variant="Variant.Outlined" FullWidth="true" Class="form-input" />
+
+                            <MudText Class="form-label">Extra Hours</MudText>
+                            <MudTextField T="int" @bind-Value="extensionRequest.ExtraHours" Variant="Variant.Outlined" FullWidth="true" Class="form-input" />
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Class="btn btn-success" FullWidth="true">
+                                Submit Extension Request
+                            </MudButton>
+                        </MudStack>
+                    </EditForm>
+                </MudPaper>
+            }
+        </MudPaper>
     }
 </MudPaper>
 
 @code {
-    [Parameter]
-    public int DeveloperId { get; set; }
+    [Parameter] public int DeveloperId { get; set; }
 
     private List<ProjectReadDto> developerProjects = new();
     private ProjectReadDto selectedProject;
+    private TaskItemCreateDto taskItem;
+    private TaskItemReadDto selectedTask;
+    private string errorMessage;
+    private HubConnection hubConnection;
+    private string TimeDisplay = "00:00:00";
+    private bool showExtensionButton = false;
+    private bool showExtensionForm = false;
+    private ExtensionsRequestCreateDto extensionRequest = new ExtensionsRequestCreateDto();
+    private double remainingMinutes = 0;
+
 
     protected override async Task OnInitializedAsync()
     {
-        if (DeveloperId == 0)
+        developerProjects = await Http.GetFromJsonAsync<List<ProjectReadDto>>($"https://localhost:7152/api/Project/developer/{DeveloperId}");
+
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7152/timerhub")
+            .WithAutomaticReconnect()
+            .Build();
+
+        hubConnection.On<string>("TimerUpdate", (time) =>
         {
-            var id = await JS.InvokeAsync<string>("localStorage.getItem", "DeveloperId");
-            if (!string.IsNullOrEmpty(id) && int.TryParse(id, out int developerid))
+            TimeDisplay = time;
+            if (selectedTask != null)
             {
-                DeveloperId = developerid;
-                NavManager.NavigateTo($"/developer/timers/{DeveloperId}", true);
+                var ts = TimeSpan.Parse(time);
+                remainingMinutes = ts.TotalMinutes;
+
+                var thresholdMinutes = selectedTask.NotificationThresholdMinutes.Hour * 60 + selectedTask.NotificationThresholdMinutes.Minute;
+                showExtensionButton = remainingMinutes <= thresholdMinutes;
+
+                InvokeAsync(StateHasChanged);
             }
-            else
-                NavManager.NavigateTo("/login");
-        }
+        });
 
-        if (DeveloperId != null)
+        hubConnection.On("TimerEnded", () =>
         {
-            developerProjects = await Http.GetFromJsonAsync<List<ProjectReadDto>>(
-                $"https://localhost:7152/api/Project/developer/{DeveloperId}");
-        }
-    }
+            TimeDisplay = "00:00:00";
+            InvokeAsync(StateHasChanged);
+        });
 
+        await hubConnection.StartAsync();
+    }
+    private void OnStatusChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null)
+            taskItem.Status = Enum.Parse<Status>(e.Value.ToString());
+    }
     private void OnProjectChanged(ChangeEventArgs e)
     {
-        if (int.TryParse(e.Value?.ToString(), out int id))
+        if (int.TryParse(e.Value?.ToString(), out int projectId))
         {
-            selectedProject = developerProjects.FirstOrDefault(p => p.Id == id);
+            selectedProject = developerProjects.FirstOrDefault(p => p.Id == projectId);
+
+            taskItem = new TaskItemCreateDto
+            {
+                DeveloperId = DeveloperId,
+                ProjectId = selectedProject.Id,
+                Date = DateTime.Now,
+                NotificationThresholdMinutes = new TimeOnly(0, 05),
+                isApproved = false,
+                Status = Status.NotStarted,
+                TotalHours = 0,
+                isReadonly = true
+            };
+
+            selectedTask = null;
         }
         else
         {
             selectedProject = null;
+            taskItem = null;
+            selectedTask = null;
+        }
+    }
+
+    private async Task AddTask()
+    {
+        errorMessage = null;
+
+        if (string.IsNullOrWhiteSpace(taskItem.Title) ||
+            string.IsNullOrWhiteSpace(taskItem.Description) ||
+            taskItem.EstimatedHours <= 0)
+        {
+            errorMessage = "Please fill all fields correctly.";
+            return;
+        }
+
+        taskItem.TotalHours = taskItem.EstimatedHours;
+
+        var response = await Http.PostAsJsonAsync("https://localhost:7152/api/TaskItem", taskItem);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var createdTask = await response.Content.ReadFromJsonAsync<TaskItemReadDto>();
+            selectedTask = createdTask;
+            TimeDisplay = "00:00:00";
+            StateHasChanged();
+        }
+        else
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            errorMessage = $"Server returned: {response.StatusCode}\nContent:\n{content}";
+        }
+    }
+
+    private async Task StartTimerAsync()
+    {
+        if (hubConnection.State == HubConnectionState.Connected && selectedTask != null)
+        {
+            await hubConnection.InvokeAsync("StartTimer", DeveloperId, selectedTask.EstimatedHours);
+        }
+    }
+
+    private async Task StopTimerAsync()
+    {
+        if (hubConnection.State == HubConnectionState.Connected)
+        {
+            await hubConnection.InvokeAsync("StopTimer", DeveloperId);
+        }
+    }
+
+    private async Task CompleteTaskAsync()
+    {
+        if (selectedTask == null)
+            return;
+
+        int actualHours = selectedTask.EstimatedHours; 
+        if (TimeSpan.TryParse(TimeDisplay, out TimeSpan ts))
+            actualHours = (int)Math.Ceiling(ts.TotalHours);
+
+        var response = await Http.PutAsync(
+            $"https://localhost:7152/api/TaskItem/{selectedTask.Id}/complete?actualHours={actualHours}",
+            null);
+
+        if (response.IsSuccessStatusCode)
+        {
+            selectedTask.TotalHours = actualHours;
+            selectedTask.Status = Status.Completed.ToString(); 
+            TimeDisplay = "00:00:00";
+            StateHasChanged();
+        }
+        else
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Complete failed: {response.StatusCode} - {content}");
+        }
+    }
+    private async Task SubmitExtensionRequest()
+    {
+        if (selectedTask == null)
+            return;
+
+        extensionRequest.TaskItemId = selectedTask.Id;
+        extensionRequest.DeveloperId = DeveloperId;
+
+        var response = await Http.PostAsJsonAsync("https://localhost:7152/api/ExtensionsRequest", extensionRequest);
+
+        if (response.IsSuccessStatusCode)
+        {
+            selectedTask.TotalHours += extensionRequest.ExtraHours;
+            showExtensionForm = false;      
+            showExtensionButton = false;    
+            StateHasChanged();
+        }
+        else
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Extension request failed: {content}");
+        }
+    }
+
+} *@
+
+
+
+
+@page "/developer/timers/{DeveloperId:int}"
+@layout DeveloperSidebar
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@inject IJSRuntime JS
+@using DevelopmentTimer.BAL.DTOs.ExtensionsRequestDTO
+@using DevelopmentTimer.BAL.DTOs.TaskItemDTO
+@using DevelopmentTimer.BAL.DTOs.ProjectDTO
+@using DevelopmentTimer.DAL.Enums
+@using Microsoft.AspNetCore.SignalR.Client
+@using MudBlazor
+
+<style>
+    .project-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+        border-radius: 12px;
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .project-heading {
+        margin-top: -10px;
+    }
+
+    .project-grid {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .project-dropdown {
+        flex: 1;
+        max-width: 400px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .form-input, .custom-select {
+        width: 100%;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #263D42;
+        margin-bottom: 5px;
+        display: block;
+        font-size: 14px;
+    }
+
+    .form-input {
+        border: none;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 14px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .custom-select {
+        width: 50%;
+        padding: 0.5rem;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+        background-color: #fff;
+        color: #333;
+    }
+
+    custom-select option {
+        padding: 0.5rem;
+    }
+
+    .timer-container {
+        margin-top: 20px;
+    }
+</style>
+
+<MudPaper Class="container" Elevation="6">
+    <MudText Typo="Typo.h5" Class="mb-3">Your Projects</MudText>
+
+    @if (developerProjects != null && developerProjects.Any())
+    {
+        <MudCard Class="project-grid">
+            <select class="project-dropdown" @onchange="OnProjectChanged">
+                <option value="">Select Project</option>
+                @foreach (var project in developerProjects)
+                {
+                    <option value="@project.Id">@project.Name</option>
+                }
+            </select>
+        </MudCard>
+    }
+    else
+    {
+        <MudText>No projects available.</MudText>
+    }
+
+    @if (selectedProject != null && taskItem != null)
+    {
+        <MudPaper Class="mt-3" Elevation="6" Style="padding:20px;">
+            <MudText Typo="Typo.h6">Add Task for @selectedProject.Name</MudText>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <MudText Color="Color.Error">@errorMessage</MudText>
+            }
+
+            <EditForm Model="@taskItem" OnValidSubmit="@AddTask">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <MudStack Spacing="2">
+
+                    <MudText Class="form-label">Title</MudText>
+                    <MudTextField T="string" @bind-Value="taskItem.Title" Variant="Variant.Outlined" FullWidth="true" Class="form-input" />
+
+                    <MudText Class="form-label">Description</MudText>
+                    <MudTextField T="string" @bind-Value="taskItem.Description" Variant="Variant.Outlined" FullWidth="true" Class="form-input" />
+
+                    <MudText Class="form-label">Estimated Hours</MudText>
+                    <MudTextField T="int" @bind-Value="taskItem.EstimatedHours" Variant="Variant.Outlined" FullWidth="true" Class="form-input" />
+
+                    <MudText Class="form-label">Status</MudText>
+                    <select class="custom-select" onchange="@OnStatusChanged">
+                        @foreach (var status in Enum.GetValues<Status>())
+                        {
+                            <option value="@status" selected="@(taskItem.Status == status)">@status</option>
+                        }
+                    </select>
+
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Class="btn btn-success" FullWidth="true">
+                        Add TimeSheet
+                    </MudButton>
+                </MudStack>
+            </EditForm>
+        </MudPaper>
+    }
+
+    @if (selectedTask != null)
+    {
+        <MudPaper Class="timer-container" Elevation="6" Style="padding:20px;">
+            <MudText Typo="Typo.h6">Timer</MudText>
+            <MudText Typo="Typo.h5">Time Remaining: @TimeDisplay</MudText>
+            <MudGrid Spacing="2" Class="mt-2">
+                <MudItem xs="6">
+                    <MudButton Variant="Variant.Filled" Class="btn btn-success" FullWidth="true" OnClick="@StartTimerAsync">Start Timer</MudButton>
+                    <MudButton Variant="Variant.Filled" Class="btn btn-danger" FullWidth="true" OnClick="@StopTimerAsync">Stop Timer</MudButton>
+                    <MudButton Variant="Variant.Filled" Class="btn btn-primary" FullWidth="true" OnClick="@CompleteTaskAsync">Complete</MudButton>
+                </MudItem>
+                <MudItem xs="6">
+                    @if (showExtensionButton && !showExtensionForm)
+                    {
+                        <MudButton Variant="Variant.Filled" Class="btn btn-success" FullWidth="true" OnClick="@OnExtensionButtonClick">
+                            Request for Extension
+                        </MudButton>
+                    }
+                </MudItem>
+            </MudGrid>
+
+            @if (showExtensionForm)
+            {
+                <MudPaper Class="mt-3" Elevation="4" Style="padding:20px;">
+                    <MudText Typo="Typo.h6">Request Extension for @selectedTask.Title</MudText>
+                    <EditForm Model="@extensionRequest" OnValidSubmit="@SubmitExtensionRequest">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <MudStack Spacing="2">
+                            <MudText Class="form-label">Justification</MudText>
+                            <MudTextField T="string" @bind-Value="extensionRequest.Justification" Variant="Variant.Outlined" FullWidth="true" Class="form-input" />
+
+                            <MudText Class="form-label">Extra Hours</MudText>
+                            <MudTextField T="int" @bind-Value="extensionRequest.ExtraHours" Variant="Variant.Outlined" FullWidth="true" Class="form-input" />
+
+                            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Class="btn btn-success" FullWidth="true">
+                                Submit Extension Request
+                            </MudButton>
+                        </MudStack>
+                    </EditForm>
+                </MudPaper>
+            }
+        </MudPaper>
+    }
+</MudPaper>
+
+@code {
+    [Parameter] public int DeveloperId { get; set; }
+
+    private List<ProjectReadDto> developerProjects = new();
+    private ProjectReadDto selectedProject;
+    private TaskItemCreateDto taskItem;
+    private TaskItemReadDto selectedTask;
+    private string errorMessage;
+    private HubConnection hubConnection;
+    private string TimeDisplay = "00:00:00";
+    private bool showExtensionButton = false;
+    private bool showExtensionForm = false;
+    private ExtensionsRequestCreateDto extensionRequest = new ExtensionsRequestCreateDto();
+
+    protected override async Task OnInitializedAsync()
+    {
+        developerProjects = await Http.GetFromJsonAsync<List<ProjectReadDto>>($"https://localhost:7152/api/Project/developer/{DeveloperId}");
+
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7152/timerhub")
+            .WithAutomaticReconnect()
+            .Build();
+
+        hubConnection.On<string>("TimerUpdate", (time) =>
+        {
+            TimeDisplay = time;
+            if (selectedTask != null)
+            {
+                showExtensionButton = true; // always show button
+                InvokeAsync(StateHasChanged);
+            }
+        });
+
+        hubConnection.On("TimerEnded", () =>
+        {
+            TimeDisplay = "00:00:00";
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private void OnStatusChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null)
+            taskItem.Status = Enum.Parse<Status>(e.Value.ToString());
+    }
+
+    private void OnProjectChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int projectId))
+        {
+            selectedProject = developerProjects.FirstOrDefault(p => p.Id == projectId);
+
+            taskItem = new TaskItemCreateDto
+            {
+                DeveloperId = DeveloperId,
+                ProjectId = selectedProject.Id,
+                Date = DateTime.Now,
+                NotificationThresholdMinutes = new TimeOnly(0, 5),
+                isApproved = false,
+                Status = Status.NotStarted,
+                TotalHours = 0,
+                isReadonly = true
+            };
+
+            selectedTask = null;
+        }
+        else
+        {
+            selectedProject = null;
+            taskItem = null;
+            selectedTask = null;
+        }
+    }
+
+    private async Task AddTask()
+    {
+        errorMessage = null;
+
+        if (string.IsNullOrWhiteSpace(taskItem.Title) ||
+            string.IsNullOrWhiteSpace(taskItem.Description) ||
+            taskItem.EstimatedHours <= 0)
+        {
+            errorMessage = "Please fill all fields correctly.";
+            return;
+        }
+
+        taskItem.TotalHours = taskItem.EstimatedHours;
+
+        var response = await Http.PostAsJsonAsync("https://localhost:7152/api/TaskItem", taskItem);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var createdTask = await response.Content.ReadFromJsonAsync<TaskItemReadDto>();
+            selectedTask = createdTask;
+            TimeDisplay = "00:00:00";
+            showExtensionButton = true; // show button immediately
+            StateHasChanged();
+        }
+        else
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            errorMessage = $"Server returned: {response.StatusCode}\nContent:\n{content}";
+        }
+    }
+
+    private async Task StartTimerAsync()
+    {
+        if (hubConnection.State == HubConnectionState.Connected && selectedTask != null)
+        {
+            await hubConnection.InvokeAsync("StartTimer", DeveloperId, selectedTask.EstimatedHours);
+        }
+    }
+
+    private async Task StopTimerAsync()
+    {
+        if (hubConnection.State == HubConnectionState.Connected)
+        {
+            await hubConnection.InvokeAsync("StopTimer", DeveloperId);
+        }
+    }
+
+    private async Task CompleteTaskAsync()
+    {
+        if (selectedTask == null)
+            return;
+
+        int actualHours = selectedTask.EstimatedHours;
+        if (TimeSpan.TryParse(TimeDisplay, out TimeSpan ts))
+            actualHours = (int)Math.Ceiling(ts.TotalHours);
+
+        var response = await Http.PutAsync(
+            $"https://localhost:7152/api/TaskItem/{selectedTask.Id}/complete?actualHours={actualHours}",
+            null);
+
+        if (response.IsSuccessStatusCode)
+        {
+            selectedTask.TotalHours = actualHours;
+            selectedTask.Status = Status.Completed.ToString();
+            TimeDisplay = "00:00:00";
+            StateHasChanged();
+        }
+    }
+
+    private void OnExtensionButtonClick()
+    {
+        showExtensionForm = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SubmitExtensionRequest()
+    {
+        if (selectedTask == null) return;
+
+        extensionRequest.TaskItemId = selectedTask.Id;
+        extensionRequest.DeveloperId = DeveloperId;
+
+        var response = await Http.PostAsJsonAsync("https://localhost:7152/api/ExtensionsRequest", extensionRequest);
+
+        if (response.IsSuccessStatusCode)
+        {
+            selectedTask.TotalHours += extensionRequest.ExtraHours;
+            showExtensionForm = false;
+            showExtensionButton = false;
+            StateHasChanged();
+        }
+        else
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Extension request failed: {content}");
         }
     }
 }
+
+
