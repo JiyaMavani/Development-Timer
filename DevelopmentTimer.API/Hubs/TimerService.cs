@@ -14,21 +14,34 @@ namespace DevelopmentTimer.API.Hubs
             this.hubContext = hubContext;
         }
 
-        public void StartTimer(int devId, string connectionId, double hours)
+        public void StartTimer(int devId, string connectionId, double hours, int thresholdMinutes)
         {
-            TimeSpan timeLeft = _remainingTime.ContainsKey(devId) ? _remainingTime[devId] : TimeSpan.FromHours(hours);
-
             if (_timers.ContainsKey(devId))
             {
                 _timers[devId].Stop();
                 _timers.Remove(devId);
             }
 
+            TimeSpan timeLeft = _remainingTime.ContainsKey(devId)
+               ? _remainingTime[devId]
+               : TimeSpan.FromHours(hours);
+
+            hubContext.Clients.Client(connectionId).SendAsync("TimerUpdate", timeLeft.ToString(@"hh\:mm\:ss"));
+
+            bool thresholdNotified = false;
+
             var timer = new System.Timers.Timer(1000);
             timer.Elapsed += async (s, e) =>
             {
                 timeLeft = timeLeft.Subtract(TimeSpan.FromSeconds(1));
                 _remainingTime[devId] = timeLeft;
+
+                
+                if (!thresholdNotified && timeLeft.TotalMinutes <= thresholdMinutes)
+                {
+                    thresholdNotified = true;
+                    await hubContext.Clients.Client(connectionId).SendAsync("ThresholdReached");
+                }
 
                 if (timeLeft.TotalSeconds <= 0)
                 {
@@ -47,6 +60,7 @@ namespace DevelopmentTimer.API.Hubs
             _timers[devId] = timer;
         }
 
+
         public void StopTimer(int devId)
         {
             if (_timers.TryGetValue(devId, out var timer))
@@ -55,6 +69,19 @@ namespace DevelopmentTimer.API.Hubs
                 _timers.Remove(devId);
             }
         }
+
+        public async Task UpdateTimerAsync(int developerId, double remainingMinutes)
+        {
+            if (_remainingTime.ContainsKey(developerId))
+                _remainingTime[developerId] = TimeSpan.FromMinutes(remainingMinutes);
+            else
+                _remainingTime.Add(developerId, TimeSpan.FromMinutes(remainingMinutes));
+
+            await hubContext.Clients.User(developerId.ToString())
+                .SendAsync("TimerUpdate", TimeSpan.FromMinutes(remainingMinutes).ToString(@"hh\:mm\:ss"));
+        }
+
+
     }
 
 }

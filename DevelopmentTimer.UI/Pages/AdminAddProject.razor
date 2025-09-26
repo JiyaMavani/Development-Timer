@@ -19,7 +19,7 @@
 
     .form-card {
         padding: 25px;
-        width: 360px;
+        width: 560px;
         border-radius: 12px;
         background: white;
         box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
@@ -43,8 +43,6 @@
     }
 
     .form-input {
-        border: 1px solid black;
-        border-radius: 6px;
         padding: 6px 10px;
         font-size: 14px;
         width: 100%;
@@ -56,6 +54,12 @@
         font-size: 14px;
     }
 
+    .match-select-width .mud-input-root {
+        width: 100% !important;
+        min-height: 40px !important; 
+        padding: 5px 10px !important; 
+    }
+
     .custom-select {
         width: 100%;
         padding: 0.5rem;
@@ -64,6 +68,7 @@
         font-size: 1rem;
         background-color: #fff;
         color: #333;
+        margin-bottom: 
     }
 
     .custom-select option {
@@ -101,12 +106,11 @@
             <DataAnnotationsValidator />
 
             <MudStack Spacing="2">
-
                 <MudText Class="form-label">Project Name</MudText>
-                <MudTextField T="string" @bind-Value="project.Name" Variant="Variant.Outlined" Size="Size.Small" FullWidth="true" Class="form-input" />
+                <MudTextField T="string" @bind-Value="project.Name" Variant="Variant.Outlined" Size="Size.Small" Class="form-input match-select-width" />
 
                 <MudText Class="form-label">Max Hours / Day</MudText>
-                <MudTextField T="int" @bind-Value="project.MaxHoursPerDay" Variant="Variant.Outlined" Size="Size.Small" FullWidth="true" Class="form-input" />
+                <MudTextField T="int" @bind-Value="project.MaxHoursPerDay" Variant="Variant.Outlined" Size="Size.Small" Class="form-input match-select-width" />
 
                 <MudText Class="form-label">Status</MudText>
                 <select class="custom-select" @onchange="OnStatusChanged">
@@ -115,6 +119,7 @@
                         <option value="@status">@status</option>
                     }
                 </select>
+
                 <MudButton Class="btn btn-success" Variant="Variant.Filled" OnClick="@CreateProject">
                     Save Project
                 </MudButton>
@@ -147,7 +152,3 @@
         project.Status = Enum.Parse<Status>(e.Value.ToString());
     }
 }
-
-
-
-

@@ -14,9 +14,9 @@ namespace DevelopmentTimer.API.Hubs
             _timerService = timerService;
         }
 
-        public Task StartTimer(int devId, double hours)
+        public Task StartTimer(int devId, double hours, int thresholdMinutes)
         {
-            _timerService.StartTimer(devId, Context.ConnectionId, hours);
+            _timerService.StartTimer(devId, Context.ConnectionId, hours, thresholdMinutes);
             return Task.CompletedTask;
         }
 
@@ -24,6 +24,12 @@ namespace DevelopmentTimer.API.Hubs
         {
             _timerService.StopTimer(devId);
             return Task.CompletedTask;
+        }
+
+        public async Task UpdateTimer(double remainingMinutes)
+        {
+            var devId = int.Parse(Context.UserIdentifier ?? "0"); 
+            await _timerService.UpdateTimerAsync(devId, remainingMinutes);
         }
     }
 

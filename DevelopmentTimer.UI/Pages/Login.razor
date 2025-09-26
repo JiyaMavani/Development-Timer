@@ -52,8 +52,9 @@
     }
 
     .login-control {
-        border: 1px solid #ccc;
-        border-radius: 5px;
+        border-radius: 8px;
+        background-color: transparent;
+        box-shadow: none;
         font-size: 15px;
         padding: 10px;
     }
@@ -80,6 +81,12 @@
         cursor: pointer;
     }
 
+    .match-select-width .mud-input-root {
+        width: 100% !important;
+        min-height: 30px !important; 
+        padding: 5px 10px !important; 
+    }
+
     .required {
         color: #d32f2f;
     }
@@ -103,14 +110,12 @@
 
             <MudForm Class="form-group">
                 <MudText Typo="Typo.subtitle1" Class="login-input">Username <span class="required">*</span></MudText>
-                <MudTextField T="string" Class="login-control" @bind-Value="username" Variant="Variant.Text" />
+                <MudTextField T="string" Class="login-control match-select-width" @bind-Value="username" Variant="Variant.Outlined" />
             </MudForm>
 
             <MudForm Class="form-group">
-                <MudText Typo="Typo.subtitle1" Inline="true" Class="login-input">
-                    Password<span class="required"> *</span>
-                </MudText>
-                <MudTextField T="string" InputType="InputType.Password" Class="login-control" @bind-Value="password" Variant="Variant.Filled" />
+                <MudText Typo="Typo.subtitle1" Class="login-input">Password <span class="required">*</span></MudText>
+                <MudTextField T="string" InputType="InputType.Password" Class="login-control match-select-width" @bind-Value="password" Variant="Variant.Outlined" />
             </MudForm>
 
             <MudForm Class="form-group">

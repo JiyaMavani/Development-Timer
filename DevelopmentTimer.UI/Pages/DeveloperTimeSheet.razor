@@ -5,7 +5,7 @@
 @inject IJSRuntime JS
 @using MudBlazor
 @using DevelopmentTimer.BAL.DTOs.ProjectDTO
-@using DevelopmentTimer.BAL.DTOs.TaskItemDTO;
+@using DevelopmentTimer.BAL.DTOs.TaskItemDTO
 
 <style>
     .project-container {
@@ -24,7 +24,7 @@
     .project-grid {
         display: flex;
         gap: 10px;
-        align-items: center;
+        align-items: baseline;
         margin-bottom: 20px;
     }
 
@@ -36,29 +36,41 @@
         border: 1px solid #ccc;
         font-size: 16px;
         background-color: #ffffff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        height: 40px;
+        box-sizing: border-box;
     }
-
-    .project-date {
-        flex: 1;
-        max-width: 400px;
-        padding: 10px 15px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 16px;
-        background-color: #ffffff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .project-search-button {
-        flex: 0 0 120px;
-    }
-
 
     .project-dropdown:focus {
         outline: none;
         border-color: #1976d2;
         box-shadow: 0 0 5px rgba(25, 118, 210, 0.5);
+    }
+
+    .project-date .mud-input-root {
+        flex: 1;
+        max-width: 400px;
+        padding: 5px 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        height: 40px;
+        box-sizing: border-box;
+    }
+
+    .project-date .mud-input-root:focus-within {
+        outline: none;
+        border-color: #1976d2;
+        box-shadow: 0 0 5px rgba(25, 118, 210, 0.5);
+    }
+
+    .project-search-button {
+        flex: 0 0 100px;
+        height: 40px;
+        padding: 0 15px;
+        box-sizing: border-box;
     }
 
     .custom-table table {
@@ -102,7 +114,7 @@
     @if (developerProjects != null && developerProjects.Any())
     {
         <MudCard Class="project-grid">
-            <select class="project-dropdown" @bind="selectedProjectId" style="flex:1; max-width:400px;">
+            <select class="project-dropdown" @bind="selectedProjectId">
                 <option value="">Select Project</option>
                 @foreach (var project in developerProjects)
                 {
@@ -110,12 +122,13 @@
                 }
             </select>
 
-            <MudTextField T="string" @bind-Value="selectedDateString" 
-                  Placeholder="yyyy-MM-dd" 
-                  Class="project-date" />
+            <MudTextField T="string" @bind-Value="selectedDateString"
+                          Placeholder="yyyy-MM-dd"
+                          Class="project-date"
+                          Variant="Variant.Outlined" />
 
-            <MudButton Variant="Variant.Filled" Class="btn btn-success"
-                       OnClick="@SearchByDate" Style="flex:0 0 100px;">
+            <MudButton Variant="Variant.Filled" Class="btn btn-success project-search-button"
+                       OnClick="@SearchByDate">
                 Search
             </MudButton>
         </MudCard>
@@ -129,20 +142,25 @@
     {
         <MudTable T="TaskItemReadDto" Items="@timesheets" Hover="true" Bordered="true" Striped="true" Class="custom-table">
             <HeaderContent>
-                <MudTh class="table-header">Title</MudTh>
-                <MudTh class="table-header">Description</MudTh>
-                <MudTh class="table-header">EstimatedHours</MudTh>
-                <MudTh class="table-header">Status</MudTh>
+                <MudTh class="table-header">Project</MudTh>
+                <MudTh class="table-header">TaskItem</MudTh>
                 <MudTh class="table-header">Date</MudTh>
                 <MudTh class="table-header">ApprovalStatus</MudTh>
             </HeaderContent>
             <RowTemplate>
+                <MudTd class="table-cell">@selectedProject.Name</MudTd>
                 <MudTd class="table-cell">@context.Title</MudTd>
-                <MudTd class="table-cell">@context.Description</MudTd>
-                <MudTd class="table-cell">@context.EstimatedHours</MudTd>
-                <MudTd class="table-cell">@context.Status</MudTd>
                 <MudTd class="table-cell">@context.Date?.ToString("yyyy-MM-dd")</MudTd>
-                <MudTd class="table-cell">@context.isApproved</MudTd>
+                <MudTd class="table-cell">
+                    @if (context.isApproved)
+                    {
+                        <MudIcon>✅</MudIcon>
+                    }
+                    else
+                    {
+                        <MudIcon>❌</MudIcon>
+                    }
+                </MudTd>
             </RowTemplate>
         </MudTable>
     }

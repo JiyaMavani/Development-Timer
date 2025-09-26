@@ -2,10 +2,12 @@
 @layout AdminSidebar
 @inject HttpClient Http
 @inject NavigationManager NavManager
+@inject IJSRuntime JS
+@using DevelopmentTimer.API.DTOs.UserDTO
 @using MudBlazor
 @using DevelopmentTimer.DAL.Entities
 @using DevelopmentTimer.DAL.Enums
-@using DevelopmentTimer.BAL.DTOs.TaskItemDTO;
+@using DevelopmentTimer.BAL.DTOs.TaskItemDTO
 
 <style>
     .title {
@@ -17,14 +19,14 @@
         margin-top: 20px;
         border-radius: 10px;
         background-color: #ffffff;
-        overflow-x: visible; 
+        overflow-x: visible;
         padding: 0;
     }
 
     .custom-table table {
         width: 100%;
         border-collapse: collapse;
-        table-layout: fixed; 
+        table-layout: fixed;
     }
 
     .custom-table .table-header {
@@ -60,6 +62,76 @@
         padding: 6px 12px;
     }
 
+    .icon-checkbox-container {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        height: 40px;
+        line-height: 40px;
+    }
+
+    .icon-checkbox {
+        font-size: 1rem;
+        margin-right: 4px;
+        color: #1976d2;
+    }
+
+    .icon-label {
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+    .project-grid {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        max-width: 900px;
+    }
+
+    .project-dropdown {
+        flex: 1;
+        max-width: 250px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        height: 40px;
+        box-sizing: border-box;
+        vertical-align: middle;
+    }
+
+    .project-date .mud-input-root {
+        flex: 1;
+        max-width: 200px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        height: 40px;
+        box-sizing: border-box;
+        vertical-align: middle;
+    }
+
+    .project-date .mud-input-root:focus-within {
+        outline: none;
+        border-color: #1976d2;
+        box-shadow: 0 0 5px rgba(25, 118, 210, 0.5);
+    }
+
+    .project-search-button {
+        flex: 0 0 100px;
+        height: 40px;
+        padding: 0 15px;
+        box-sizing: border-box;
+        vertical-align: middle;
+    }
+
     @@media (max-width: 768px) {
         .custom-table .table-header {
             font-size: 1.2rem;
@@ -81,6 +153,13 @@
             padding: 4px 10px;
         }
 
+        .project-dropdown {
+            max-width: 200px;
+        }
+
+        .project-date .mud-input-root {
+            max-width: 150px;
+        }
     }
 
     @@media (max-width: 480px) {
@@ -103,48 +182,130 @@
             font-size: 0.7rem;
             padding: 2px 6px;
         }
+
+        .project-grid {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .project-dropdown {
+            max-width: 100%;
+        }
+
+        .project-date .mud-input-root {
+            max-width: 100%;
+        }
+
+        .project-search-button {
+            flex: 0 0 100%;
+            width: 100%;
+        }
     }
 </style>
 
 <MudText Typo="Typo.h2" Class="title mb-4">TimeSheets</MudText>
 
+<MudCard Class="project-grid">
+    <select class="project-dropdown" @bind="selectedDeveloperId">
+        <option value="">Select Developer</option>
+        @foreach (var developer in developers)
+        {
+            <option value="@developer.Id">@developer.Username</option>
+        }
+    </select>
+
+    <MudTextField T="string" @bind-Value="selectedDateString" Placeholder="yyyy-MM-dd" Class="project-date" Variant="Variant.Outlined" />
+
+    <MudIcon class="icon-checkbox-container" @onclick="TogglePendingOnly">
+        <span class="icon-checkbox">
+            @(pendingOnly ? "✅" : "⬜")
+        </span>
+        <span class="icon-label">Pending Approvals</span>
+    </MudIcon>
+
+    <MudButton Variant="Variant.Filled" Class="btn btn-success project-search-button" OnClick="@Search">
+        Search
+    </MudButton>
+</MudCard>
+
 <MudPaper Elevation="6" Class="p-2 timesheet-table-container">
-    <MudTable T="TaskItemReadDto" Items="@taskItems" Hover="true" Bordered="true" Striped="true" Class="custom-table">
-        <HeaderContent>
-            <MudTh Class="table-header">Title</MudTh>
-            <MudTh Class="table-header">Total Hours</MudTh>
-            <MudTh Class="table-header">Status</MudTh>
-            <MudTh Class="table-header">Date</MudTh>
-            <MudTh Class="table-header">isApproved</MudTh>
-            <MudTh Class="table-header">Action</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd Class="table-cell">@context.Title</MudTd>
-            <MudTd Class="table-cell">@context.TotalHours</MudTd>
-            <MudTd Class="table-cell">@context.Status</MudTd>
-            <MudTd Class="table-cell">@context.Date</MudTd>
-            <MudTd Class="table-cell">@context.isApproved</MudTd>
-            <MudTd Class="table-cell">
-                @if(!context.isApproved){
-                <MudButton Class="btn btn-success" Variant="Variant.Filled" OnClick="@(() => ApproveTask(context))">
-                    Approve
-                </MudButton>}
-                else{
-                    <MudText Typo="Typo.h5" Align="Align.Center">Approved</MudText>
-                }
-            </MudTd>
-            
-        </RowTemplate>
-    </MudTable>
+    @if (taskItems == null || !taskItems.Any())
+    {
+        <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-2">No records found</MudText>
+    }
+    else
+    {
+        <MudTable T="TaskItemReadDto" Items="@taskItems" Hover="true" Bordered="true" Striped="true" Class="custom-table">
+            <HeaderContent>
+                <MudTh Class="table-header">Developer</MudTh>
+                <MudTh Class="table-header">Title</MudTh>
+                <MudTh Class="table-header">Total Hours</MudTh>
+                <MudTh Class="table-header">Status</MudTh>
+                <MudTh Class="table-header">Date</MudTh>
+                <MudTh Class="table-header">isApproved</MudTh>
+                <MudTh Class="table-header">Action</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd Class="table-cell">
+                    @(developerNames.TryGetValue(context.DeveloperId, out var name) ? name : "Unknown")
+                </MudTd>
+                <MudTd Class="table-cell">@context.Title</MudTd>
+                <MudTd Class="table-cell">@context.TotalHours</MudTd>
+                <MudTd Class="table-cell">@context.Status</MudTd>
+                <MudTd Class="table-cell">@context.Date?.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd Class="table-cell">
+                    @if (context.isApproved)
+                    {
+                        <MudIcon>✅</MudIcon>
+                    }
+                    else
+                    {
+                        <MudIcon>❌</MudIcon>
+                    }
+                </MudTd>
+                <MudTd Class="table-cell">
+                    @if (!context.isApproved)
+                    {
+                        <MudButton Class="btn btn-success" Variant="Variant.Filled" OnClick="@(() => ApproveTask(context))">
+                            Approve
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.h5" Align="Align.Center">Approved</MudText>
+                    }
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
 </MudPaper>
 
 @code {
-    private List<TaskItemReadDto> taskItems = new List<TaskItemReadDto>();
+    private List<TaskItemReadDto> taskItems = new();
+    private List<TaskItemReadDto> allTaskItems = new();
+    private List<UserReadDto> developers = new();
+    private Dictionary<int, string> developerNames = new();
+    private int? selectedDeveloperId;
+    private string selectedDateString;
     private string? errorMessage;
+    private bool pendingOnly = false;
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadDevelopers();
         await LoadTimeSheets();
+    }
+
+    private void TogglePendingOnly()
+    {
+        pendingOnly = !pendingOnly;
+    }
+
+    private async Task LoadDevelopers()
+    {
+        developers = await Http.GetFromJsonAsync<List<UserReadDto>>(
+       "https://localhost:7152/api/User/role/1") ?? new();
+        developerNames = developers.ToDictionary(d => d.Id, d => d.Username);
     }
 
     private async Task LoadTimeSheets()
@@ -152,13 +313,31 @@
         errorMessage = null;
         try
         {
-            taskItems = await Http.GetFromJsonAsync<List<TaskItemReadDto>>("https://localhost:7152/api/TaskItem") ?? new List<TaskItemReadDto>();
+            allTaskItems = await Http.GetFromJsonAsync<List<TaskItemReadDto>>("https://localhost:7152/api/TaskItem") ?? new List<TaskItemReadDto>();
+            taskItems = allTaskItems.ToList();
         }
         catch (Exception ex)
         {
             errorMessage = $"Exception : {ex.Message}";
         }
     }
+
+    private async Task Search()
+    {
+        var filteredTasks = allTaskItems.AsEnumerable();
+
+        if (selectedDeveloperId != null)
+            filteredTasks = filteredTasks.Where(t => t.DeveloperId == selectedDeveloperId);
+
+        if (!string.IsNullOrEmpty(selectedDateString) && DateTime.TryParse(selectedDateString, out DateTime date))
+            filteredTasks = filteredTasks.Where(t => t.Date.HasValue && t.Date.Value.Date == date.Date);
+
+        if (pendingOnly)
+            filteredTasks = filteredTasks.Where(t => !t.isApproved);
+
+        taskItems = filteredTasks.ToList();
+    }
+
     private async Task ApproveTask(TaskItemReadDto taskItemReadDto)
     {
         try
@@ -166,7 +345,26 @@
             var response = await Http.PutAsync($"https://localhost:7152/api/TaskItem/{taskItemReadDto.Id}/approve", null);
             if (response.IsSuccessStatusCode)
             {
-                await LoadTimeSheets();
+                var taskItemList = allTaskItems.FirstOrDefault(t => t.Id == taskItemReadDto.Id);
+                if (taskItemList != null)
+                {
+                    taskItemList.isApproved = true;
+                }
+
+                var tasks = taskItems.FirstOrDefault(t => t.Id == taskItemReadDto.Id);
+                if (tasks != null)
+                {
+                    if (pendingOnly)
+                    {
+                        taskItems.RemoveAll(t => t.Id == taskItemReadDto.Id);
+                    }
+                    else
+                    {
+                        tasks.isApproved = true;
+                    }
+                }
+
+                StateHasChanged();
             }
             else
             {
@@ -178,7 +376,4 @@
             errorMessage = $"Exception: {ex.Message}";
         }
     }
-
 }
-
-
