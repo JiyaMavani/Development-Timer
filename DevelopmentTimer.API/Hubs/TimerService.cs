@@ -1,87 +1,180 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using System.Timers;
+using System;
+using System.Collections.Concurrent;
+using Timer = System.Timers.Timer;
+using System.Threading.Tasks;
 
 namespace DevelopmentTimer.API.Hubs
 {
     public class TimerService
     {
-        private readonly IHubContext<TimerHub> hubContext;
-        private readonly Dictionary<int, System.Timers.Timer> _timers = new();
-        private readonly Dictionary<int, TimeSpan> _remainingTime = new();
+        private readonly IHubContext<TimerHub> _hubContext;
+        private readonly ConcurrentDictionary<int, Timer> _timers = new();
+        private readonly ConcurrentDictionary<int, TimeSpan> _remainingTime = new();
+        private readonly ConcurrentDictionary<int, string> _connectionIds = new(); 
+        private readonly ConcurrentDictionary<int, bool> _thresholdNotified = new();
 
         public TimerService(IHubContext<TimerHub> hubContext)
         {
-            this.hubContext = hubContext;
+            _hubContext = hubContext;
         }
 
-        public void StartTimer(int devId, string connectionId, double hours, int thresholdMinutes)
+        public void StartTimer(int devId, string connectionId, double minutes, int thresholdMinutes)
         {
-            if (_timers.ContainsKey(devId))
+            _connectionIds[devId] = connectionId;
+
+            if (_timers.TryRemove(devId, out var existing))
             {
-                _timers[devId].Stop();
-                _timers.Remove(devId);
+                try { existing.Stop(); existing.Dispose(); } catch { }
             }
 
-            TimeSpan timeLeft = _remainingTime.ContainsKey(devId)
-               ? _remainingTime[devId]
-               : TimeSpan.FromHours(hours);
+            TimeSpan timeLeft = _remainingTime.ContainsKey(devId) ? _remainingTime[devId] : TimeSpan.FromMinutes(minutes);
 
-            hubContext.Clients.Client(connectionId).SendAsync("TimerUpdate", timeLeft.ToString(@"hh\:mm\:ss"));
+            _thresholdNotified[devId] = false;
 
-            bool thresholdNotified = false;
+            _ = _hubContext.Clients.Client(connectionId).SendAsync("TimerUpdate", timeLeft.ToString(@"hh\:mm\:ss"));
 
-            var timer = new System.Timers.Timer(1000);
+            var timer = new Timer(1000);
+            timer.AutoReset = true;
+
             timer.Elapsed += async (s, e) =>
             {
                 timeLeft = timeLeft.Subtract(TimeSpan.FromSeconds(1));
                 _remainingTime[devId] = timeLeft;
 
-                
-                if (!thresholdNotified && timeLeft.TotalMinutes <= thresholdMinutes)
+                if (!_thresholdNotified.TryGetValue(devId, out var notified) || !notified)
                 {
-                    thresholdNotified = true;
-                    await hubContext.Clients.Client(connectionId).SendAsync("ThresholdReached");
+                    if (timeLeft.TotalMinutes <= thresholdMinutes)
+                    {
+                        _thresholdNotified[devId] = true;
+                        await _hubContext.Clients.Client(connectionId).SendAsync("ThresholdReached");
+                    }
                 }
 
                 if (timeLeft.TotalSeconds <= 0)
                 {
-                    timer.Stop();
-                    _timers.Remove(devId);
-                    _remainingTime.Remove(devId);
-                    await hubContext.Clients.Client(connectionId).SendAsync("TimerEnded");
+                    try { timer.Stop(); timer.Dispose(); } catch { }
+                    _timers.TryRemove(devId, out _);
+                    _remainingTime.TryRemove(devId, out _);
+                    _ = _hubContext.Clients.Client(connectionId).SendAsync("TimerEnded");
                 }
                 else
                 {
-                    await hubContext.Clients.Client(connectionId).SendAsync("TimerUpdate", timeLeft.ToString(@"hh\:mm\:ss"));
+                    await _hubContext.Clients.Client(connectionId).SendAsync("TimerUpdate", timeLeft.ToString(@"hh\:mm\:ss"));
                 }
             };
-            timer.Start();
 
+            timer.Start();
             _timers[devId] = timer;
+            _remainingTime[devId] = timeLeft;
         }
 
-
-        public void StopTimer(int devId)
+        public void PauseTimer(int devId)
         {
-            if (_timers.TryGetValue(devId, out var timer))
+            if (_timers.TryRemove(devId, out var timer))
             {
-                timer.Stop();
-                _timers.Remove(devId);
+                try { timer.Stop(); timer.Dispose(); } catch { }
+            }
+            if (_connectionIds.TryGetValue(devId, out var connId))
+            {
+                _ = _hubContext.Clients.Client(connId).SendAsync("TimerPaused");
             }
         }
 
-        public async Task UpdateTimerAsync(int developerId, double remainingMinutes)
+        public void StopTimer(int devId)
         {
-            if (_remainingTime.ContainsKey(developerId))
-                _remainingTime[developerId] = TimeSpan.FromMinutes(remainingMinutes);
-            else
-                _remainingTime.Add(developerId, TimeSpan.FromMinutes(remainingMinutes));
-
-            await hubContext.Clients.User(developerId.ToString())
-                .SendAsync("TimerUpdate", TimeSpan.FromMinutes(remainingMinutes).ToString(@"hh\:mm\:ss"));
+            if (_timers.TryRemove(devId, out var timer))
+            {
+                try { timer.Stop(); timer.Dispose(); } catch { }
+            }
+            _remainingTime.TryRemove(devId, out _);
+            _thresholdNotified.TryRemove(devId, out _);
+            _connectionIds.TryRemove(devId, out _);
         }
 
+        public void ResumeTimer(int devId, string connectionId)
+        {
+            if (!string.IsNullOrEmpty(connectionId))
+                _connectionIds[devId] = connectionId;
 
+            if (_timers.ContainsKey(devId))
+                return;
+
+            if (!_remainingTime.TryGetValue(devId, out var timeLeft))
+            {
+                return;
+            }
+
+            if (!_connectionIds.TryGetValue(devId, out var connId))
+                return;
+
+            var timer = new Timer(1000);
+            timer.AutoReset = true;
+            timer.Elapsed += async (s, e) =>
+            {
+                timeLeft = timeLeft.Subtract(TimeSpan.FromSeconds(1));
+                _remainingTime[devId] = timeLeft;
+
+                if (!_thresholdNotified.TryGetValue(devId, out var notified) || !notified)
+                {
+                    // if threshold info not known, don't know minutes here; threshold notification should be triggered previously on StartTimer
+                }
+
+                if (timeLeft.TotalSeconds <= 0)
+                {
+                    try { timer.Stop(); timer.Dispose(); } catch { }
+                    _timers.TryRemove(devId, out _);
+                    _remainingTime.TryRemove(devId, out _);
+                    await _hubContext.Clients.Client(connId).SendAsync("TimerEnded");
+                }
+                else
+                {
+                    await _hubContext.Clients.Client(connId).SendAsync("TimerUpdate", timeLeft.ToString(@"hh\:mm\:ss"));
+                }
+            };
+            timer.Start();
+            _timers[devId] = timer;
+        }
+
+        public void AddExtension(int devId, int extraHours, string connectionId)
+        {
+
+            if (!string.IsNullOrEmpty(connectionId))
+                _connectionIds[devId] = connectionId;
+
+            var add = TimeSpan.FromHours(extraHours);
+            if (_remainingTime.TryGetValue(devId, out var current))
+                current = current.Add(add);
+            else
+                current = add;
+
+            _remainingTime[devId] = current;
+
+            if (_connectionIds.TryGetValue(devId, out var connId))
+            {
+                _ = _hubContext.Clients.Client(connId).SendAsync("TimerUpdate", current.ToString(@"hh\:mm\:ss"));
+            }
+
+            if (!_timers.ContainsKey(devId))
+            {
+                if (_connectionIds.TryGetValue(devId, out var conn2))
+                {
+                    ResumeTimer(devId, conn2);
+                }
+            }
+        }
+
+        public Task UpdateTimerAsync(int developerId, double remainingMinutes)
+        {
+            var ts = TimeSpan.FromMinutes(remainingMinutes);
+            _remainingTime[developerId] = ts;
+
+            if (_connectionIds.TryGetValue(developerId, out var connId))
+            {
+                return _hubContext.Clients.Client(connId).SendAsync("TimerUpdate", ts.ToString(@"hh\:mm\:ss"));
+            }
+            return Task.CompletedTask;
+        }
     }
-
 }
+

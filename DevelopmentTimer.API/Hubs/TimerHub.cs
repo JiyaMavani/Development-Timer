@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using System;
-using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace DevelopmentTimer.API.Hubs
@@ -14,9 +12,9 @@ namespace DevelopmentTimer.API.Hubs
             _timerService = timerService;
         }
 
-        public Task StartTimer(int devId, double hours, int thresholdMinutes)
+        public Task StartTimer(int devId, double minutes, int thresholdMinutes)
         {
-            _timerService.StartTimer(devId, Context.ConnectionId, hours, thresholdMinutes);
+            _timerService.StartTimer(devId, Context.ConnectionId, minutes, thresholdMinutes);
             return Task.CompletedTask;
         }
 
@@ -26,11 +24,28 @@ namespace DevelopmentTimer.API.Hubs
             return Task.CompletedTask;
         }
 
-        public async Task UpdateTimer(double remainingMinutes)
+        public Task PauseTimer(int devId)
         {
-            var devId = int.Parse(Context.UserIdentifier ?? "0"); 
-            await _timerService.UpdateTimerAsync(devId, remainingMinutes);
+            _timerService.PauseTimer(devId);
+            return Task.CompletedTask;
+        }
+
+        public Task ResumeTimer(int devId)
+        {
+            _timerService.ResumeTimer(devId, Context.ConnectionId);
+            return Task.CompletedTask;
+        }
+
+        public Task AddExtension(int devId, int extraHours)
+        {
+            _timerService.AddExtension(devId, extraHours, Context.ConnectionId);
+            return Task.CompletedTask;
+        }
+
+        public Task UpdateTimer(int developerId, double remainingMinutes)
+        {
+            return _timerService.UpdateTimerAsync(developerId, remainingMinutes);
         }
     }
-
 }
+
