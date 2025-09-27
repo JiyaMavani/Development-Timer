@@ -8,7 +8,7 @@ namespace DevelopmentTimer.API.Hubs
 {
     public class TimerService
     {
-        private readonly IHubContext<TimerHub> _hubContext;
+        private readonly IHubContext<TimerHub> hubContext;
         private readonly ConcurrentDictionary<int, Timer> _timers = new();
         private readonly ConcurrentDictionary<int, TimeSpan> _remainingTime = new();
         private readonly ConcurrentDictionary<int, string> _connectionIds = new(); 
@@ -16,7 +16,7 @@ namespace DevelopmentTimer.API.Hubs
 
         public TimerService(IHubContext<TimerHub> hubContext)
         {
-            _hubContext = hubContext;
+            this.hubContext = hubContext;
         }
 
         public void StartTimer(int devId, string connectionId, double minutes, int thresholdMinutes)
@@ -32,7 +32,7 @@ namespace DevelopmentTimer.API.Hubs
 
             _thresholdNotified[devId] = false;
 
-            _ = _hubContext.Clients.Client(connectionId).SendAsync("TimerUpdate", timeLeft.ToString(@"hh\:mm\:ss"));
+            _ = hubContext.Clients.Client(connectionId).SendAsync("TimerUpdate", timeLeft.ToString(@"hh\:mm\:ss"));
 
             var timer = new Timer(1000);
             timer.AutoReset = true;
@@ -47,7 +47,7 @@ namespace DevelopmentTimer.API.Hubs
                     if (timeLeft.TotalMinutes <= thresholdMinutes)
                     {
                         _thresholdNotified[devId] = true;
-                        await _hubContext.Clients.Client(connectionId).SendAsync("ThresholdReached");
+                        await hubContext.Clients.Client(connectionId).SendAsync("ThresholdReached");
                     }
                 }
 
@@ -56,11 +56,11 @@ namespace DevelopmentTimer.API.Hubs
                     try { timer.Stop(); timer.Dispose(); } catch { }
                     _timers.TryRemove(devId, out _);
                     _remainingTime.TryRemove(devId, out _);
-                    _ = _hubContext.Clients.Client(connectionId).SendAsync("TimerEnded");
+                    _ = hubContext.Clients.Client(connectionId).SendAsync("TimerEnded");
                 }
                 else
                 {
-                    await _hubContext.Clients.Client(connectionId).SendAsync("TimerUpdate", timeLeft.ToString(@"hh\:mm\:ss"));
+                    await hubContext.Clients.Client(connectionId).SendAsync("TimerUpdate", timeLeft.ToString(@"hh\:mm\:ss"));
                 }
             };
 
@@ -77,7 +77,7 @@ namespace DevelopmentTimer.API.Hubs
             }
             if (_connectionIds.TryGetValue(devId, out var connId))
             {
-                _ = _hubContext.Clients.Client(connId).SendAsync("TimerPaused");
+                _ = hubContext.Clients.Client(connId).SendAsync("TimerPaused");
             }
         }
 
@@ -125,11 +125,11 @@ namespace DevelopmentTimer.API.Hubs
                     try { timer.Stop(); timer.Dispose(); } catch { }
                     _timers.TryRemove(devId, out _);
                     _remainingTime.TryRemove(devId, out _);
-                    await _hubContext.Clients.Client(connId).SendAsync("TimerEnded");
+                    await hubContext.Clients.Client(connId).SendAsync("TimerEnded");
                 }
                 else
                 {
-                    await _hubContext.Clients.Client(connId).SendAsync("TimerUpdate", timeLeft.ToString(@"hh\:mm\:ss"));
+                    await hubContext.Clients.Client(connId).SendAsync("TimerUpdate", timeLeft.ToString(@"hh\:mm\:ss"));
                 }
             };
             timer.Start();
@@ -152,7 +152,7 @@ namespace DevelopmentTimer.API.Hubs
 
             if (_connectionIds.TryGetValue(devId, out var connId))
             {
-                _ = _hubContext.Clients.Client(connId).SendAsync("TimerUpdate", current.ToString(@"hh\:mm\:ss"));
+                _ = hubContext.Clients.Client(connId).SendAsync("TimerUpdate", current.ToString(@"hh\:mm\:ss"));
             }
 
             if (!_timers.ContainsKey(devId))
@@ -171,7 +171,7 @@ namespace DevelopmentTimer.API.Hubs
 
             if (_connectionIds.TryGetValue(developerId, out var connId))
             {
-                return _hubContext.Clients.Client(connId).SendAsync("TimerUpdate", ts.ToString(@"hh\:mm\:ss"));
+                return hubContext.Clients.Client(connId).SendAsync("TimerUpdate", ts.ToString(@"hh\:mm\:ss"));
             }
             return Task.CompletedTask;
         }

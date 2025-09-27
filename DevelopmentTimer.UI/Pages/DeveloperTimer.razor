@@ -56,7 +56,7 @@
     .form-card {
         margin-top: 0px;
         padding: 25px;
-        width: 600px;
+        width: 1100px;
         border-radius: 12px;
         background: white;
         box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
@@ -207,9 +207,9 @@
                                 <MudTextField T="int" @bind-Value="extensionRequest.ExtraHours"
                                               Variant="Variant.Outlined" Size="Size.Small"
                                               Class="form-input match-select-width" />
-
-                                <MudButton ButtonType="ButtonType.Submit" Class="btn btn-success" Variant="Variant.Filled">Submit</MudButton>
-                                <MudButton Class="btn btn-secondary" Variant="Variant.Text" OnClick="@CancelExtension">Cancel</MudButton>
+                                <MudItem xs="6">                                <MudButton ButtonType="ButtonType.Submit" Class="btn btn-success" Variant="Variant.Filled">Submit</MudButton>
+                                <MudButton Class="btn btn-danger" Variant="Variant.Text" OnClick="@CancelExtension">Cancel</MudButton>
+                                </MudItem>
                             </MudStack>
                         </EditForm>
 
@@ -302,7 +302,7 @@
                     DeveloperId = DeveloperId,
                     ProjectId = selectedProject.Id,
                     Date = DateTime.Now,
-                    NotificationThresholdMinutes = new TimeOnly(0, 59),
+                    NotificationThresholdMinutes = new TimeOnly(0, 30),
                     isApproved = false,
                     Status = Status.NotStarted,
                     TotalHours = 0,
@@ -462,9 +462,15 @@
         if (selectedTask == null)
             return;
 
-        int actualHours = selectedTask.EstimatedHours;
-        if (TimeSpan.TryParse(TimeDisplay, out TimeSpan ts))
-            actualHours = (int)Math.Ceiling(ts.TotalHours);
+        if (!TimeSpan.TryParse(TimeDisplay, out TimeSpan remaining))
+            remaining = TimeSpan.Zero;
+
+        var totalAssignedMinutes = (selectedTask.EstimatedHours + (selectedTask.TotalHours - selectedTask.EstimatedHours)) * 60;
+
+        var spentMinutes = totalAssignedMinutes - remaining.TotalMinutes;
+        if (spentMinutes < 0) spentMinutes = 0;
+
+        var actualHours = (int)Math.Ceiling(spentMinutes / 60.0);
 
         var response = await Http.PutAsync(
             $"https://localhost:7152/api/TaskItem/{selectedTask.Id}/complete?actualHours={actualHours}",
@@ -477,7 +483,6 @@
             TimeDisplay = "00:00:00";
 
             await JS.InvokeVoidAsync("alert", "The task has been completed successfully");
-
             NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
         }
         else
@@ -486,9 +491,6 @@
             Console.WriteLine($"Complete failed: {response.StatusCode} - {content}");
         }
     }
-
-
-    
 }
 
 
