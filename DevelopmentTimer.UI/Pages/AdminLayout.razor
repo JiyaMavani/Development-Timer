@@ -1,0 +1,53 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavManager
+@inject DevelopmentTimer.UI.Services.AuthorizationService AuthService
+@layout ProtectedLayout
+
+@if (!isChecked)
+{
+    <MudProgressCircular Indeterminate="true" />
+    <p>Checking authentication...</p>
+}
+else if (isAuthorized)
+{
+    <AdminSidebar />
+    <MudCard Class="main-content">
+        @Body
+    </MudCard>
+
+    <MudThemeProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
+    <MudPopoverProvider />
+}
+else
+{
+    @* Redirect handled in code *@
+}
+
+@code {
+    [Parameter] public string RequiredRole { get; set; } = "Admin";
+    private bool isAuthorized = false;
+    private bool isChecked = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isAuthorized = await AuthService.HasRoleAsync(RequiredRole);
+            if (!isAuthorized)
+            {
+                NavManager.NavigateTo("/unauthorized", forceLoad: true);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error checking authorization: {ex.Message}");
+            NavManager.NavigateTo("/unauthorized", forceLoad: true);
+        }
+        finally
+        {
+            isChecked = true;
+        }
+    }
+}

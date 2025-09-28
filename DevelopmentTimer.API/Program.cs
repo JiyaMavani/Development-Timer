@@ -1,4 +1,3 @@
-
 using Microsoft.EntityFrameworkCore;
 using DevelopmentTimer.DAL.Data;
 using DevelopmentTimer.DAL.Repository;
@@ -6,6 +5,9 @@ using DevelopmentTimer.DAL.Interfaces;
 using DevelopmentTimer.BAL.Interfaces;
 using DevelopmentTimer.BAL.Managers;
 using DevelopmentTimer.API.Hubs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace DevelopmentTimer.API
 {
@@ -30,6 +32,8 @@ namespace DevelopmentTimer.API
             builder.Services.AddScoped<IProjectManager, ProjectManager>();
             builder.Services.AddScoped<ITaskItemManager, TaskItemManager>();
             builder.Services.AddScoped<IExtensionsRequestManager, ExtensionsRequestManager>();
+            //builder.Services.AddScoped<LocalStorageService>();
+            //builder.Services.AddScoped<AuthorizationService>();
 
             builder.Services.AddCors(options =>
             {
@@ -52,6 +56,29 @@ namespace DevelopmentTimer.API
             //              .AllowAnyHeader();
             //    });
             //});
+
+            var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+            var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
+            });
+
 
             builder.Services.AddControllers();
 
@@ -77,11 +104,10 @@ namespace DevelopmentTimer.API
             
             app.UseHttpsRedirection();
             app.UseCors("AllowBlazorDevClient");
+            app.UseAuthentication();
             app.UseAuthorization();
-
-            
+      
             app.MapControllers();
-
 
             app.MapRazorPages();
             app.MapHub<TimerHub>("/timerhub");

@@ -165,9 +165,25 @@
             if (response.IsSuccessStatusCode)
             {
                 var user = await response.Content.ReadFromJsonAsync<UserLoginResponseDto>();
+
+                if (!string.Equals(user.Role, role, StringComparison.OrdinalIgnoreCase))
+                {
+                    errorMessage = $"Selected role does not match your actual role";
+                    return;
+                }
+
+                await JS.InvokeVoidAsync("localStorage.setItem", "authToken", user.token);
+                await JS.InvokeVoidAsync("localStorage.setItem", "UserRole", user.Role);
+                await JS.InvokeVoidAsync("localStorage.setItem", "UserId", user.Id.ToString());
+
+                Http.DefaultRequestHeaders.Authorization =
+                   new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", user.token);
+
                 Console.WriteLine($"Logged in user ID: {user.Id}");
+
                 await JS.InvokeVoidAsync("localStorage.removeItem", "DeveloperId");
                 await JS.InvokeVoidAsync("localStorage.setItem", "DeveloperId", user.Id.ToString());
+
                 if (user.Role == "Admin")
                     NavManager.NavigateTo("/admin/dashboard");
                 else if (user.Role == "Developer")
@@ -179,7 +195,7 @@
             }
             else
             {
-                errorMessage = "Something went wrong.. Please try again later!";
+                errorMessage = "Something went wrong . Try again later..";
             }
         }
         catch (Exception ex)

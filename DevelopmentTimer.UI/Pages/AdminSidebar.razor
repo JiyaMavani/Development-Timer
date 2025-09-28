@@ -2,6 +2,8 @@
 @inject NavigationManager NavManager
 @inherits LayoutComponentBase
 @inject IJSRuntime JS
+@layout AdminLayout
+@inject DevelopmentTimer.UI.Services.LocalStorageService LocalStorage
 
 <style>
     .sidebar {
@@ -116,8 +118,20 @@
 @code {
     private async Task LogoutAsync()
     {
-        await JS.InvokeVoidAsync("localStorage.removeItem", "AdminId");
-        NavManager.NavigateTo("/login", true);
+        try
+        {
+            await LocalStorage.RemoveItemAsync("authToken");
+            await LocalStorage.RemoveItemAsync("AdminId");
+
+            var token = await LocalStorage.GetItemAsync("authToken");
+            var adminId = await LocalStorage.GetItemAsync("AdminId");
+            Console.WriteLine($"Post-logout - authToken: {token ?? "null"}, AdminId: {adminId ?? "null"}");
+
+            NavManager.NavigateTo("/login", true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Logout error: {ex.Message}");
+        }
     }
 }
-

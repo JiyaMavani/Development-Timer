@@ -1,0 +1,48 @@
+﻿@inject IJSRuntime JS
+@inject NavigationManager NavManager
+
+@if (!isAuthorized)
+{
+    <p>@message</p>
+}
+else
+{
+    @ChildContent
+}
+
+@code {
+    [Parameter] public string Role { get; set; } = ""; 
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private bool isAuthorized = false;
+    private string message = "Checking authorization...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+        if (string.IsNullOrEmpty(token))
+        {
+            message = "Please login or try again later...";
+            NavManager.NavigateTo("/login", true);
+            return;
+        }
+
+        var payload = token.Split('.')[1];
+        payload = payload.PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
+        var jsonBytes = Convert.FromBase64String(payload);
+        var payloadJson = System.Text.Encoding.UTF8.GetString(jsonBytes);
+        var roleClaim = System.Text.Json.JsonDocument.Parse(payloadJson)
+                        .RootElement
+                        .GetProperty("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")
+                        .GetString();
+
+        if (roleClaim == Role)
+        {
+            isAuthorized = true;
+        }
+        else
+        {
+            message = "Sorry, you are not authorized to view this page.";
+        }
+    }
+}

@@ -3,6 +3,7 @@ using DevelopmentTimer.BAL.DTOs.ProjectDTO;
 using DevelopmentTimer.BAL.Interfaces;
 using DevelopmentTimer.DAL.Entities;
 using DevelopmentTimer.DAL.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DevelopmentTimer.API.Controllers
@@ -10,6 +11,7 @@ namespace DevelopmentTimer.API.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
+
     public class ProjectController : Controller
     {
         private readonly IProjectManager projectManager;

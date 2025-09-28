@@ -1,0 +1,58 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavManager
+@inject DevelopmentTimer.UI.Services.AuthorizationService AuthService
+
+@if (!isChecked)
+{
+    <MudProgressCircular Indeterminate="true" />
+    <p>Checking authentication...</p>
+}
+else if (isAuthorized)
+{
+    <DeveloperSidebar />
+    <div style="margin-left: 20%; padding: 10px;">
+        @Body
+    </div>
+}
+else
+{
+    @* Redirect handled in code *@
+}
+
+@code {
+    [Parameter] public string RequiredRole { get; set; } = "Developer";
+    private bool isAuthorized = false;
+    private bool isChecked = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        NavManager.LocationChanged += async (sender, args) => await CheckAuthorizationAsync();
+        await CheckAuthorizationAsync();
+    }
+
+    private async Task CheckAuthorizationAsync()
+    {
+        try
+        {
+            isAuthorized = await AuthService.HasRoleAsync(RequiredRole);
+            if (!isAuthorized)
+            {
+                NavManager.NavigateTo("/unauthorized", forceLoad: true);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error checking authorization: {ex.Message}");
+            NavManager.NavigateTo("/unauthorized", forceLoad: true);
+        }
+        finally
+        {
+            isChecked = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        NavManager.LocationChanged -= async (sender, args) => await CheckAuthorizationAsync();
+    }
+}

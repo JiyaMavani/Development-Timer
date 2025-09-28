@@ -1,3 +1,4 @@
+using DevelopmentTimer.UI.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
@@ -13,9 +14,9 @@ namespace DevelopmentTimer.UI
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
             //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddScoped<LocalStorageService>();
+            builder.Services.AddScoped<AuthorizationService>();
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7152/") });
-
-
 
             builder.Services.AddMudServices();
 

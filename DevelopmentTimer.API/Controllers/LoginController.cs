@@ -1,43 +1,119 @@
-﻿using DevelopmentTimer.API.DTOs.UserDTO;
+﻿//using DevelopmentTimer.API.DTOs.UserDTO;
+//using DevelopmentTimer.BAL.DTOs.UserDTO;
+//using DevelopmentTimer.DAL.Data;
+//using Microsoft.AspNetCore.Mvc;
+//using Microsoft.EntityFrameworkCore;
+//using System.Linq;
+
+//namespace DevelopmentTimer.API.Controllers
+//{
+//    [ApiController]
+//    [Route("api/[controller]")]
+//    public class LoginController : ControllerBase
+//    {
+//        private readonly AppDbContext _appDbContext;
+//        public LoginController(AppDbContext appDbContext)
+//        {
+//            _appDbContext = appDbContext;
+//        }
+
+//        [HttpPost]
+//        public async Task<ActionResult<UserLoginRequestDto>> Login([FromBody] UserLoginRequestDto userLoginRequestDto)
+//        {
+//            if (!ModelState.IsValid)
+//                return BadRequest(ModelState);
+
+//            var user = _appDbContext.Users
+//                .FromSqlInterpolated($"EXEC sp_GetLoginCredientials @Username = {userLoginRequestDto.Username}, @Password = {userLoginRequestDto.Password}")
+//                .AsEnumerable()
+//                .Select(u => new UserLoginResponseDto
+//                {
+//                    Id = u.Id,
+//                    Username = u.Username,
+//                    Role = u.Role.ToString()
+//                })
+//                .FirstOrDefault();
+
+//            if (user == null)
+//                return Unauthorized("Invalid Username or Password");
+
+//            return Ok(user);
+//        }
+//    }
+//}
+
+
+
+using DevelopmentTimer.API.DTOs.UserDTO;
 using DevelopmentTimer.BAL.DTOs.UserDTO;
 using DevelopmentTimer.DAL.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace DevelopmentTimer.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class LoginController : ControllerBase
+    public class LoginController : Controller
     {
-        private readonly AppDbContext _appDbContext;
-        public LoginController(AppDbContext appDbContext)
+        private readonly AppDbContext appDbContext;
+        private readonly IConfiguration configuration;
+
+        public LoginController(AppDbContext appDbContext, IConfiguration configuration)
         {
-            _appDbContext = appDbContext;
+            this.appDbContext = appDbContext;
+            this.configuration = configuration;
         }
 
         [HttpPost]
-        public async Task<ActionResult<UserLoginRequestDto>> Login([FromBody] UserLoginRequestDto userLoginRequestDto)
+        public async Task<IActionResult> Login([FromBody] UserLoginRequestDto loginDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = _appDbContext.Users
-                .FromSqlInterpolated($"EXEC sp_GetLoginCredientials @Username = {userLoginRequestDto.Username}, @Password = {userLoginRequestDto.Password}")
+            var user = appDbContext.Users
+                .FromSqlInterpolated($"EXEC sp_GetLoginCredientials @Username = {loginDto.Username}, @Password = {loginDto.Password}")
                 .AsEnumerable()
-                .Select(u => new UserLoginResponseDto
-                {
-                    Id = u.Id,
-                    Username = u.Username,
-                    Role = u.Role.ToString()
-                })
                 .FirstOrDefault();
 
             if (user == null)
                 return Unauthorized("Invalid Username or Password");
 
-            return Ok(user);
+            var jwtSettings = configuration.GetSection("JwtSettings");
+            var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role.ToString())
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: jwtSettings["Issuer"],
+                audience: jwtSettings["Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(2),
+                signingCredentials: new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256)
+            );
+
+            var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return Ok(new
+            {
+                id = user.Id,
+                username = user.Username,
+                role = user.Role.ToString(),
+                token = jwtToken
+            });
         }
     }
 }
+
+

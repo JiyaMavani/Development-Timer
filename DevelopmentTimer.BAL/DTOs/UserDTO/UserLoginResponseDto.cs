@@ -11,5 +11,6 @@ namespace DevelopmentTimer.BAL.DTOs.UserDTO
         public int Id {  get; set; }
         public string Username {  get; set; }
         public string Role { get; set; }
+        public string token {  get; set; }
     }
 }
