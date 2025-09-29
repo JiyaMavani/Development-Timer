@@ -77,6 +77,7 @@
         .sidebar-link {
             font-size: 1em;
             padding: 8px;
+            cursor: pointer;
         }
 
         .sidebar-title {
@@ -100,7 +101,7 @@
         <MudNavLink Href="/admin/viewtimesheets" Class="sidebar-link">
             View TimeSheets
         </MudNavLink>
-        <MudNavLink Href="/login" Class="sidebar-link" OnClick="@LogoutAsync">
+        <MudNavLink Class="sidebar-link" OnClick="@LogoutAsync">
             Logout
         </MudNavLink>
     </MudCardContent>
@@ -123,9 +124,7 @@
             await LocalStorage.RemoveItemAsync("authToken");
             await LocalStorage.RemoveItemAsync("AdminId");
 
-            var token = await LocalStorage.GetItemAsync("authToken");
-            var adminId = await LocalStorage.GetItemAsync("AdminId");
-            Console.WriteLine($"Post-logout - authToken: {token ?? "null"}, AdminId: {adminId ?? "null"}");
+            Console.WriteLine("Token cleared!");
 
             NavManager.NavigateTo("/login", true);
         }

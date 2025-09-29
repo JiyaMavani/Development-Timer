@@ -22,11 +22,12 @@
         text-decoration: none;
         font-weight: bold;
         font-size: 1.3em;
+        cursor: pointer;
     }
 
-        .sidebar-link:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
+    .sidebar-link:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
 
     .sidebar-title {
         font-size: 30px;
@@ -42,7 +43,7 @@
     <MudCardContent>
         <MudNavLink OnClick="@GoToTimeSheets" Class="sidebar-link">TimeSheets</MudNavLink>
         <MudNavLink OnClick="@GoToTimers" Class="sidebar-link">Timers</MudNavLink>
-        <MudNavLink Href="/login" Class="sidebar-link" OnClick="@LogoutAsync">Logout</MudNavLink>
+        <MudNavLink Class="sidebar-link" OnClick="@LogoutAsync">Logout</MudNavLink>
     </MudCardContent>
 </MudCard>
 
@@ -52,11 +53,11 @@
         try
         {
             await LocalStorage.RemoveItemAsync("authToken");
-            await LocalStorage.RemoveItemAsync("DeveloperId");
-            var token = await LocalStorage.GetItemAsync("authToken");
-            var developerId = await LocalStorage.GetItemAsync("DeveloperId");
-            Console.WriteLine($"Post-logout - authToken: {token ?? "null"}, DeveloperId: {developerId ?? "null"}");
-            NavManager.NavigateTo("/login", forceLoad: true);
+            await LocalStorage.RemoveItemAsync("AdminId");
+
+            Console.WriteLine("Token cleared!");
+
+            NavManager.NavigateTo("/login", true);
         }
         catch (Exception ex)
         {

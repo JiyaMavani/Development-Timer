@@ -5,14 +5,14 @@
 @if (!isChecked)
 {
     <MudProgressCircular Indeterminate="true" />
-    <p>Checking authentication...</p>
+    <MudContainer>Checking authentication...</MudContainer>
 }
 else if (isAuthorized)
 {
     <DeveloperSidebar />
-    <div style="margin-left: 20%; padding: 10px;">
+    <MudContainer style="margin-left: 20%; padding: 10px;">
         @Body
-    </div>
+    </MudContainer>
 }
 else
 {
@@ -24,9 +24,15 @@ else
     private bool isAuthorized = false;
     private bool isChecked = false;
 
+    private async void OnLocationChanged(object sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        await CheckAuthorizationAsync();
+        StateHasChanged();
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        NavManager.LocationChanged += async (sender, args) => await CheckAuthorizationAsync();
+        NavManager.LocationChanged += OnLocationChanged;
         await CheckAuthorizationAsync();
     }
 
@@ -48,11 +54,13 @@ else
         finally
         {
             isChecked = true;
+            StateHasChanged();
         }
     }
 
     public void Dispose()
     {
-        NavManager.LocationChanged -= async (sender, args) => await CheckAuthorizationAsync();
+        NavManager.LocationChanged -= OnLocationChanged;
     }
+
 }
