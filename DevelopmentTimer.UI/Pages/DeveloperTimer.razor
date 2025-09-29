@@ -109,9 +109,9 @@
         box-sizing: border-box;
     }
 
-    .custom-select option {
-        padding: 0.5rem;
-    }
+        .custom-select option {
+            padding: 0.5rem;
+        }
 
 
     .timer-container {
@@ -174,12 +174,15 @@
         <MudPaper Class="timer-container" Elevation="6" Style="padding:20px;">
             <MudText Typo="Typo.h5">Time Remaining: @TimeDisplay</MudText>
             <MudGrid Spacing="2" Class="mt-2">
-                <MudItem xs="6">
+                <MudItem xs="4">
                     <MudButton Variant="Variant.Filled" Class="btn btn-success" FullWidth="true" OnClick="@StartTimerAsync">Start Timer</MudButton>
+                
                     <MudButton Variant="Variant.Filled" Class="btn btn-danger" FullWidth="true" OnClick="@StopTimerAsync">Stop Timer</MudButton>
+         
                     <MudButton Variant="Variant.Filled" Class="btn btn-primary" FullWidth="true" OnClick="@CompleteTaskAsync">Complete</MudButton>
                 </MudItem>
-                <MudItem xs="6">
+                <br />
+                <MudItem xs="8">
                     @if (selectedTask != null && showExtensionButton && !showExtensionForm)
                     {
                         <MudButton Variant="Variant.Filled" Class="btn btn-success" FullWidth="true" OnClick="@RequestExtensionClicked">
@@ -207,12 +210,12 @@
                                 <MudTextField T="int" @bind-Value="extensionRequest.ExtraHours"
                                               Variant="Variant.Outlined" Size="Size.Small"
                                               Class="form-input match-select-width" />
-                                <MudItem xs="6">                                <MudButton ButtonType="ButtonType.Submit" Class="btn btn-success" Variant="Variant.Filled">Submit</MudButton>
-                                <MudButton Class="btn btn-danger" Variant="Variant.Text" OnClick="@CancelExtension">Cancel</MudButton>
+                                <MudItem xs="6">
+                                    <MudButton ButtonType="ButtonType.Submit" Class="btn btn-success" Variant="Variant.Filled">Submit</MudButton>
+                                    <MudButton Class="btn btn-danger" Variant="Variant.Text" OnClick="@CancelExtension">Cancel</MudButton>
                                 </MudItem>
                             </MudStack>
                         </EditForm>
-
                     </MudPaper>
                 </MudContainer>
             }
@@ -240,7 +243,7 @@
         developerProjects = await Http.GetFromJsonAsync<List<ProjectReadDto>>($"https://localhost:7152/api/Project/developer/{DeveloperId}");
 
         hubConnection = new HubConnectionBuilder()
-            .WithUrl("https://localhost:7152/timerhub?devId=" + DeveloperId) 
+            .WithUrl("https://localhost:7152/timerhub?devId=" + DeveloperId)
             .WithAutomaticReconnect()
             .Build();
 
@@ -252,7 +255,7 @@
                 var ts = TimeSpan.Parse(time);
                 remainingMinutes = ts.TotalMinutes;
 
-                var thresholdMinutes = selectedTask.NotificationThresholdMinutes.Hour * 60 + selectedTask.NotificationThresholdMinutes.Minute;
+                var thresholdMinutes = selectedTask.NotificationThresholdMinutes.Hours * 60 + selectedTask.NotificationThresholdMinutes.Minutes;
                 showExtensionButton = remainingMinutes <= thresholdMinutes;
 
                 InvokeAsync(StateHasChanged);
@@ -302,10 +305,10 @@
                     DeveloperId = DeveloperId,
                     ProjectId = selectedProject.Id,
                     Date = DateTime.Now,
-                    NotificationThresholdMinutes = new TimeOnly(0, 30),
+                    NotificationThresholdMinutes = TimeSpan.FromMinutes(58),
                     isApproved = false,
                     Status = Status.NotStarted,
-                    TotalHours = 0,
+                    TotalHours = TimeSpan.FromHours(0), 
                     isReadonly = true
                 };
                 selectedTask = null;
@@ -345,7 +348,7 @@
         }
 
         taskItem.ProjectId = selectedProject.Id;
-        taskItem.TotalHours = taskItem.EstimatedHours;
+        taskItem.TotalHours = TimeSpan.FromHours(taskItem.EstimatedHours);  
 
         try
         {
@@ -376,15 +379,14 @@
     {
         if (hubConnection.State == HubConnectionState.Connected && selectedTask != null)
         {
-
             double startMinutes = remainingMinutes > 0 ? remainingMinutes : selectedTask.EstimatedHours * 60;
 
             await hubConnection.InvokeAsync(
                 "StartTimer",
                 DeveloperId,
                 startMinutes,
-                selectedTask.NotificationThresholdMinutes.Hour * 60 +
-                selectedTask.NotificationThresholdMinutes.Minute
+                selectedTask.NotificationThresholdMinutes.Hours * 60 +
+                selectedTask.NotificationThresholdMinutes.Minutes
             );
         }
     }
@@ -396,7 +398,6 @@
             await hubConnection.InvokeAsync("StopTimer", DeveloperId);
         }
     }
-
 
     private async Task RequestExtensionClicked()
     {
@@ -431,7 +432,7 @@
 
             if (response.IsSuccessStatusCode)
             {
-                selectedTask.TotalHours += extensionRequest.ExtraHours;
+                selectedTask.TotalHours += TimeSpan.FromHours(extensionRequest.ExtraHours); 
                 remainingMinutes += extensionRequest.ExtraHours * 60;
 
                 if (hubConnection.State == HubConnectionState.Connected)
@@ -465,13 +466,12 @@
         if (!TimeSpan.TryParse(TimeDisplay, out TimeSpan remaining))
             remaining = TimeSpan.Zero;
 
-        var totalAssignedMinutes = (selectedTask.EstimatedHours + (selectedTask.TotalHours - selectedTask.EstimatedHours)) * 60;
+        var totalAssignedMinutes = (selectedTask.EstimatedHours + (int)(selectedTask.TotalHours.TotalHours - selectedTask.EstimatedHours)) * 60;
 
         var spentMinutes = totalAssignedMinutes - remaining.TotalMinutes;
         if (spentMinutes < 0) spentMinutes = 0;
 
-        var actualHours = (int)Math.Ceiling(spentMinutes / 60.0);
-
+        var actualHours = TimeSpan.FromMinutes(spentMinutes); 
         var response = await Http.PutAsync(
             $"https://localhost:7152/api/TaskItem/{selectedTask.Id}/complete?actualHours={actualHours}",
             null);
@@ -492,5 +492,3 @@
         }
     }
 }
-
-

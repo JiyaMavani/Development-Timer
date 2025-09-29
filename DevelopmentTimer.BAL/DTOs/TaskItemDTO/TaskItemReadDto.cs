@@ -6,13 +6,13 @@
         public string Title { get; set; }
         public string Description { get; set; }
         public int EstimatedHours { get; set; }
-        public int TotalHours { get; set; }   
+        public TimeSpan TotalHours { get; set; }   
         public string Status { get; set; }    
         public int ProjectId { get; set; }
         public int DeveloperId { get; set; }
         public bool isApproved { get; set; } 
         public DateTime? Date { get; set; }    
-        public TimeOnly NotificationThresholdMinutes { get; set; } 
+        public TimeSpan NotificationThresholdMinutes { get; set; } 
         public bool isReadOnly {  get; set; }
     }
 }

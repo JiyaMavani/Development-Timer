@@ -4,6 +4,7 @@ using DevelopmentTimer.DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DevelopmentTimer.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250929061154_ChangeTotalHoursToTimeSpan")]
+    partial class ChangeTotalHoursToTimeSpan
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -141,7 +144,7 @@ namespace DevelopmentTimer.DAL.Migrations
                     b.Property<int>("EstimatedHours")
                         .HasColumnType("int");
 
-                    b.Property<TimeSpan>("NotificationThresholdMinutes")
+                    b.Property<TimeOnly>("NotificationThresholdMinutes")
                         .HasColumnType("time");
 
                     b.Property<int>("ProjectId")
@@ -180,7 +183,7 @@ namespace DevelopmentTimer.DAL.Migrations
                             Description = "This is the login page creation task with detailed description",
                             DeveloperId = 2,
                             EstimatedHours = 2,
-                            NotificationThresholdMinutes = new TimeSpan(0, 0, 10, 0, 0),
+                            NotificationThresholdMinutes = new TimeOnly(0, 10, 0),
                             ProjectId = 1,
                             Status = "InProgress",
                             Title = "Login Page",
@@ -195,7 +198,7 @@ namespace DevelopmentTimer.DAL.Migrations
                             Description = "Develop the register page including email verification, password rules validation, and linking it with the database for new users.",
                             DeveloperId = 2,
                             EstimatedHours = 3,
-                            NotificationThresholdMinutes = new TimeSpan(0, 0, 45, 0, 0),
+                            NotificationThresholdMinutes = new TimeOnly(0, 45, 0),
                             ProjectId = 1,
                             Status = "Completed",
                             Title = "Register Page",
@@ -210,7 +213,7 @@ namespace DevelopmentTimer.DAL.Migrations
                             Description = "Implement dashboard UI to display project status, active tasks, and progress reports using charts and grids for better user insights.",
                             DeveloperId = 3,
                             EstimatedHours = 3,
-                            NotificationThresholdMinutes = new TimeSpan(0, 0, 30, 0, 0),
+                            NotificationThresholdMinutes = new TimeOnly(0, 30, 0),
                             ProjectId = 2,
                             Status = "Pending",
                             Title = "Dashboard",
@@ -225,7 +228,7 @@ namespace DevelopmentTimer.DAL.Migrations
                             Description = "Design and build profile page where users can update details, change password, and manage their personal settings securely.",
                             DeveloperId = 3,
                             EstimatedHours = 4,
-                            NotificationThresholdMinutes = new TimeSpan(0, 0, 15, 0, 0),
+                            NotificationThresholdMinutes = new TimeOnly(0, 15, 0),
                             ProjectId = 2,
                             Status = "InProgress",
                             Title = "Profile Page",

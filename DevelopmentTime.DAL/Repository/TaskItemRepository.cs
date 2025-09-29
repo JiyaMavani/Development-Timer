@@ -21,15 +21,17 @@ namespace DevelopmentTimer.DAL.Repository
 
         public async Task<bool> AddAsync(TaskItem taskItem)
         {
-            var existingTaskItem = await appDbContext.TaskItems
+            if (taskItem.TotalHours == default)
+            {
+                taskItem.TotalHours = TimeSpan.FromHours(taskItem.EstimatedHours);
+            }
+
+            var exists = await appDbContext.TaskItems
                 .AnyAsync(t => t.ProjectId == taskItem.ProjectId
                             && t.Title.ToLower() == taskItem.Title.ToLower()
                             && t.DeveloperId == taskItem.DeveloperId);
 
-            if (existingTaskItem)
-            {
-                return false;
-            }
+            if (exists) return false;
 
             await appDbContext.TaskItems.AddAsync(taskItem);
             await appDbContext.SaveChangesAsync();
@@ -38,10 +40,10 @@ namespace DevelopmentTimer.DAL.Repository
 
         public async Task DeleteAsync(int id)
         {
-            var existingTaskItem = await appDbContext.TaskItems.FindAsync(id);
-            if (existingTaskItem != null)
+            var existing = await appDbContext.TaskItems.FindAsync(id);
+            if (existing != null)
             {
-                appDbContext.TaskItems.Remove(existingTaskItem);
+                appDbContext.TaskItems.Remove(existing);
                 await appDbContext.SaveChangesAsync();
             }
         }
@@ -55,38 +57,39 @@ namespace DevelopmentTimer.DAL.Repository
 
         public async Task<TaskItem?> GetByIdAsync(int id)
         {
-            var taskItems = await appDbContext.TaskItems
+            var list = await appDbContext.TaskItems
                 .FromSqlInterpolated($"EXEC sp_GetTaskItemById @Id={id}")
                 .ToListAsync();
 
-            return taskItems.FirstOrDefault();
+            return list.FirstOrDefault();
         }
 
-        public async Task<List<TaskItem>> GetByTitleAsync(string Title)
+        public async Task<List<TaskItem>> GetByTitleAsync(string title)
         {
             return await appDbContext.TaskItems
-                .FromSqlInterpolated($"EXEC sp_GetTaskItemsByTitle @Title={Title}")
+                .FromSqlInterpolated($"EXEC sp_GetTaskItemsByTitle @Title={title}")
                 .ToListAsync();
         }
 
-        public async Task<List<TaskItem>> GetByDescriptionAsync(string Description)
+        public async Task<List<TaskItem>> GetByDescriptionAsync(string description)
         {
             return await appDbContext.TaskItems
-                .FromSqlInterpolated($"EXEC sp_GetTaskItemsByDescription @Description={Description}")
+                .FromSqlInterpolated($"EXEC sp_GetTaskItemsByDescription @Description={description}")
                 .ToListAsync();
         }
 
-        public async Task<List<TaskItem>> GetByEstimatedHoursAsync(int EstimatedHours)
+        public async Task<List<TaskItem>> GetByEstimatedHoursAsync(int estimatedHours)
         {
             return await appDbContext.TaskItems
-                .FromSqlInterpolated($"EXEC sp_GetTaskItemsByEstimatedHours @EstimatedHours={EstimatedHours}")
+                .FromSqlInterpolated($"EXEC sp_GetTaskItemsByEstimatedHours @EstimatedHours={estimatedHours}")
                 .ToListAsync();
         }
 
-        public async Task<List<TaskItem>> GetByTotalHoursAsync(int totalHours)
+        public async Task<List<TaskItem>> GetByTotalHoursAsync(TimeSpan totalHours)
         {
+            string totalHoursString = totalHours.ToString(@"hh\:mm\:ss");
             return await appDbContext.TaskItems
-                .FromSqlInterpolated($"EXEC sp_GetTaskItemsByTotalHours @TotalHours={totalHours}")
+                .FromSqlInterpolated($"EXEC sp_GetTaskItemsByTotalHours @TotalHours={totalHoursString}")
                 .ToListAsync();
         }
 
@@ -97,17 +100,17 @@ namespace DevelopmentTimer.DAL.Repository
                 .ToListAsync();
         }
 
-        public async Task<List<TaskItem>> GetByProjectIdAsync(int ProjectId)
+        public async Task<List<TaskItem>> GetByProjectIdAsync(int projectId)
         {
             return await appDbContext.TaskItems
-                .FromSqlInterpolated($"EXEC sp_GetTaskItemsByProjectId @ProjectId={ProjectId}")
+                .FromSqlInterpolated($"EXEC sp_GetTaskItemsByProjectId @ProjectId={projectId}")
                 .ToListAsync();
         }
 
-        public async Task<List<TaskItem>> GetByDeveloperIdAsync(int DeveloperId)
+        public async Task<List<TaskItem>> GetByDeveloperIdAsync(int developerId)
         {
             return await appDbContext.TaskItems
-                .FromSqlInterpolated($"EXEC sp_GetTaskItemsByDeveloperId @DeveloperId={DeveloperId}")
+                .FromSqlInterpolated($"EXEC sp_GetTaskItemsByDeveloperId @DeveloperId={developerId}")
                 .ToListAsync();
         }
 
@@ -120,13 +123,13 @@ namespace DevelopmentTimer.DAL.Repository
 
         public async Task<List<TaskItem>> GetByDateAsync(DateTime date)
         {
-            string dateParam = date.ToString("yyyy-MM-dd"); 
+            string dateParam = date.ToString("yyyy-MM-dd");
             return await appDbContext.TaskItems
                 .FromSqlInterpolated($"EXEC sp_GetTaskItemsByDate @Date={dateParam}")
                 .ToListAsync();
         }
 
-        public async Task<List<TaskItem>> GetByNotificationThresholdMinutesAsync(TimeOnly threshold)
+        public async Task<List<TaskItem>> GetByNotificationThresholdMinutesAsync(TimeSpan threshold)
         {
             return await appDbContext.TaskItems
                 .FromSqlInterpolated($"EXEC sp_GetTaskItemsByNotificationThresholdMinutes @NotificationThresholdMinutes={threshold}")
@@ -135,26 +138,32 @@ namespace DevelopmentTimer.DAL.Repository
 
         public async Task<bool> UpdateAsync(TaskItem taskItem)
         {
-            var existingTaskItem = await appDbContext.TaskItems.FindAsync(taskItem.Id);
-            if (existingTaskItem == null)
-                return false;
+            var existing = await appDbContext.TaskItems.FindAsync(taskItem.Id);
+            if (existing == null) return false;
 
-            existingTaskItem.isApproved = taskItem.isApproved;
-            appDbContext.TaskItems.Update(existingTaskItem);
-            await appDbContext.SaveChangesAsync();
-            return true;
+            existing.Title = taskItem.Title;
+            existing.Description = taskItem.Description;
+            existing.EstimatedHours = taskItem.EstimatedHours;
+            existing.TotalHours = taskItem.TotalHours;
+            existing.Status = taskItem.Status;
+            existing.isApproved = taskItem.isApproved;
+            existing.Date = taskItem.Date;
+            existing.NotificationThresholdMinutes = taskItem.NotificationThresholdMinutes;
+
+            appDbContext.TaskItems.Update(existing);
+            var saved = await appDbContext.SaveChangesAsync();
+            return saved > 0;
         }
 
-        public async Task<bool> UpdateCompletionAsync(int id, int totalHours)
+        public async Task<bool> UpdateCompletionAsync(int id, TimeSpan totalHours)
         {
-            var existingTaskItem = await appDbContext.TaskItems.FindAsync(id);
-            if (existingTaskItem == null)
-                return false;
+            var existing = await appDbContext.TaskItems.FindAsync(id);
+            if (existing == null) return false;
 
-            existingTaskItem.TotalHours = totalHours;
-            existingTaskItem.Status = Status.Completed;
+            existing.TotalHours = totalHours;
+            existing.Status = Status.Completed;
 
-            appDbContext.TaskItems.Update(existingTaskItem);
+            appDbContext.TaskItems.Update(existing);
             var saved = await appDbContext.SaveChangesAsync();
             return saved > 0;
         }

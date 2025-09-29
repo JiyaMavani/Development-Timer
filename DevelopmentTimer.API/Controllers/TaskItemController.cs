@@ -61,10 +61,10 @@ namespace DevelopmentTimer.API.Controllers
         }
 
         [HttpGet("totalHours/{totalHours}")]
-        public async Task<ActionResult<List<TaskItemReadDto>>> GetTaskItemsByTotalHours(int totalHours)
+        public async Task<ActionResult<List<TaskItemReadDto>>> GetTaskItemsByTotalHours(TimeSpan totalHours)
         {
             var taskItems = await taskItemManager.GetByTaskItemTotalHoursAsync(totalHours);
-            if (taskItems == null || !taskItems.Any()) return NotFound($"TaskItems with TotalHours = {totalHours} not found");
+            if (!taskItems.Any()) return NotFound($"TaskItems with TotalHours = {totalHours} not found");
             return Ok(taskItems);
         }
 
@@ -111,7 +111,7 @@ namespace DevelopmentTimer.API.Controllers
         }
 
         [HttpGet("notificationThreshold/{threshold}")]
-        public async Task<ActionResult<List<TaskItemReadDto>>> GetTaskItemsByNotificationThreshold(TimeOnly threshold)
+        public async Task<ActionResult<List<TaskItemReadDto>>> GetTaskItemsByNotificationThreshold(TimeSpan threshold)
         {
             var taskItems = await taskItemManager.GetByTaskItemNotificationThresholdMinutesAsync(threshold);
             if (taskItems == null || !taskItems.Any()) return NotFound($"No TaskItems with NotificationThresholdMinutes = {threshold} is found");
@@ -135,7 +135,6 @@ namespace DevelopmentTimer.API.Controllers
                 return StatusCode(500, $"Unexpected error: {ex.Message}");
             }
         }
-
 
         [HttpPut("{id}/approve")]
         public async Task<ActionResult> ApproveTaskItem(int id)
@@ -173,7 +172,7 @@ namespace DevelopmentTimer.API.Controllers
         }
 
         [HttpPut("{id}/complete")]
-        public async Task<ActionResult> CompleteTaskItem(int id, [FromQuery] int actualHours)
+        public async Task<ActionResult> CompleteTaskItem(int id, [FromQuery] TimeSpan actualHours)
         {
             try
             {
@@ -188,6 +187,5 @@ namespace DevelopmentTimer.API.Controllers
                 return BadRequest($"Error completing task: {ex.Message}");
             }
         }
-
     }
 }

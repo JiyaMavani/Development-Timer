@@ -25,7 +25,7 @@ namespace DevelopmentTimer.DAL.Entities
 
         [Required(ErrorMessage = "Please enter the hours")]
         public int EstimatedHours { get; set; }
-        public int TotalHours {  get; set; }
+        public TimeSpan TotalHours {  get; set; }
 
         [Required(ErrorMessage = "Please enter the task status")]
         public Status Status { get; set; }
@@ -42,7 +42,7 @@ namespace DevelopmentTimer.DAL.Entities
         [Required(ErrorMessage = "Date field is required")]
         public DateTime? Date {  get; set; }
         [Required(ErrorMessage = "Notification Threshold field is required")]
-        public TimeOnly NotificationThresholdMinutes { get; set; }
+        public TimeSpan NotificationThresholdMinutes { get; set; }
         public bool isReadonly { get; set; } = true;
         public ICollection<ExtensionsRequest> ExtensionRequests { get; set; } = new List<ExtensionsRequest>();
     }

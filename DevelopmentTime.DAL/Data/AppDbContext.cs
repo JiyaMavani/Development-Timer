@@ -75,13 +75,13 @@ namespace DevelopmentTimer.DAL.Data
                     Title = "Login Page",
                     Description = "This is the login page creation task with detailed description",
                     EstimatedHours = 2,
-                    TotalHours = 2,
+                    TotalHours = TimeSpan.FromHours(2),
                     Status = Status.InProgress,
                     ProjectId = 1,
                     DeveloperId = 2,
                     isApproved = false,
                     Date = new DateTime(2025, 9, 19),
-                    NotificationThresholdMinutes = new TimeOnly(0, 10)
+                    NotificationThresholdMinutes = TimeSpan.FromMinutes(10)
                 },
                 new TaskItem
                 {
@@ -89,13 +89,13 @@ namespace DevelopmentTimer.DAL.Data
                     Title = "Register Page",
                     Description = "Develop the register page including email verification, password rules validation, and linking it with the database for new users.",
                     EstimatedHours = 3,
-                    TotalHours = 3,
+                    TotalHours = TimeSpan.FromHours(3),
                     Status = Status.Completed,
                     ProjectId = 1,
                     DeveloperId = 2,
                     isApproved = true,
                     Date = new DateTime(2025, 9, 18),
-                    NotificationThresholdMinutes = new TimeOnly(0, 45)
+                    NotificationThresholdMinutes = TimeSpan.FromMinutes(45)
                 },
                 new TaskItem
                 {
@@ -103,13 +103,13 @@ namespace DevelopmentTimer.DAL.Data
                     Title = "Dashboard",
                     Description = "Implement dashboard UI to display project status, active tasks, and progress reports using charts and grids for better user insights.",
                     EstimatedHours = 3,
-                    TotalHours = 3,
+                    TotalHours = TimeSpan.FromHours(3),
                     Status = Status.Pending,
                     ProjectId = 2,
                     DeveloperId = 3,
                     isApproved = false,
                     Date = new DateTime(2025, 9, 20),
-                    NotificationThresholdMinutes = new TimeOnly(0, 30) 
+                    NotificationThresholdMinutes = TimeSpan.FromMinutes(30)
                 },
                 new TaskItem
                 {
@@ -117,13 +117,13 @@ namespace DevelopmentTimer.DAL.Data
                     Title = "Profile Page",
                     Description = "Design and build profile page where users can update details, change password, and manage their personal settings securely.",
                     EstimatedHours = 4,
-                    TotalHours = 4,
+                    TotalHours = TimeSpan.FromHours(4),
                     Status = Status.InProgress,
                     ProjectId = 2,
                     DeveloperId = 3,
                     isApproved = false,
                     Date = new DateTime(2025, 9, 21),
-                    NotificationThresholdMinutes = new TimeOnly(0, 15) 
+                    NotificationThresholdMinutes = TimeSpan.FromMinutes(15)
                 }
             );
 

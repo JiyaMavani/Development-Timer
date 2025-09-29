@@ -31,7 +31,7 @@ namespace DevelopmentTimer.BAL.Managers
                 Title = taskItemCreateDto.Title,
                 Description = taskItemCreateDto.Description,
                 EstimatedHours = taskItemCreateDto.EstimatedHours,
-                TotalHours = taskItemCreateDto.TotalHours,
+                TotalHours = taskItemCreateDto.TotalHours ?? TimeSpan.FromHours(taskItemCreateDto.EstimatedHours), 
                 Status = taskItemCreateDto.Status,
                 ProjectId = taskItemCreateDto.ProjectId,
                 DeveloperId = taskItemCreateDto.DeveloperId,
@@ -40,7 +40,6 @@ namespace DevelopmentTimer.BAL.Managers
                 Date = taskItemCreateDto.Date,
                 NotificationThresholdMinutes = taskItemCreateDto.NotificationThresholdMinutes
             };
-
 
             await taskItemRepository.AddAsync(taskItem);
             return new TaskItemReadDto
@@ -169,7 +168,7 @@ namespace DevelopmentTimer.BAL.Managers
             }).ToList();
         }
 
-        public async Task<List<TaskItemReadDto>> GetByTaskItemTotalHoursAsync(int TotalHours)
+        public async Task<List<TaskItemReadDto>> GetByTaskItemTotalHoursAsync(TimeSpan TotalHours)
         {
             var taskitems = await taskItemRepository.GetByTotalHoursAsync(TotalHours);
             return taskitems.Select(taskitem => new TaskItemReadDto
@@ -283,8 +282,7 @@ namespace DevelopmentTimer.BAL.Managers
             }).ToList();
         }
 
-
-        public async Task<List<TaskItemReadDto>> GetByTaskItemNotificationThresholdMinutesAsync(TimeOnly threshold)
+        public async Task<List<TaskItemReadDto>> GetByTaskItemNotificationThresholdMinutesAsync(TimeSpan threshold)
         {
             var taskitems = await taskItemRepository.GetByNotificationThresholdMinutesAsync(threshold);
             return taskitems.Select(taskitem => new TaskItemReadDto
@@ -302,6 +300,7 @@ namespace DevelopmentTimer.BAL.Managers
                 NotificationThresholdMinutes = taskitem.NotificationThresholdMinutes
             }).ToList();
         }
+
         public async Task<bool> UpdateTaskItemAsync(TaskItemReadDto taskItemReadDto)
         {
             var existingTaskItem = await taskItemRepository.GetByIdAsync(taskItemReadDto.Id);
@@ -314,7 +313,7 @@ namespace DevelopmentTimer.BAL.Managers
             return true;
         }
 
-        public async Task<bool> CompleteTaskItemAsync(int id, int actualHours)
+        public async Task<bool> CompleteTaskItemAsync(int id, TimeSpan actualHours)
         {
             return await taskItemRepository.UpdateCompletionAsync(id, actualHours);
         }

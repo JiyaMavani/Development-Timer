@@ -13,17 +13,17 @@ namespace DevelopmentTimer.BAL.Interfaces
         Task<List<TaskItemReadDto>> GetByTaskItemTitleAsync(string Title);
         Task<List<TaskItemReadDto>> GetByTaskItemDescriptionAsync(string Description);
         Task<List<TaskItemReadDto>> GetByTaskItemEstimatedHoursAsync(int EstimatedHours);
-        Task<List<TaskItemReadDto>> GetByTaskItemTotalHoursAsync(int TotalHours);
+        Task<List<TaskItemReadDto>> GetByTaskItemTotalHoursAsync(TimeSpan TotalHours);
         Task<List<TaskItemReadDto>> GetByTaskItemStatusAsync(Status status);
         Task<List<TaskItemReadDto>> GetByTaskItemProjectIdAsync(int ProjectId);
         Task<List<TaskItemReadDto>> GetByTaskItemDeveloperIdAsync(int DeveloperId);
         Task<List<TaskItemReadDto>> GetByTaskItemisApprovedAsync(bool isApproved);
         Task<List<TaskItemReadDto>> GetByTaskItemDateAsync(DateTime date);
-        Task<List<TaskItemReadDto>> GetByTaskItemNotificationThresholdMinutesAsync(TimeOnly threshold);
+        Task<List<TaskItemReadDto>> GetByTaskItemNotificationThresholdMinutesAsync(TimeSpan threshold);
 
         Task<TaskItemReadDto?> CreateTaskItemAsync(TaskItemCreateDto taskItemCreateDto);
         Task<bool> UpdateTaskItemAsync(TaskItemReadDto taskItemReadDto);
-        Task<bool> CompleteTaskItemAsync(int id, int actualHours);
+        Task<bool> CompleteTaskItemAsync(int id, TimeSpan actualHours);
         Task<bool> DeleteTaskItemAsync(int id);
     }
 }

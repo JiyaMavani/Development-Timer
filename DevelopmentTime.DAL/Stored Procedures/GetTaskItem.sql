@@ -31,12 +31,13 @@ END
 GO
 
 CREATE PROCEDURE sp_GetTaskItemsByTotalHours
-    @TotalHours INT
+    @TotalHours TIME
 AS
 BEGIN
     SELECT * FROM TaskItems WHERE TotalHours = @TotalHours;
 END
 GO
+
 
 CREATE PROCEDURE sp_GetTaskItemsByStatus
     @Status INT
