@@ -132,6 +132,81 @@
         vertical-align: middle;
     }
 
+    .custom-pager {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 15px;
+        gap: 5px;
+        font-size: 0.9rem;
+    }
+
+    .custom-pager .mud-button-root {
+        background-color: #1976d2;
+        color: white;
+        border-radius: 5px;
+        min-width: 35px;
+        min-height: 35px;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .custom-pager .mud-button-root:hover {
+        background-color: #115293;
+        transform: scale(1.05);
+    }
+
+
+    .custom-pager .mud-select {
+        min-width: 60px;
+    }
+
+    .custom-pager .mud-button-root.mud-selected {
+        background-color: #4caf50;
+        color: white;
+        font-weight: bold;
+    }
+
+    .mud-button-root {
+        border: 2px solid black;
+    }
+
+    .custom-pagerange, .custom-rowsperpage {
+        margin: 15px 10px;
+    }
+
+    .custom-pager .mud-button-root.mud-icon-button {
+        background-color: #1976d2;
+        color: white;
+        border-radius: 50%;
+        min-width: 35px;
+        min-height: 35px;
+    }
+
+    .custom-pager .mud-button-root.mud-icon-button:hover {
+        background-color: #115293;
+        transform: scale(1.1);
+    }
+
+    .custom-dropdown {
+        padding: 4px 8px;
+        font-size: 0.9rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #fff;
+        color: #212121;
+        outline: none;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .custom-dropdown:hover {
+        border-color: #1976d2;
+    }
+
+    .custom-dropdown:focus {
+        border-color: #1976d2;
+        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+    }
+
     @@media (max-width: 768px) {
         .custom-table .table-header {
             font-size: 1.2rem;
@@ -159,6 +234,11 @@
 
         .project-date .mud-input-root {
             max-width: 150px;
+        }
+
+        .custom-dropdown {
+            padding: 3px 6px;
+            font-size: 0.8rem;
         }
     }
 
@@ -200,6 +280,12 @@
             flex: 0 0 100%;
             width: 100%;
         }
+
+        .custom-dropdown {
+            padding: 2px 4px;
+            font-size: 0.7rem;
+        }
+        
     }
 </style>
 
@@ -223,7 +309,7 @@
         <span class="icon-label">Pending Approvals</span>
     </MudIcon>
 
-    <MudButton Variant="Variant.Filled" Class="btn btn-success project-search-button" OnClick="@Search">
+    <MudButton Variant="Variant.Filled" Class="btn btn-success border-0 project-search-button" OnClick="@Search">
         Search
     </MudButton>
 </MudCard>
@@ -235,15 +321,15 @@
     }
     else
     {
-        <MudTable T="TaskItemReadDto" Items="@taskItems" Hover="true" Bordered="true" Striped="true" Class="custom-table">
+        <MudTable T="TaskItemReadDto" Items="@PagedTaskItems" Hover="true" Bordered="true" Striped="true" Class="custom-table">
             <HeaderContent>
-                <MudTh Class="table-header">Developer</MudTh>
-                <MudTh Class="table-header">Title</MudTh>
-                <MudTh Class="table-header">Total Hours</MudTh>
-                <MudTh Class="table-header">Status</MudTh>
-                <MudTh Class="table-header">Date</MudTh>
-                <MudTh Class="table-header">isApproved</MudTh>
-                <MudTh Class="table-header">Action</MudTh>
+                <MudTh Class="table-header" @onclick="@(() => Sort("Developer"))">Developer</MudTh>
+                <MudTh Class="table-header" @onclick="@(() => Sort("Title"))">Title</MudTh>
+                <MudTh Class="table-header" @onclick="@(() => Sort("TotalHours"))">Total Hours</MudTh>
+                <MudTh Class="table-header" @onclick="@(() => Sort("Status"))">Status</MudTh>
+                <MudTh Class="table-header" @onclick="@(() => Sort("Date"))">Date</MudTh>
+                <MudTh Class="table-header" @onclick="@(() => Sort("isApproved"))">isApproved</MudTh>
+                <MudTh Class="table-header" @onclick="@(() => Sort("Action"))">Action</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd Class="table-cell">
@@ -266,7 +352,7 @@
                 <MudTd Class="table-cell">
                     @if (!context.isApproved)
                     {
-                        <MudButton Class="btn btn-success" Variant="Variant.Filled" OnClick="@(() => ApproveTask(context))">
+                        <MudButton Class="btn btn-success border-0" Variant="Variant.Filled" OnClick="@(() => ApproveTask(context))">
                             Approve
                         </MudButton>
                     }
@@ -277,7 +363,22 @@
                 </MudTd>
             </RowTemplate>
         </MudTable>
+        <MudContainer class="custom-pager">
+        <MudButton Class="mud-button-root" Variant="Variant.Filled" OnClick="() => CurrentPage = 1" Disabled="@(CurrentPage == 1)">First</MudButton>
+        <MudButton Class="mud-button-root" Variant="Variant.Filled" OnClick="() => CurrentPage--" Disabled="@(CurrentPage == 1)">Previous</MudButton>
+        <MudText Class="custom-pagerange">@GetPageRange()</MudText>
+        <MudButton Class="mud-button-root" Variant="Variant.Filled" OnClick="() => CurrentPage++" Disabled="@(CurrentPage == TotalPages)">Next</MudButton>
+        <MudButton Class="mud-button-root" Variant="Variant.Filled" OnClick="() => CurrentPage = TotalPages" Disabled="@(CurrentPage == TotalPages)">Last</MudButton>
+        <MudText Class="custom-rowsperpage">Rows per page:</MudText>
+        <select class="custom-dropdown" @onchange="ChangeRowsPerPage">
+            <option value="5" selected="@(RowsPerPage == 5)">5</option>
+            <option value="10" selected="@(RowsPerPage == 10)">10</option>
+            <option value="20" selected="@(RowsPerPage == 20)">20</option>
+        </select>
+    </MudContainer>
     }
+
+
 </MudPaper>
 
 @code {
@@ -289,6 +390,19 @@
     private string selectedDateString;
     private string? errorMessage;
     private bool pendingOnly = false;
+
+    private string? sortedColumn;
+    private bool ascending = true;
+    private int CurrentPage = 1;
+    private int RowsPerPage = 5;
+
+    private List<TaskItemReadDto> PagedTaskItems => taskItems
+        .Skip((CurrentPage - 1) * RowsPerPage)
+        .Take(RowsPerPage)
+        .ToList();
+
+    private int TotalPages => (int)Math.Ceiling(taskItems.Count / (double)RowsPerPage);
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -375,5 +489,56 @@
         {
             errorMessage = $"Exception: {ex.Message}";
         }
+    }
+
+    private void Sort(string column)
+    {
+        if (sortedColumn == column)
+            ascending = !ascending;
+        else
+        {
+            sortedColumn = column;
+            ascending = true;
+        }
+
+        var sortedTaskItems = column switch
+        {
+            "Developer" => ascending
+                ? taskItems.OrderBy(t => developerNames.ContainsKey(t.DeveloperId) ? developerNames[t.DeveloperId] : "Unknown").ToList()
+                : taskItems.OrderByDescending(t => developerNames.ContainsKey(t.DeveloperId) ? developerNames[t.DeveloperId] : "Unknown").ToList(),
+            "Title" => ascending
+                ? taskItems.OrderBy(t => t.Title).ToList()
+                : taskItems.OrderByDescending(t => t.Title).ToList(),
+            "TotalHours" => ascending
+                ? taskItems.OrderBy(t => t.TotalHours).ToList()
+                : taskItems.OrderByDescending(t => t.TotalHours).ToList(),
+            "Status" => ascending
+                ? taskItems.OrderBy(t => t.Status).ToList()
+                : taskItems.OrderByDescending(t => t.Status).ToList(),
+            "Date" => ascending
+                ? taskItems.OrderBy(t => t.Date).ToList()
+                : taskItems.OrderByDescending(t => t.Date).ToList(),
+            "isApproved" => ascending
+                ? taskItems.OrderBy(t => t.isApproved).ToList()
+                : taskItems.OrderByDescending(t => t.isApproved).ToList(),
+            _ => taskItems.ToList()
+        };
+
+        taskItems = sortedTaskItems;
+        CurrentPage = 1;
+        StateHasChanged();
+    }
+
+    private string GetPageRange()
+    {
+        if (taskItems.Count == 0) return "0 of 0";
+        return $"{(CurrentPage - 1) * RowsPerPage + 1}-{Math.Min(CurrentPage * RowsPerPage, taskItems.Count)} of {taskItems.Count}";
+    }
+
+    private void ChangeRowsPerPage(ChangeEventArgs e)
+    {
+        RowsPerPage = int.Parse(e.Value.ToString());
+        CurrentPage = 1;
+        StateHasChanged();
     }
 }

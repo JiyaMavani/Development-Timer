@@ -12,21 +12,42 @@
         background-color: #263D42;
         padding: 20px;
         box-sizing: border-box;
+        margin: 0;
+        transition: width 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
     }
 
-    .sidebar-link {
-        color: white;
+    .sidebar-link,
+    .dropdown-link,
+    .mud-nav-link {
         display: block;
+        width: 100%;
+        text-align: left;
         padding: 12px 15px;
-        border-radius: 5px;
-        text-decoration: none;
+        color: white !important;
+        text-decoration: none !important;
         font-weight: bold;
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        border-radius: 5px;
+        box-sizing: border-box;
+        background: none !important;
         font-size: 1.3em;
-        cursor: pointer;
     }
 
-    .sidebar-link:hover {
-        background-color: rgba(255, 255, 255, 0.2);
+    .sidebar-link:hover,
+    .dropdown-link:hover,
+    .mud-nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+        color: white !important;
+        text-decoration: none !important;
     }
 
     .sidebar-title {
@@ -35,7 +56,238 @@
         color: grey;
         margin-bottom: 20px;
     }
+
+    .topbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        display: none;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #263D42;
+        padding: 0.625rem 1rem;
+        color: white;
+        margin: 0;
+        height: 50px;
+        z-index: 1000;
+        box-sizing: border-box;
+    }
+
+    .topbar-title {
+        margin: 0;
+        font-size: 1.2rem;
+    }
+
+    .hamburger {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 1.5625rem;
+        height: 1.25rem;
+        background: none;
+        border: none;
+        outline: none;
+        box-shadow: none;
+        cursor: pointer;
+        padding: 0;
+        margin-right: 0.625rem;
+        position: relative;
+    }
+
+    .hamburger .bar {
+        height: 0.15625rem;
+        width: 100%;
+        background-color: white !important;
+        border: none;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+        margin: 0.25rem 0;
+        display: block !important;
+        opacity: 1 !important;
+    }
+
+    .dropdown-menu {
+        width: 100%;
+        display: none;
+        flex-direction: column;
+        background-color: #263D42;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        margin: 0;
+        padding: 0;
+        max-height: 0;
+        border: none;
+        position: absolute;
+        top: 50px;
+        left: 0;
+        z-index: 999;
+    }
+
+    .dropdown-menu.show {
+        display: flex;
+        max-height: 300px;
+        margin-top: -8px;
+    }
+
+    @@media (max-width: 336px) {
+        .sidebar {
+            display: none;
+        }
+
+        .topbar {
+            display: flex;
+        }
+
+        .topbar-title {
+            font-size: 0.9rem;
+        }
+
+        .hamburger {
+            width: 1rem;
+            height: 0.8rem;
+        }
+
+        .hamburger .bar {
+            height: 0.1rem;
+            margin: 0.15rem 0;
+        }
+
+        .dropdown-link,
+        .mud-nav-link {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.7rem;
+        }
+
+    }
+
+    @@media (min-width: 337px) and (max-width: 576px) {
+        .sidebar {
+            display: none;
+        }
+
+        .topbar {
+            display: flex;
+        }
+
+        .topbar-title {
+            font-size: 1rem;
+        }
+
+        .hamburger {
+            width: 1.25rem;
+            height: 1rem;
+        }
+
+        .hamburger .bar {
+            height: 0.125rem;
+            margin: 0.1875rem 0;
+        }
+
+        .dropdown-link,
+        .mud-nav-link {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.9rem;
+        }
+
+    }
+
+    @@media (min-width: 577px) and (max-width: 776px) {
+        .sidebar {
+            width: 25%;
+            display: block !important;
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+        }
+
+        .sidebar-link,
+        .mud-nav-link {
+            font-size: 0.95em;
+            padding: 0.75rem 1rem;
+        }
+
+        .topbar {
+            display: none;
+        }
+
+    }
+
+    @@media (min-width: 777px) and (max-width: 992px) {
+        .sidebar {
+            width: 25%;
+        }
+
+        .sidebar-title {
+            font-size: 1.875rem;
+        }
+
+        .sidebar-link,
+        .mud-nav-link {
+            font-size: 1.1em;
+        }
+
+        .topbar {
+            display: none;
+        }
+
+    }
+
+    @@media (min-width: 993px) and (max-width: 1200px) {
+        .sidebar {
+            width: 22%;
+        }
+
+        .sidebar-title {
+            font-size: 2rem;
+        }
+
+        .sidebar-link,
+        .mud-nav-link {
+            font-size: 1.1em;
+        }
+
+        .topbar {
+            display: none;
+        }
+    }
+
+    @@media (min-width: 1201px) {
+        .sidebar {
+            width: 20%;
+        }
+
+        .sidebar-title {
+            font-size: 30px;
+        }
+
+        .sidebar-link,
+        .mud-nav-link {
+            font-size: 1.3em;
+            padding: 12px 15px;
+        }
+
+        .topbar {
+            display: none;
+        }
+    }
 </style>
+
+<MudContainer class="topbar" Style="max-width: 100%; padding: 0 10px;">
+    <MudText Typo="Typo.h6" Class="sidebar-title topbar-title">Developer Menu</MudText>
+    <MudButton Class="hamburger" @onclick="ToggleMenu" Style="border: none; outline: none; box-shadow: none; padding: 0;">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+    </MudButton>
+</MudContainer>
+
+<div class="dropdown-menu @(menuVisible ? "show" : "")">
+    <MudNavLink Class="dropdown-link" OnClick="@GoToTimeSheets">TimeSheets</MudNavLink>
+    <MudNavLink Class="dropdown-link" OnClick="@GoToTimers">Timers</MudNavLink>
+    <MudNavLink Class="dropdown-link" OnClick="@LogoutAsync">Logout</MudNavLink>
+</div>
 
 <MudCard class="sidebar">
     <MudText Typo="Typo.h6" Class="sidebar-title">Developer Menu</MudText>
@@ -48,15 +300,20 @@
 </MudCard>
 
 @code {
+    private bool menuVisible = false;
+
+    private void ToggleMenu()
+    {
+        menuVisible = !menuVisible;
+    }
+
     private async Task LogoutAsync()
     {
         try
         {
             await LocalStorage.RemoveItemAsync("authToken");
             await LocalStorage.RemoveItemAsync("AdminId");
-
             Console.WriteLine("Token cleared!");
-
             NavManager.NavigateTo("/login", true);
         }
         catch (Exception ex)
